@@ -10,15 +10,17 @@
 
 ## Environment Variables
 
-Your PhonePe credentials are stored in `.env.local`:
+Your PhonePe credentials should be stored in `.env.local` (this file is git-ignored):
 
 ```
-PHONEPE_CLIENT_ID=M232KBRZNKLFB_2511132047
-PHONEPE_CLIENT_SECRET=OGU5ZTEzOTEtZjFkMi00NGY5LWI4ZmEtMGYzMjRlYTUxOThh
+PHONEPE_CLIENT_ID=your_client_id_here
+PHONEPE_CLIENT_SECRET=your_client_secret_here
 PHONEPE_CLIENT_VERSION=1
 PHONEPE_MERCHANT_ID= (add when available)
 PHONEPE_ENVIRONMENT=UAT
 ```
+
+**Important**: Never commit `.env.local` to git. It's already in `.gitignore`.
 
 ## Next Steps
 
