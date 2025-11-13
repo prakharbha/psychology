@@ -59,10 +59,55 @@ export async function POST(request: NextRequest) {
         amount,
       });
 
-      // TODO: Process the callback based on callback type and state
-      // - Update order status in your database
-      // - Send notifications
-      // - Handle different states (PAYMENT_SUCCESS, PAYMENT_ERROR, etc.)
+      // Process the callback based on callback type and state
+      const stateUpper = state?.toUpperCase();
+      
+      // Handle payment success
+      if (stateUpper === 'PAYMENT_SUCCESS' || stateUpper === 'SUCCESS') {
+        // TODO: Update order status in database
+        // TODO: Send confirmation email
+        // TODO: Trigger fulfillment process
+        
+        // Send Telegram notification for successful payment
+        try {
+          const telegramMessage = `✅ *Payment Successful*\n\n` +
+            `📦 *Order ID:* ${merchantOrderId}\n` +
+            `💰 *Amount:* ₹${(amount / 100).toLocaleString('en-IN')}\n` +
+            `📱 *PhonePe Order ID:* ${callbackResponse.payload.orderId}\n` +
+            `\nPayment has been confirmed and order is ready for processing.`;
+          
+          await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.prakharpsychologicaltest.com'}/api/telegram/notify`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: telegramMessage }),
+          }).catch(err => console.error('Telegram notification failed:', err));
+        } catch (telegramError) {
+          console.error('Failed to send Telegram notification:', telegramError);
+        }
+      }
+      
+      // Handle payment failure
+      if (stateUpper === 'PAYMENT_ERROR' || stateUpper === 'FAILED' || stateUpper === 'ERROR') {
+        // TODO: Update order status in database
+        // TODO: Send failure notification
+        
+        // Send Telegram notification for failed payment
+        try {
+          const telegramMessage = `❌ *Payment Failed*\n\n` +
+            `📦 *Order ID:* ${merchantOrderId}\n` +
+            `💰 *Amount:* ₹${(amount / 100).toLocaleString('en-IN')}\n` +
+            `📱 *PhonePe Order ID:* ${callbackResponse.payload.orderId}\n` +
+            `\nPayment failed. Order requires attention.`;
+          
+          await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.prakharpsychologicaltest.com'}/api/telegram/notify`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: telegramMessage }),
+          }).catch(err => console.error('Telegram notification failed:', err));
+        } catch (telegramError) {
+          console.error('Failed to send Telegram notification:', telegramError);
+        }
+      }
 
       return NextResponse.json({ 
         success: true,
