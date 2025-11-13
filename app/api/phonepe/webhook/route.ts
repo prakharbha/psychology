@@ -60,10 +60,12 @@ export async function POST(request: NextRequest) {
       });
 
       // Process the callback based on callback type and state
+      // PhonePe states: PENDING, FAILED, COMPLETED (for orders)
+      // Webhook may also use PAYMENT_SUCCESS, PAYMENT_ERROR for callbacks
       const stateUpper = state?.toUpperCase();
       
-      // Handle payment success
-      if (stateUpper === 'PAYMENT_SUCCESS' || stateUpper === 'SUCCESS') {
+      // Handle payment success - check for both COMPLETED (order status) and PAYMENT_SUCCESS (webhook callback)
+      if (stateUpper === 'COMPLETED' || stateUpper === 'PAYMENT_SUCCESS' || stateUpper === 'SUCCESS') {
         // TODO: Update order status in database
         // TODO: Send confirmation email
         // TODO: Trigger fulfillment process
@@ -91,8 +93,8 @@ export async function POST(request: NextRequest) {
         }
       }
       
-      // Handle payment failure
-      if (stateUpper === 'PAYMENT_ERROR' || stateUpper === 'FAILED' || stateUpper === 'ERROR') {
+      // Handle payment failure - check for both FAILED (order status) and PAYMENT_ERROR (webhook callback)
+      if (stateUpper === 'FAILED' || stateUpper === 'PAYMENT_ERROR' || stateUpper === 'ERROR') {
         // TODO: Update order status in database
         // TODO: Send failure notification
         

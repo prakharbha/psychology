@@ -19,8 +19,8 @@ PHONEPE_CLIENT_VERSION=1
 PHONEPE_ENVIRONMENT=UAT
 
 # IMPORTANT: Use your production domain for these URLs
-PHONEPE_REDIRECT_URL_SUCCESS=https://www.prakharpsychologicaltest.com/payment/success
-PHONEPE_REDIRECT_URL_FAILURE=https://www.prakharpsychologicaltest.com/payment/failure
+PHONEPE_REDIRECT_URL_SUCCESS=https://www.prakharpsychologicaltest.com/order-status
+PHONEPE_REDIRECT_URL_FAILURE=https://www.prakharpsychologicaltest.com/order-status
 PHONEPE_WEBHOOK_URL=https://www.prakharpsychologicaltest.com/api/phonepe/webhook
 
 # Telegram Bot Configuration
@@ -46,8 +46,8 @@ PHONEPE_ENVIRONMENT=UAT
 
 # For local development, use localhost URLs
 # For production, these will be different (use your actual domain)
-PHONEPE_REDIRECT_URL_SUCCESS=http://localhost:3000/payment/success
-PHONEPE_REDIRECT_URL_FAILURE=http://localhost:3000/payment/failure
+PHONEPE_REDIRECT_URL_SUCCESS=http://localhost:3000/order-status
+PHONEPE_REDIRECT_URL_FAILURE=http://localhost:3000/order-status
 PHONEPE_WEBHOOK_URL=http://localhost:3000/api/phonepe/webhook
 
 # Telegram Bot Configuration

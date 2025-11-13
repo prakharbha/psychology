@@ -48,8 +48,8 @@ PHONEPE_MERCHANT_ID=your_merchant_id_here
 
 Update the redirect URLs in `.env.local` with your production domain:
 ```
-PHONEPE_REDIRECT_URL_SUCCESS=https://www.prakharpsychologicaltest.com/payment/success
-PHONEPE_REDIRECT_URL_FAILURE=https://www.prakharpsychologicaltest.com/payment/failure
+PHONEPE_REDIRECT_URL_SUCCESS=https://www.prakharpsychologicaltest.com/order-status
+PHONEPE_REDIRECT_URL_FAILURE=https://www.prakharpsychologicaltest.com/order-status
 PHONEPE_WEBHOOK_URL=https://www.prakharpsychologicaltest.com/api/phonepe/webhook
 ```
 
@@ -101,8 +101,7 @@ If not set, the system will use `PHONEPE_CLIENT_ID` and `PHONEPE_CLIENT_SECRET` 
 - `app/api/phonepe/initiate/route.ts` - Payment initiation API
 - `app/api/phonepe/webhook/route.ts` - Webhook handler
 - `app/api/phonepe/status/route.ts` - Order status check API
-- `app/payment/success/page.tsx` - Payment success page
-- `app/payment/failure/page.tsx` - Payment failure page
+- `app/order-status/page.tsx` - Unified order status page (handles success, failure, and pending)
 - `.env.local` - Environment variables (not in git)
 - `.env.example` - Example environment file template
 

@@ -58,8 +58,8 @@ export default function CheckoutPage() {
       // Use environment variables if available, otherwise construct from current origin
       const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
       // These will be used as fallback if env vars are not set
-      const redirectUrl = `${baseUrl}/payment/success?orderId=${orderId}`;
-      const failureUrl = `${baseUrl}/payment/failure?orderId=${orderId}`;
+      const redirectUrl = `${baseUrl}/order-status?orderId=${orderId}`;
+      const failureUrl = `${baseUrl}/order-status?orderId=${orderId}`;
 
       // Initiate PhonePe payment
       const paymentResponse = await fetch('/api/phonepe/initiate', {

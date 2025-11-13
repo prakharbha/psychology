@@ -2,11 +2,67 @@
 
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { Suspense } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 
 function OrderConfirmationContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get('orderId');
+  const [orderStatus, setOrderStatus] = useState<any>(null);
+  const [isLoadingStatus, setIsLoadingStatus] = useState(false);
+
+  useEffect(() => {
+    if (orderId) {
+      setIsLoadingStatus(true);
+      fetch(`/api/phonepe/status?orderId=${orderId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            setOrderStatus(data);
+          }
+          setIsLoadingStatus(false);
+        })
+        .catch(() => {
+          setIsLoadingStatus(false);
+        });
+    }
+  }, [orderId]);
+
+  const getStatusBadge = () => {
+    if (!orderStatus) {
+      // Default to pending if no status available
+      return (
+        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-yellow-100 text-yellow-800 border border-yellow-300">
+          Status: PENDING
+        </span>
+      );
+    }
+    
+    const state = orderStatus.state?.toUpperCase();
+    if (state === 'COMPLETED') {
+      return (
+        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-800 border border-green-300">
+          Status: COMPLETED
+        </span>
+      );
+    } else if (state === 'PENDING') {
+      return (
+        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-yellow-100 text-yellow-800 border border-yellow-300">
+          Status: PENDING
+        </span>
+      );
+    } else if (state === 'FAILED') {
+      return (
+        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-red-100 text-red-800 border border-red-300">
+          Status: FAILED
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-yellow-100 text-yellow-800 border border-yellow-300">
+        Status: PENDING
+      </span>
+    );
+  };
 
   return (
     <div className="bg-white py-12 px-4 sm:px-6 lg:px-8 min-h-[60vh] flex items-center justify-center">
@@ -36,6 +92,15 @@ function OrderConfirmationContent() {
               <p className="text-xl font-bold text-dark-blue-900">{orderId}</p>
             </div>
           )}
+          <div className="mb-6 p-4 bg-slate-50 rounded-xl border border-slate-200">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              {isLoadingStatus ? (
+                <p className="text-sm text-slate-600">Loading status...</p>
+              ) : (
+                getStatusBadge()
+              )}
+            </div>
+          </div>
           <p className="text-slate-600 mb-8">
             Thank you for your order! Our sales representative will be getting in touch with you shortly for payment through UPI QR code or Bank Transfer. We'll process your order once the payment is confirmed.
           </p>

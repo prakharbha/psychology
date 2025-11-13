@@ -2,12 +2,57 @@
 
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { Suspense } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 
 function PaymentFailureContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get('orderId');
   const error = searchParams.get('error');
+  const [orderStatus, setOrderStatus] = useState<any>(null);
+  const [isLoadingStatus, setIsLoadingStatus] = useState(false);
+
+  useEffect(() => {
+    if (orderId) {
+      setIsLoadingStatus(true);
+      fetch(`/api/phonepe/status?orderId=${orderId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            setOrderStatus(data);
+          }
+          setIsLoadingStatus(false);
+        })
+        .catch(() => {
+          setIsLoadingStatus(false);
+        });
+    }
+  }, [orderId]);
+
+  const getStatusBadge = () => {
+    if (!orderStatus) return null;
+    
+    const state = orderStatus.state?.toUpperCase();
+    if (state === 'COMPLETED') {
+      return (
+        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-800 border border-green-300">
+          Status: COMPLETED
+        </span>
+      );
+    } else if (state === 'PENDING') {
+      return (
+        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-yellow-100 text-yellow-800 border border-yellow-300">
+          Status: PENDING
+        </span>
+      );
+    } else if (state === 'FAILED') {
+      return (
+        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-red-100 text-red-800 border border-red-300">
+          Status: FAILED
+        </span>
+      );
+    }
+    return null;
+  };
 
   return (
     <div className="bg-white py-12 px-4 sm:px-6 lg:px-8 min-h-[60vh] flex items-center justify-center">
@@ -35,6 +80,18 @@ function PaymentFailureContent() {
             <div className="mb-6 p-4 bg-slate-50 rounded-xl border border-slate-200">
               <p className="text-sm text-slate-600 mb-1">Order ID</p>
               <p className="text-xl font-bold text-dark-blue-900">{orderId}</p>
+            </div>
+          )}
+          {orderStatus && (
+            <div className="mb-6 p-4 bg-slate-50 rounded-xl border border-slate-200">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                {getStatusBadge()}
+              </div>
+            </div>
+          )}
+          {isLoadingStatus && (
+            <div className="mb-6 p-4 bg-slate-50 rounded-xl border border-slate-200">
+              <p className="text-sm text-slate-600">Checking order status...</p>
             </div>
           )}
           {error && (
