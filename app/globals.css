@@ -1,26 +1,259 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  body {
+    background: #ffffff;
+    color: #171717;
+    font-family: var(--font-inter), 'Helvetica Neue', Helvetica, Arial, system-ui, sans-serif;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Helvetica Neue', Helvetica, Arial, system-ui, sans-serif;
+    font-weight: 600;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer utilities {
+  /* Glassmorphism utility classes */
+  .glass-nav {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .glass-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .glass-input {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(226, 232, 240, 0.5);
+  }
+
+  .glass-hero {
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  /* Animated background gradient */
+  .animated-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .animated-bg::before,
+  .animated-bg::after {
+    content: '';
+    position: absolute;
+    width: 800px;
+    height: 800px;
+    border-radius: 50%;
+    filter: blur(100px);
+    opacity: 0.25;
+    animation: float 20s ease-in-out infinite;
+  }
+
+  .animated-bg::before {
+    background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #ffecd2 100%);
+    top: -400px;
+    left: -400px;
+    animation-delay: 0s;
+  }
+
+  .animated-bg::after {
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 50%, #ffeaa7 100%);
+    bottom: -400px;
+    right: -400px;
+    animation-delay: 10s;
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translate(0, 0) scale(1);
+    }
+    33% {
+      transform: translate(100px, -100px) scale(1.15);
+    }
+    66% {
+      transform: translate(-100px, 100px) scale(0.85);
+    }
+  }
+
+  /* Floating orbs */
+  .floating-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.2;
+    animation: floatOrb 25s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  .floating-orb-1 {
+    width: 500px;
+    height: 500px;
+    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+    top: 10%;
+    left: 10%;
+    animation-delay: 0s;
+  }
+
+  .floating-orb-2 {
+    width: 600px;
+    height: 600px;
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+    top: 60%;
+    right: 10%;
+    animation-delay: 5s;
+  }
+
+  .floating-orb-3 {
+    width: 450px;
+    height: 450px;
+    background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+    bottom: 20%;
+    left: 20%;
+    animation-delay: 10s;
+  }
+
+  .floating-orb-4 {
+    width: 550px;
+    height: 550px;
+    background: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%);
+    top: 30%;
+    right: 30%;
+    animation-delay: 15s;
+  }
+
+  @keyframes floatOrb {
+    0%, 100% {
+      transform: translate(0, 0) scale(1);
+    }
+    25% {
+      transform: translate(50px, -50px) scale(1.1);
+    }
+    50% {
+      transform: translate(-40px, 40px) scale(0.9);
+    }
+    75% {
+      transform: translate(40px, 50px) scale(1.05);
+    }
+  }
+
+  /* Subtle shimmer effect */
+  @keyframes shimmer {
+    0% {
+      background-position: -1000px 0;
+    }
+    100% {
+      background-position: 1000px 0;
+    }
+  }
+
+  .subtle-shimmer {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.15) 50%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    background-size: 1000px 100%;
+    animation: shimmer 3s infinite;
+  }
+
+  /* Floral animated background for banner */
+  .floral-banner-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  .floral-orb-banner {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.4;
+    animation: floatFloral 20s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  .floral-orb-banner-1 {
+    width: 400px;
+    height: 400px;
+    background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #ffecd2 100%);
+    top: -100px;
+    left: -100px;
+    animation-delay: 0s;
+  }
+
+  .floral-orb-banner-2 {
+    width: 450px;
+    height: 450px;
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 50%, #ffeaa7 100%);
+    top: 50%;
+    right: -150px;
+    animation-delay: 5s;
+  }
+
+  .floral-orb-banner-3 {
+    width: 380px;
+    height: 380px;
+    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 50%, #ff9a9e 100%);
+    bottom: -100px;
+    left: 20%;
+    animation-delay: 10s;
+  }
+
+  .floral-orb-banner-4 {
+    width: 420px;
+    height: 420px;
+    background: linear-gradient(135deg, #d299c2 0%, #fef9d7 50%, #a8edea 100%);
+    top: 20%;
+    right: 20%;
+    animation-delay: 15s;
+  }
+
+  @keyframes floatFloral {
+    0%, 100% {
+      transform: translate(0, 0) scale(1) rotate(0deg);
+    }
+    25% {
+      transform: translate(80px, -60px) scale(1.15) rotate(5deg);
+    }
+    50% {
+      transform: translate(-60px, 80px) scale(0.9) rotate(-5deg);
+    }
+    75% {
+      transform: translate(60px, 70px) scale(1.05) rotate(3deg);
+    }
+  }
 }
