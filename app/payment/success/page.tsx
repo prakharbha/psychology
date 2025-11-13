@@ -112,7 +112,6 @@ function PaymentSuccessContent() {
                   />
                 </svg>
               </div>
-            <>
               <h2 className="font-heading text-3xl font-bold text-slate-900 mb-4">
                 Verifying Payment...
               </h2>
