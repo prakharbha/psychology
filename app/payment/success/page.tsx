@@ -7,61 +7,88 @@ import { Suspense, useEffect, useState } from 'react';
 function PaymentSuccessContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const orderId = searchParams.get('orderId');
+  
+  // PhonePe might pass order ID in different ways
+  const orderId = searchParams.get('orderId') || 
+                  searchParams.get('merchantOrderId') || 
+                  searchParams.get('merchantTransactionId');
+  
   const [orderStatus, setOrderStatus] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [paymentStatus, setPaymentStatus] = useState<'success' | 'failed' | 'pending' | 'checking'>('checking');
+  const [paymentStatus, setPaymentStatus] = useState<'success' | 'failed' | 'pending' | 'checking' | 'no_order_id'>('checking');
 
   useEffect(() => {
-    if (orderId) {
-      // Check order status from PhonePe
-      fetch(`/api/phonepe/status?orderId=${orderId}`)
-        .then(res => res.json())
-        .then(data => {
-          setOrderStatus(data);
-          
-          // Check actual payment state
-          const state = data.state?.toUpperCase();
-          
-          // PhonePe payment states: PAYMENT_SUCCESS, PAYMENT_ERROR, PAYMENT_PENDING, etc.
-          if (state === 'PAYMENT_SUCCESS' || state === 'SUCCESS') {
-            setPaymentStatus('success');
-          } else if (state === 'PAYMENT_ERROR' || state === 'FAILED' || state === 'ERROR') {
-            setPaymentStatus('failed');
-            // Redirect to failure page if payment failed
-            router.replace(`/payment/failure?orderId=${orderId}&error=Payment failed`);
-            return;
-          } else if (state === 'PENDING' || state === 'PAYMENT_PENDING') {
-            setPaymentStatus('pending');
-          } else {
-            // Unknown state, check payment details
-            const paymentDetails = data.paymentDetails || [];
-            const successfulPayment = paymentDetails.find((p: any) => 
-              p.state?.toUpperCase() === 'PAYMENT_SUCCESS' || p.state?.toUpperCase() === 'SUCCESS'
-            );
-            
-            if (successfulPayment) {
-              setPaymentStatus('success');
-            } else {
-              setPaymentStatus('failed');
-              router.replace(`/payment/failure?orderId=${orderId}&error=Payment status: ${state || 'Unknown'}`);
-              return;
-            }
-          }
-          
-          setIsLoading(false);
-        })
-        .catch(error => {
-          console.error('Error checking order status:', error);
-          setIsLoading(false);
-          // On error, assume payment might have failed
-          setPaymentStatus('failed');
-          router.replace(`/payment/failure?orderId=${orderId}&error=Unable to verify payment status`);
-        });
-    } else {
+    if (!orderId) {
+      // No order ID found - PhonePe might have redirected without it
+      // This could mean payment failed or was cancelled
+      console.error('No order ID found in redirect URL');
       setIsLoading(false);
-      setPaymentStatus('failed');
+      setPaymentStatus('no_order_id');
+      // Redirect to failure page after a short delay
+      setTimeout(() => {
+        router.replace(`/payment/failure?error=Payment could not be verified. Please contact support if you made a payment.`);
+      }, 2000);
+      return;
     }
+
+    // Check order status from PhonePe
+    fetch(`/api/phonepe/status?orderId=${orderId}`)
+      .then(res => res.json())
+      .then(data => {
+        // Check if status check was successful
+        if (!data.success || data.error) {
+          console.error('Failed to get order status:', data.error);
+          setPaymentStatus('failed');
+          router.replace(`/payment/failure?orderId=${orderId}&error=${encodeURIComponent(data.error || 'Unable to verify payment status')}`);
+          return;
+        }
+
+        setOrderStatus(data);
+        
+        // Check actual payment state
+        const state = data.state?.toUpperCase();
+        
+        // PhonePe payment states: PAYMENT_SUCCESS, PAYMENT_ERROR, PAYMENT_PENDING, etc.
+        if (state === 'PAYMENT_SUCCESS' || state === 'SUCCESS') {
+          setPaymentStatus('success');
+        } else if (state === 'PAYMENT_ERROR' || state === 'FAILED' || state === 'ERROR') {
+          setPaymentStatus('failed');
+          // Redirect to failure page if payment failed
+          router.replace(`/payment/failure?orderId=${orderId}&error=Payment failed`);
+          return;
+        } else if (state === 'PENDING' || state === 'PAYMENT_PENDING') {
+          setPaymentStatus('pending');
+        } else {
+          // Unknown state, check payment details
+          const paymentDetails = data.paymentDetails || [];
+          const successfulPayment = paymentDetails.find((p: any) => 
+            p.state?.toUpperCase() === 'PAYMENT_SUCCESS' || p.state?.toUpperCase() === 'SUCCESS'
+          );
+          
+          if (successfulPayment) {
+            setPaymentStatus('success');
+          } else if (paymentDetails.length > 0) {
+            // Has payment details but no success - likely failed
+            setPaymentStatus('failed');
+            router.replace(`/payment/failure?orderId=${orderId}&error=Payment status: ${state || 'Unknown'}`);
+            return;
+          } else {
+            // No payment details - might be pending or failed
+            setPaymentStatus('failed');
+            router.replace(`/payment/failure?orderId=${orderId}&error=Payment could not be completed`);
+            return;
+          }
+        }
+        
+        setIsLoading(false);
+      })
+      .catch(error => {
+        console.error('Error checking order status:', error);
+        setIsLoading(false);
+        // On error, assume payment might have failed
+        setPaymentStatus('failed');
+        router.replace(`/payment/failure?orderId=${orderId}&error=Unable to verify payment status`);
+      });
   }, [orderId, router]);
 
   return (
@@ -148,6 +175,30 @@ function PaymentSuccessContent() {
               )}
               <p className="text-slate-600 mb-8">
                 Your payment is being processed. We'll notify you once it's confirmed.
+              </p>
+            </>
+          ) : paymentStatus === 'no_order_id' ? (
+            <>
+              <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg
+                  className="w-12 h-12 text-red-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </div>
+              <h2 className="font-heading text-3xl font-bold text-slate-900 mb-4">
+                Payment Verification Failed
+              </h2>
+              <p className="text-slate-600 mb-8">
+                We couldn't verify your payment. Redirecting to support...
               </p>
             </>
           ) : null}
