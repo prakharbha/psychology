@@ -45,18 +45,21 @@ export async function POST(request: NextRequest) {
       );
 
       // Extract callback data
-      const orderId = callbackResponse.payload.orderId;
+      const merchantOrderId = callbackResponse.payload.merchantOrderId || callbackResponse.payload.orderId;
       const state = callbackResponse.payload.state;
-      const eventType = callbackResponse.payload.eventType;
+      const callbackType = callbackResponse.type;
+      const amount = callbackResponse.payload.amount;
 
       // Log callback for debugging
       console.log('PhonePe webhook validated:', {
-        orderId,
+        merchantOrderId,
+        orderId: callbackResponse.payload.orderId,
         state,
-        eventType,
+        callbackType,
+        amount,
       });
 
-      // TODO: Process the callback based on event type and state
+      // TODO: Process the callback based on callback type and state
       // - Update order status in your database
       // - Send notifications
       // - Handle different states (PAYMENT_SUCCESS, PAYMENT_ERROR, etc.)
@@ -64,8 +67,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ 
         success: true,
         message: 'Webhook processed successfully',
-        orderId,
+        merchantOrderId,
+        orderId: callbackResponse.payload.orderId,
         state,
+        callbackType,
       });
     } catch (error: any) {
       // PhonePeException is thrown if callback is invalid
