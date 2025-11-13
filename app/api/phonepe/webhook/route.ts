@@ -70,13 +70,18 @@ export async function POST(request: NextRequest) {
         
         // Send Telegram notification for successful payment
         try {
+          // Get base URL from request headers
+          const baseUrl = request.headers.get('host') 
+            ? `https://${request.headers.get('host')}`
+            : process.env.NEXT_PUBLIC_BASE_URL || 'https://www.prakharpsychologicaltest.com';
+          
           const telegramMessage = `✅ *Payment Successful*\n\n` +
             `📦 *Order ID:* ${merchantOrderId}\n` +
             `💰 *Amount:* ₹${(amount / 100).toLocaleString('en-IN')}\n` +
             `📱 *PhonePe Order ID:* ${callbackResponse.payload.orderId}\n` +
             `\nPayment has been confirmed and order is ready for processing.`;
           
-          await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.prakharpsychologicaltest.com'}/api/telegram/notify`, {
+          await fetch(`${baseUrl}/api/telegram/notify`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ message: telegramMessage }),
@@ -93,13 +98,18 @@ export async function POST(request: NextRequest) {
         
         // Send Telegram notification for failed payment
         try {
+          // Get base URL from request headers
+          const baseUrl = request.headers.get('host') 
+            ? `https://${request.headers.get('host')}`
+            : process.env.NEXT_PUBLIC_BASE_URL || 'https://www.prakharpsychologicaltest.com';
+          
           const telegramMessage = `❌ *Payment Failed*\n\n` +
             `📦 *Order ID:* ${merchantOrderId}\n` +
             `💰 *Amount:* ₹${(amount / 100).toLocaleString('en-IN')}\n` +
             `📱 *PhonePe Order ID:* ${callbackResponse.payload.orderId}\n` +
             `\nPayment failed. Order requires attention.`;
           
-          await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.prakharpsychologicaltest.com'}/api/telegram/notify`, {
+          await fetch(`${baseUrl}/api/telegram/notify`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ message: telegramMessage }),
