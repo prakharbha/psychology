@@ -48,10 +48,12 @@ PHONEPE_MERCHANT_ID=your_merchant_id_here
 
 Update the redirect URLs in `.env.local` with your production domain:
 ```
-PHONEPE_REDIRECT_URL_SUCCESS=https://yourdomain.com/payment/success
-PHONEPE_REDIRECT_URL_FAILURE=https://yourdomain.com/payment/failure
-PHONEPE_WEBHOOK_URL=https://yourdomain.com/api/phonepe/webhook
+PHONEPE_REDIRECT_URL_SUCCESS=https://www.prakharpsychologicaltest.com/payment/success
+PHONEPE_REDIRECT_URL_FAILURE=https://www.prakharpsychologicaltest.com/payment/failure
+PHONEPE_WEBHOOK_URL=https://www.prakharpsychologicaltest.com/api/phonepe/webhook
 ```
+
+**Note**: For local development, use `http://localhost:3000/...` URLs. For production, use the domain above.
 
 ### 4. Configure Webhook in PhonePe Dashboard (Test & Production)
 
@@ -61,15 +63,17 @@ PHONEPE_WEBHOOK_URL=https://yourdomain.com/api/phonepe/webhook
 1. Log in to PhonePe Business Dashboard
 2. **Toggle "Test Mode" to ON** (to see UAT/Sandbox settings)
 3. Go to Developer Settings / Webhook Configuration
-4. Configure webhook URL: `https://yourdomain.com/api/phonepe/webhook`
-   - For local testing, you can use a service like [ngrok](https://ngrok.com/) to expose your local server
-   - Example: `https://your-ngrok-url.ngrok.io/api/phonepe/webhook`
+4. Configure webhook URL:
+   - For local testing: Use a service like [ngrok](https://ngrok.com/) to expose your local server
+     - Example: `https://your-ngrok-url.ngrok.io/api/phonepe/webhook`
+   - For production testing: `https://www.prakharpsychologicaltest.com/api/phonepe/webhook`
 5. Set up webhook authentication (username/password if required)
    - If separate credentials are needed, add them to `.env.local` as `PHONEPE_WEBHOOK_USERNAME` and `PHONEPE_WEBHOOK_PASSWORD`
 
 #### For Production Mode:
 1. **Toggle "Test Mode" to OFF** (to see Production settings)
-2. Follow the same steps as above with your production domain
+2. Configure webhook URL: `https://www.prakharpsychologicaltest.com/api/phonepe/webhook`
+3. Set up webhook authentication (username/password if required)
 
 ### 5. Optional: Configure Webhook Credentials
 
