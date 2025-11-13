@@ -11,7 +11,6 @@ export default function CheckoutPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [notificationError, setNotificationError] = useState<string | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState('UPI QR Code / Bank Transfer');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -56,63 +55,37 @@ export default function CheckoutPage() {
       // Generate order ID
       const orderId = generateOrderId();
 
-      // If PhonePe payment is selected, initiate payment
-      if (paymentMethod === 'PhonePe') {
-        // Use environment variables if available, otherwise construct from current origin
-        const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-        // These will be used as fallback if env vars are not set
-        const redirectUrl = `${baseUrl}/payment/success?orderId=${orderId}`;
-        const failureUrl = `${baseUrl}/payment/failure?orderId=${orderId}`;
+      // Use environment variables if available, otherwise construct from current origin
+      const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+      // These will be used as fallback if env vars are not set
+      const redirectUrl = `${baseUrl}/payment/success?orderId=${orderId}`;
+      const failureUrl = `${baseUrl}/payment/failure?orderId=${orderId}`;
 
-        // Initiate PhonePe payment
-        const paymentResponse = await fetch('/api/phonepe/initiate', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            orderId,
-            amount: total,
-            customerPhone: formData.phone,
-            redirectUrl: redirectUrl,
-            failureUrl: failureUrl,
-          }),
-        });
+      // Initiate PhonePe payment
+      const paymentResponse = await fetch('/api/phonepe/initiate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          orderId,
+          amount: total,
+          customerPhone: formData.phone,
+          redirectUrl: redirectUrl,
+          failureUrl: failureUrl,
+        }),
+      });
 
-        const paymentData = await paymentResponse.json();
+      const paymentData = await paymentResponse.json();
 
-        if (!paymentResponse.ok || !paymentData.success) {
-          throw new Error(paymentData.error || 'Failed to initiate payment');
-        }
+      if (!paymentResponse.ok || !paymentData.success) {
+        throw new Error(paymentData.error || 'Failed to initiate payment');
+      }
 
-        // Save order details temporarily (you might want to save to database)
-        // For now, we'll save order info in sessionStorage
-        if (typeof window !== 'undefined') {
-          const orderData = {
-            orderId,
-            customerName: formData.name,
-            customerEmail: formData.email,
-            customerPhone: formData.phone,
-            items: items.map((item) => ({
-              productName: item.productName,
-              packSize: item.packSize,
-              quantity: item.quantity,
-              price: item.price,
-            })),
-            total,
-            paymentMethod,
-            shippingAddress: {
-              address: formData.address,
-              city: formData.city,
-              state: formData.state,
-              pincode: formData.pincode,
-            },
-          };
-          sessionStorage.setItem(`order_${orderId}`, JSON.stringify(orderData));
-        }
-
-        // Send Telegram notification for PhonePe order initiation
-        const orderData: OrderNotificationData = {
+      // Save order details temporarily (you might want to save to database)
+      // For now, we'll save order info in sessionStorage
+      if (typeof window !== 'undefined') {
+        const orderData = {
           orderId,
           customerName: formData.name,
           customerEmail: formData.email,
@@ -124,7 +97,7 @@ export default function CheckoutPage() {
             price: item.price,
           })),
           total,
-          paymentMethod,
+          paymentMethod: 'PhonePe',
           shippingAddress: {
             address: formData.address,
             city: formData.city,
@@ -132,23 +105,10 @@ export default function CheckoutPage() {
             pincode: formData.pincode,
           },
         };
-
-        // Send notification (don't wait for it, proceed with payment)
-        sendTelegramNotification(orderData).catch((error) => {
-          console.error('Failed to send Telegram notification for PhonePe order:', error);
-        });
-
-        // Redirect to PhonePe checkout
-        if (paymentData.checkoutUrl) {
-          window.location.href = paymentData.checkoutUrl;
-          return;
-        } else {
-          throw new Error('Payment URL not received');
-        }
+        sessionStorage.setItem(`order_${orderId}`, JSON.stringify(orderData));
       }
 
-      // For non-PhonePe payment methods (existing flow)
-      // Prepare order data for notifications
+      // Send Telegram notification for PhonePe order initiation
       const orderData: OrderNotificationData = {
         orderId,
         customerName: formData.name,
@@ -161,7 +121,7 @@ export default function CheckoutPage() {
           price: item.price,
         })),
         total,
-        paymentMethod,
+        paymentMethod: 'PhonePe',
         shippingAddress: {
           address: formData.address,
           city: formData.city,
@@ -170,17 +130,18 @@ export default function CheckoutPage() {
         },
       };
 
-      // Send order notification to Telegram and wait for it
-      const telegramSent = await sendTelegramNotification(orderData);
+      // Send notification (don't wait for it, proceed with payment)
+      sendTelegramNotification(orderData).catch((error) => {
+        console.error('Failed to send Telegram notification for PhonePe order:', error);
+      });
 
-      if (!telegramSent) {
-        setNotificationError('Order placed successfully, but notification failed. Please contact us directly.');
-        // Still proceed with order even if notification fails
+      // Redirect to PhonePe checkout
+      if (paymentData.checkoutUrl) {
+        window.location.href = paymentData.checkoutUrl;
+        return;
+      } else {
+        throw new Error('Payment URL not received');
       }
-
-      // Clear cart and redirect after notification is sent
-      clearCart();
-      router.replace(`/order-confirmation?orderId=${orderId}`);
     } catch (error) {
       console.error('Order processing error:', error);
       setNotificationError('There was an error processing your order. Please try again or contact us.');
@@ -328,52 +289,12 @@ export default function CheckoutPage() {
                   </div>
                 </div>
 
-                <div className="glass-card rounded-xl p-6">
-                  <h3 className="font-semibold text-slate-900 mb-4">Payment Method</h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3 p-4 bg-white/60 rounded-xl border border-white/30">
-                      <input
-                        type="radio"
-                        id="phonepe"
-                        name="payment"
-                        value="PhonePe"
-                        checked={paymentMethod === 'PhonePe'}
-                        onChange={(e) => setPaymentMethod(e.target.value)}
-                        className="w-4 h-4 text-slate-900"
-                      />
-                      <label htmlFor="phonepe" className="flex-1 cursor-pointer">
-                        <span className="font-semibold text-slate-900">PhonePe</span>
-                        <span className="block text-sm font-semibold text-dark-blue-700 mt-1">
-                          Pay securely with PhonePe (UPI, Cards, Net Banking)
-                        </span>
-                      </label>
-                    </div>
-                    <div className="flex items-center gap-3 p-4 bg-white/60 rounded-xl border border-white/30">
-                      <input
-                        type="radio"
-                        id="cod"
-                        name="payment"
-                        value="UPI QR Code / Bank Transfer"
-                        checked={paymentMethod === 'UPI QR Code / Bank Transfer'}
-                        onChange={(e) => setPaymentMethod(e.target.value)}
-                        className="w-4 h-4 text-slate-900"
-                      />
-                      <label htmlFor="cod" className="flex-1 cursor-pointer">
-                        <span className="font-semibold text-slate-900">UPI QR Code / Bank Transfer</span>
-                        <span className="block text-sm font-semibold text-dark-blue-700 mt-1">
-                          Payment details will be shared via call or Message / Whatsapp
-                        </span>
-                      </label>
-                    </div>
-                  </div>
-                </div>
-
                 <button
                   type="submit"
                   disabled={isSubmitting}
                   className="w-full py-4 bg-dark-blue-700 text-white rounded-xl font-semibold text-lg hover:bg-slate-800 transition-all duration-300 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isSubmitting ? 'Processing Order...' : 'Place Order'}
+                  {isSubmitting ? 'Processing...' : 'Confirm & Pay'}
                 </button>
               </form>
             </div>
