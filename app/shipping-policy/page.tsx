@@ -3,6 +3,18 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'Shipping Policy | Prakhar Psychological Testing and Research Centre',
   description: 'Shipping policy for psychological assessment tools and tests from Prakhar Psychological Testing and Research Centre.',
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/images/favicon-32.webp", sizes: "32x32", type: "image/webp" },
+      { url: "/images/favicon-48.webp", sizes: "48x48", type: "image/webp" },
+      { url: "/images/favicon-192.webp", sizes: "192x192", type: "image/webp" },
+    ],
+    apple: [
+      { url: "/images/favicon-192.webp", sizes: "192x192", type: "image/webp" },
+    ],
+    shortcut: "/favicon.ico",
+  },
 };
 
 export default function ShippingPolicyPage() {
