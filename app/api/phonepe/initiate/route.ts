@@ -12,10 +12,14 @@ import { StandardCheckoutPayRequest } from 'pg-sdk-node';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { orderId, amount, customerPhone, redirectUrl } = body;
+    const { orderId, amount, customerPhone, redirectUrl, failureUrl } = body;
+
+    // Use environment variables if set, otherwise use provided URLs
+    const successRedirectUrl = process.env.PHONEPE_REDIRECT_URL_SUCCESS || redirectUrl;
+    const failureRedirectUrl = process.env.PHONEPE_REDIRECT_URL_FAILURE || failureUrl || redirectUrl;
 
     // Validate required fields
-    if (!orderId || !amount || !redirectUrl) {
+    if (!orderId || !amount || !successRedirectUrl) {
       return NextResponse.json(
         { error: 'Missing required fields: orderId, amount, and redirectUrl are required' },
         { status: 400 }
@@ -29,11 +33,21 @@ export async function POST(request: NextRequest) {
     const phonepeClient = initializePhonePeClient();
 
     // Build payment request
+    // Note: PhonePe uses a single redirectUrl that handles both success and failure
+    // The actual status is checked on the redirect page
+    // We use success URL as the redirect, and check status on that page
     const paymentRequest = StandardCheckoutPayRequest.builder()
       .merchantOrderId(orderId)
       .amount(amountInPaise)
-      .redirectUrl(redirectUrl)
+      .redirectUrl(successRedirectUrl)
       .build();
+    
+    // Log redirect URLs for debugging
+    console.log('PhonePe payment initiated:', {
+      orderId,
+      successUrl: successRedirectUrl,
+      failureUrl: failureRedirectUrl,
+    });
 
     // Initiate payment
     const response = await phonepeClient.pay(paymentRequest);
