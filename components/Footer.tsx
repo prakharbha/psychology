@@ -56,40 +56,38 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Legal Links */}
-          <div>
-            <h4 className="font-semibold text-dark-blue-900 mb-4">Legal</h4>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link href="/terms" className="text-slate-800 hover:text-dark-blue-700 transition-colors">
-                  Terms and Conditions
-                </Link>
-              </li>
-              <li>
-                <Link href="/privacy-policy" className="text-slate-800 hover:text-dark-blue-700 transition-colors">
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link href="/shipping-policy" className="text-slate-800 hover:text-dark-blue-700 transition-colors">
-                  Shipping Policy
-                </Link>
-              </li>
-              <li>
-                <Link href="/refund-policy" className="text-slate-800 hover:text-dark-blue-700 transition-colors">
-                  Refund Policy
-                </Link>
-              </li>
-            </ul>
-          </div>
-
           {/* Contact Info */}
           <div>
             <h4 className="font-semibold text-dark-blue-900 mb-4">Contact</h4>
-            <ul className="space-y-2 text-sm text-slate-800">
+            <ul className="space-y-2 text-sm text-slate-800 mb-4">
               <li>Email: prakharpsychology@gmail.com</li>
               <li>Phone: +91 7526008051</li>
             </ul>
+            <div className="mt-4">
+              <h5 className="font-semibold text-dark-blue-900 mb-3 text-sm">Policies</h5>
+              <ul className="space-y-2 text-sm">
+                <li>
+                  <Link href="/terms" className="text-slate-800 hover:text-dark-blue-700 transition-colors">
+                    Terms and Conditions
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/privacy-policy" className="text-slate-800 hover:text-dark-blue-700 transition-colors">
+                    Privacy Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/shipping-policy" className="text-slate-800 hover:text-dark-blue-700 transition-colors">
+                    Shipping Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/refund-policy" className="text-slate-800 hover:text-dark-blue-700 transition-colors">
+                    Refund Policy
+                  </Link>
+                </li>
+              </ul>
+            </div>
             <div className="mt-4">
               <h4 className="font-semibold text-dark-blue-900 mb-3">Follow Us</h4>
               <a
