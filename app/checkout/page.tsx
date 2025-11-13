@@ -109,6 +109,33 @@ export default function CheckoutPage() {
           sessionStorage.setItem(`order_${orderId}`, JSON.stringify(orderData));
         }
 
+        // Send Telegram notification for PhonePe order initiation
+        const orderData: OrderNotificationData = {
+          orderId,
+          customerName: formData.name,
+          customerEmail: formData.email,
+          customerPhone: formData.phone,
+          items: items.map((item) => ({
+            productName: item.productName,
+            packSize: item.packSize,
+            quantity: item.quantity,
+            price: item.price,
+          })),
+          total,
+          paymentMethod,
+          shippingAddress: {
+            address: formData.address,
+            city: formData.city,
+            state: formData.state,
+            pincode: formData.pincode,
+          },
+        };
+
+        // Send notification (don't wait for it, proceed with payment)
+        sendTelegramNotification(orderData).catch((error) => {
+          console.error('Failed to send Telegram notification for PhonePe order:', error);
+        });
+
         // Redirect to PhonePe checkout
         if (paymentData.checkoutUrl) {
           window.location.href = paymentData.checkoutUrl;

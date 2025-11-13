@@ -16,8 +16,16 @@ export async function POST(request: NextRequest) {
     const chatId = process.env.TELEGRAM_CHAT_ID;
 
     if (!botToken || !chatId) {
+      const missingVars = [];
+      if (!botToken) missingVars.push('TELEGRAM_BOT_TOKEN');
+      if (!chatId) missingVars.push('TELEGRAM_CHAT_ID');
+      
+      console.error('Telegram bot not configured. Missing:', missingVars.join(', '));
       return NextResponse.json(
-        { error: 'Telegram bot not configured. Please set TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID in environment variables.' },
+        { 
+          error: 'Telegram bot not configured', 
+          details: `Missing environment variables: ${missingVars.join(', ')}. Please set these in Vercel environment variables.` 
+        },
         { status: 500 }
       );
     }
@@ -47,12 +55,27 @@ export async function POST(request: NextRequest) {
     const data = await response.json();
 
     if (!response.ok || !data.ok) {
-      console.error('Telegram API error:', data);
+      console.error('Telegram API error:', {
+        status: response.status,
+        statusText: response.statusText,
+        errorCode: data.error_code,
+        description: data.description,
+        parameters: data.parameters,
+      });
       return NextResponse.json(
-        { error: 'Failed to send Telegram message', details: data.description },
+        { 
+          error: 'Failed to send Telegram message', 
+          details: data.description || 'Unknown error',
+          errorCode: data.error_code,
+        },
         { status: 500 }
       );
     }
+
+    console.log('Telegram message sent successfully:', {
+      messageId: data.result?.message_id,
+      chatId: data.result?.chat?.id,
+    });
 
     return NextResponse.json({ success: true, messageId: data.result.message_id });
   } catch (error) {
