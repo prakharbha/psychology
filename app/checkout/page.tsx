@@ -143,13 +143,14 @@ export default function CheckoutPage() {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData({
+    const updatedFormData = {
       ...formData,
       [e.target.name]: e.target.value,
-    });
+    };
+    
+    setFormData(updatedFormData);
     
     // Check if form has meaningful data (name, email, or phone filled)
-    const updatedFormData = { ...formData, [e.target.name]: e.target.value };
     if (updatedFormData.name || updatedFormData.email || updatedFormData.phone) {
       formFilledRef.current = true;
       
@@ -157,6 +158,15 @@ export default function CheckoutPage() {
       if (abandonTimerRef.current) {
         clearTimeout(abandonTimerRef.current);
       }
+      
+      // Capture current cart state to avoid closure issues
+      const currentItems = items.map((item) => ({
+        productName: item.productName,
+        packSize: item.packSize,
+        quantity: item.quantity,
+        price: item.price,
+      }));
+      const currentTotal = total;
       
       abandonTimerRef.current = setTimeout(() => {
         // User has been inactive for 5 minutes with form data filled
@@ -177,13 +187,8 @@ export default function CheckoutPage() {
                 state: updatedFormData.state,
                 pincode: updatedFormData.pincode,
               },
-              items: items.map((item) => ({
-                productName: item.productName,
-                packSize: item.packSize,
-                quantity: item.quantity,
-                price: item.price,
-              })),
-              total: getTotal(),
+              items: currentItems,
+              total: currentTotal,
             }),
           }).catch(err => {
             console.error('Failed to send abandoned checkout notification:', err);
