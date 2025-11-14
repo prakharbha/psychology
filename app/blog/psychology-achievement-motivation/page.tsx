@@ -11,11 +11,20 @@ export const metadata: Metadata = {
     type: 'article',
     publishedTime: '2025-01-19T00:00:00Z',
     authors: ['Prakhar Psychological Testing'],
+    images: [
+      {
+        url: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-achievement-motivation.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'High performers and the psychology of achievement motivation',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'What Drives High Performers? The Psychology of Achievement Motivation',
     description: 'Explore the psychological factors that drive high performers.',
+    images: ['https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-achievement-motivation.jpg'],
   },
   alternates: {
     canonical: '/blog/psychology-achievement-motivation',
@@ -40,6 +49,7 @@ export default function BlogPost() {
     '@type': 'Article',
     headline: 'What Drives High Performers? The Psychology of Achievement Motivation',
     description: 'Explore the psychological factors that drive high performers and sustained achievement.',
+    image: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-achievement-motivation.jpg',
     datePublished: '2025-01-19T00:00:00Z',
     dateModified: '2025-01-19T00:00:00Z',
     author: { '@type': 'Organization', name: 'Prakhar Psychological Testing' },
@@ -102,6 +112,13 @@ export default function BlogPost() {
           </header>
 
           <div className="prose prose-lg max-w-none">
+            <div className="mb-8 rounded-xl overflow-hidden">
+              <img 
+                src="/images/blog/prakhar-psychological-testing-achievement-motivation.jpg" 
+                alt="High performers and the psychology of achievement motivation including intrinsic motivation and growth mindset"
+                className="w-full h-auto"
+              />
+            </div>
             <p className="text-xl text-slate-700 leading-relaxed mb-6">
               What separates high performers from the rest? Is it talent, luck, or something deeper? Decades of 
               psychological research reveal that sustained high performance stems from specific motivational patterns 

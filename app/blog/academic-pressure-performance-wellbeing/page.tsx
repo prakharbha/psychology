@@ -11,11 +11,20 @@ export const metadata: Metadata = {
     type: 'article',
     publishedTime: '2025-01-21T00:00:00Z',
     authors: ['Prakhar Psychological Testing'],
+    images: [
+      {
+        url: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-academic-pressure.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Academic pressure and its impact on student performance and well-being',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'How Academic Pressure Impacts Performance & Well-Being',
     description: 'Explore how academic pressure affects student performance and well-being.',
+    images: ['https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-academic-pressure.jpg'],
   },
   alternates: {
     canonical: '/blog/academic-pressure-performance-wellbeing',
@@ -40,6 +49,7 @@ export default function BlogPost() {
     '@type': 'Article',
     headline: 'How Academic Pressure Impacts Performance & Well-Being',
     description: 'Explore how academic pressure affects student performance and well-being.',
+    image: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-academic-pressure.jpg',
     datePublished: '2025-01-21T00:00:00Z',
     dateModified: '2025-01-21T00:00:00Z',
     author: { '@type': 'Organization', name: 'Prakhar Psychological Testing' },
@@ -102,6 +112,13 @@ export default function BlogPost() {
           </header>
 
           <div className="prose prose-lg max-w-none">
+            <div className="mb-8 rounded-xl overflow-hidden">
+              <img 
+                src="/images/blog/prakhar-psychological-testing-academic-pressure.jpg" 
+                alt="Academic pressure and its impact on student performance and well-being"
+                className="w-full h-auto"
+              />
+            </div>
             <p className="text-xl text-slate-700 leading-relaxed mb-6">
               Academic pressure is a double-edged sword. In moderation, it can motivate students to excel, focus their 
               attention, and achieve their potential. But when pressure becomes excessive, it transforms from a 

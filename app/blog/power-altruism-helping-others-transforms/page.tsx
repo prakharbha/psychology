@@ -64,7 +64,7 @@ export default function BlogPost() {
         name: 'How does helping others benefit the helper?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'Helping others provides multiple psychological benefits: it releases endorphins and oxytocin (the "helper's high"), increases life satisfaction and meaning, reduces stress and depression, enhances self-esteem, creates social connections, and provides a sense of purpose. Research shows that people who regularly help others report higher levels of happiness and well-being than those who don\'t.',
+          text: 'Helping others provides multiple psychological benefits: it releases endorphins and oxytocin (the "helper\'s high"), increases life satisfaction and meaning, reduces stress and depression, enhances self-esteem, creates social connections, and provides a sense of purpose. Research shows that people who regularly help others report higher levels of happiness and well-being than those who do not.',
         },
       },
       {

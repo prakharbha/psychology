@@ -12,11 +12,20 @@ export const metadata: Metadata = {
     publishedTime: '2025-01-15T00:00:00Z',
     authors: ['Prakhar Psychological Testing'],
     tags: ['adjustment', 'young adults', 'success', 'psychology', 'personal growth'],
+    images: [
+      {
+        url: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-young-adults-success.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Young adults navigating life transitions and building success',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'How Adjustment Shapes a Young Adult\'s Success',
     description: 'Discover how psychological adjustment during young adulthood becomes the foundation for lifelong success.',
+    images: ['https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-young-adults-success.jpg'],
   },
   alternates: {
     canonical: '/blog/how-adjustment-shapes-young-adult-success',
@@ -41,7 +50,7 @@ export default function BlogPost() {
     '@type': 'Article',
     headline: 'How Adjustment Shapes a Young Adult\'s Success',
     description: 'Discover how psychological adjustment during young adulthood becomes the foundation for lifelong success, career achievement, and personal fulfillment.',
-    image: 'https://www.prakharpsychologicaltest.com/images/blog/adjustment-success.jpg',
+    image: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-young-adults-success.jpg',
     datePublished: '2025-01-15T00:00:00Z',
     dateModified: '2025-01-15T00:00:00Z',
     author: {
@@ -161,6 +170,13 @@ export default function BlogPost() {
 
           {/* Introduction */}
           <div className="prose prose-lg max-w-none mb-12">
+            <div className="mb-8 rounded-xl overflow-hidden">
+              <img 
+                src="/images/blog/prakhar-psychological-testing-young-adults-success.jpg" 
+                alt="Young adults navigating life transitions and building success through psychological adjustment"
+                className="w-full h-auto"
+              />
+            </div>
             <p className="text-xl text-slate-700 leading-relaxed mb-6">
               The transition from adolescence to adulthood represents one of life's most critical developmental periods. 
               During these formative years, young adults face a cascade of changes—educational transitions, career beginnings, 

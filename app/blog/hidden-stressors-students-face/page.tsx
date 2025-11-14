@@ -11,11 +11,20 @@ export const metadata: Metadata = {
     type: 'article',
     publishedTime: '2025-01-17T00:00:00Z',
     authors: ['Prakhar Psychological Testing'],
+    images: [
+      {
+        url: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-student-stress.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Students facing hidden stressors in academic environments',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Hidden Stressors Students Face in Today\'s Academic World',
     description: 'Discover the hidden stressors affecting students today.',
+    images: ['https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-student-stress.jpg'],
   },
   alternates: {
     canonical: '/blog/hidden-stressors-students-face',
@@ -40,6 +49,7 @@ export default function BlogPost() {
     '@type': 'Article',
     headline: 'Hidden Stressors Students Face in Today\'s Academic World',
     description: 'Discover the hidden stressors affecting students today and learn how to address these challenges.',
+    image: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-student-stress.jpg',
     datePublished: '2025-01-17T00:00:00Z',
     dateModified: '2025-01-17T00:00:00Z',
     author: { '@type': 'Organization', name: 'Prakhar Psychological Testing' },
@@ -102,6 +112,13 @@ export default function BlogPost() {
           </header>
 
           <div className="prose prose-lg max-w-none">
+            <div className="mb-8 rounded-xl overflow-hidden">
+              <img 
+                src="/images/blog/prakhar-psychological-testing-student-stress.jpg" 
+                alt="Students facing hidden stressors in academic environments including digital overload and perfectionism"
+                className="w-full h-auto"
+              />
+            </div>
             <p className="text-xl text-slate-700 leading-relaxed mb-6">
               When we think of student stress, exams and deadlines immediately come to mind. But beneath the surface 
               of these obvious pressures lies a complex web of hidden stressors that silently erode student well-being. 

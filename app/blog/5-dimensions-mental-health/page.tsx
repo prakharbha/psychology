@@ -11,11 +11,20 @@ export const metadata: Metadata = {
     type: 'article',
     publishedTime: '2025-01-16T00:00:00Z',
     authors: ['Prakhar Psychological Testing'],
+    images: [
+      {
+        url: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-mental-health-dimensions.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Five dimensions of mental health: emotional, psychological, social, spiritual, and physical',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: '5 Dimensions of Mental Health Everyone Should Understand',
     description: 'Explore the five essential dimensions of mental health and their impact on well-being.',
+    images: ['https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-mental-health-dimensions.jpg'],
   },
   alternates: {
     canonical: '/blog/5-dimensions-mental-health',
@@ -40,6 +49,7 @@ export default function BlogPost() {
     '@type': 'Article',
     headline: '5 Dimensions of Mental Health Everyone Should Understand',
     description: 'Explore the five essential dimensions of mental health: emotional, psychological, social, spiritual, and physical.',
+    image: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-mental-health-dimensions.jpg',
     datePublished: '2025-01-16T00:00:00Z',
     dateModified: '2025-01-16T00:00:00Z',
     author: {
@@ -105,6 +115,13 @@ export default function BlogPost() {
           </header>
 
           <div className="prose prose-lg max-w-none">
+            <div className="mb-8 rounded-xl overflow-hidden">
+              <img 
+                src="/images/blog/prakhar-psychological-testing-mental-health-dimensions.jpg" 
+                alt="Five dimensions of mental health: emotional, psychological, social, spiritual, and physical well-being"
+                className="w-full h-auto"
+              />
+            </div>
             <p className="text-xl text-slate-700 leading-relaxed mb-6">
               Mental health isn't a single, monolithic concept—it's a complex, multidimensional system that influences 
               every aspect of our lives. Understanding these dimensions helps us recognize that well-being extends far 

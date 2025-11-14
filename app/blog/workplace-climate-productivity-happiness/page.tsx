@@ -11,11 +11,20 @@ export const metadata: Metadata = {
     type: 'article',
     publishedTime: '2025-01-26T00:00:00Z',
     authors: ['Prakhar Psychological Testing'],
+    images: [
+      {
+        url: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-workplace-climate.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'How workplace climate influences productivity and employee happiness',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'How Workplace Climate Influences Productivity & Happiness',
     description: 'Discover how workplace climate affects employee productivity.',
+    images: ['https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-workplace-climate.jpg'],
   },
   alternates: {
     canonical: '/blog/workplace-climate-productivity-happiness',
@@ -40,6 +49,7 @@ export default function BlogPost() {
     '@type': 'Article',
     headline: 'How Workplace Climate Influences Productivity & Happiness',
     description: 'Discover how workplace climate affects employee productivity and job satisfaction.',
+    image: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-workplace-climate.jpg',
     datePublished: '2025-01-26T00:00:00Z',
     dateModified: '2025-01-26T00:00:00Z',
     author: { '@type': 'Organization', name: 'Prakhar Psychological Testing' },
@@ -102,6 +112,13 @@ export default function BlogPost() {
           </header>
 
           <div className="prose prose-lg max-w-none">
+            <div className="mb-8 rounded-xl overflow-hidden">
+              <img 
+                src="/images/blog/prakhar-psychological-testing-workplace-climate.jpg" 
+                alt="How workplace climate influences productivity and employee happiness"
+                className="w-full h-auto"
+              />
+            </div>
             <p className="text-xl text-slate-700 leading-relaxed mb-6">
               The environment in which we work doesn't just affect our mood—it fundamentally shapes our performance, 
               creativity, engagement, and overall well-being. Workplace climate, the shared perceptions of organizational 

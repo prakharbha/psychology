@@ -11,11 +11,20 @@ export const metadata: Metadata = {
     type: 'article',
     publishedTime: '2025-01-20T00:00:00Z',
     authors: ['Prakhar Psychological Testing'],
+    images: [
+      {
+        url: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-life-satisfaction.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Seven elements of a truly satisfying life: purpose, relationships, growth, contribution, autonomy, health, and joy',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: '7 Elements of a Truly Satisfying Life',
     description: 'Discover the seven essential elements that contribute to a truly satisfying life.',
+    images: ['https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-life-satisfaction.jpg'],
   },
   alternates: {
     canonical: '/blog/7-elements-satisfying-life',
@@ -40,6 +49,7 @@ export default function BlogPost() {
     '@type': 'Article',
     headline: '7 Elements of a Truly Satisfying Life',
     description: 'Discover the seven essential elements that contribute to a truly satisfying life.',
+    image: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-life-satisfaction.jpg',
     datePublished: '2025-01-20T00:00:00Z',
     dateModified: '2025-01-20T00:00:00Z',
     author: { '@type': 'Organization', name: 'Prakhar Psychological Testing' },
@@ -94,6 +104,13 @@ export default function BlogPost() {
           </header>
 
           <div className="prose prose-lg max-w-none">
+            <div className="mb-8 rounded-xl overflow-hidden">
+              <img 
+                src="/images/blog/prakhar-psychological-testing-life-satisfaction.jpg" 
+                alt="Seven elements of a truly satisfying life: purpose, relationships, growth, contribution, autonomy, health, and joy"
+                className="w-full h-auto"
+              />
+            </div>
             <p className="text-xl text-slate-700 leading-relaxed mb-6">
               Life satisfaction isn't a single achievement or moment—it's a complex tapestry woven from multiple 
               psychological, social, and existential threads. Research across positive psychology, well-being studies, 

@@ -11,11 +11,20 @@ export const metadata: Metadata = {
     type: 'article',
     publishedTime: '2025-01-18T00:00:00Z',
     authors: ['Prakhar Psychological Testing'],
+    images: [
+      {
+        url: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-personality-types.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Understanding introversion and extroversion personality types',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Introvert or Extrovert? Understanding Your Personality Type',
     description: 'Discover the differences between introversion and extroversion.',
+    images: ['https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-personality-types.jpg'],
   },
   alternates: {
     canonical: '/blog/introvert-or-extrovert-personality-type',
@@ -40,6 +49,7 @@ export default function BlogPost() {
     '@type': 'Article',
     headline: 'Introvert or Extrovert? Understanding Your Personality Type',
     description: 'Discover the differences between introversion and extroversion and learn how to leverage your personality type for success.',
+    image: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-personality-types.jpg',
     datePublished: '2025-01-18T00:00:00Z',
     dateModified: '2025-01-18T00:00:00Z',
     author: { '@type': 'Organization', name: 'Prakhar Psychological Testing' },
@@ -102,6 +112,13 @@ export default function BlogPost() {
           </header>
 
           <div className="prose prose-lg max-w-none">
+            <div className="mb-8 rounded-xl overflow-hidden">
+              <img 
+                src="/images/blog/prakhar-psychological-testing-personality-types.jpg" 
+                alt="Understanding introversion and extroversion personality types and where you fall on the spectrum"
+                className="w-full h-auto"
+              />
+            </div>
             <p className="text-xl text-slate-700 leading-relaxed mb-6">
               The introvert-extrovert distinction is one of psychology's most recognized personality concepts, yet it's 
               also one of the most misunderstood. Many people assume introverts are simply shy extroverts, or that 
