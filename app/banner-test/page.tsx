@@ -17,7 +17,7 @@ export default function BannerTestPage() {
           <h2 className="text-2xl font-bold mb-4 text-slate-900">Option 1: Full-Width Image Background</h2>
           <div className="relative h-[600px] rounded-3xl overflow-hidden shadow-2xl">
             <Image
-              src="https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&w=1920"
+              src="/images/blog/prakhar-psychological-testing-mental-health-dimensions.jpg"
               alt="Psychology background"
               fill
               className="object-cover"
@@ -60,7 +60,7 @@ export default function BannerTestPage() {
           <div className="grid lg:grid-cols-2 gap-0 rounded-3xl overflow-hidden shadow-2xl">
             <div className="relative h-[500px] lg:h-auto">
               <Image
-                src="https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&w=800"
+                src="/images/blog/prakhar-psychological-testing-wellbeing.jpg"
                 alt="Psychology background"
                 fill
                 className="object-cover"
@@ -99,7 +99,7 @@ export default function BannerTestPage() {
           <h2 className="text-2xl font-bold mb-4 text-slate-900">Option 3: Centered with Background</h2>
           <div className="relative h-[650px] rounded-3xl overflow-hidden shadow-2xl">
             <Image
-              src="https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&w=1920"
+              src="/images/blog/prakhar-psychological-testing-young-adults-success.jpg"
               alt="Psychology background"
               fill
               className="object-cover"
@@ -174,7 +174,7 @@ export default function BannerTestPage() {
           <h2 className="text-2xl font-bold mb-4 text-slate-900">Option 5: Image with Glass Card</h2>
           <div className="relative h-[600px] rounded-3xl overflow-hidden shadow-2xl">
             <Image
-              src="https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&w=1920"
+              src="/images/blog/prakhar-psychological-testing-young-adults-success.jpg"
               alt="Psychology background"
               fill
               className="object-cover"
@@ -244,7 +244,7 @@ export default function BannerTestPage() {
                   </div>
                   <div className="relative h-80 lg:h-96 rounded-2xl overflow-hidden">
                     <Image
-                      src="https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&w=800"
+                      src="/images/blog/prakhar-psychological-testing-workplace-climate.jpg"
                       alt="Psychology"
                       fill
                       className="object-cover"
@@ -325,7 +325,7 @@ export default function BannerTestPage() {
               </div>
               <div className="lg:col-span-2 relative h-[500px] lg:h-auto">
                 <Image
-                  src="https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&w=800"
+                  src="/images/blog/prakhar-psychological-testing-achievement-motivation.jpg"
                   alt="Psychology"
                   fill
                   className="object-cover"
