@@ -18,6 +18,7 @@ function OrderStatusContent() {
   const [orderStatus, setOrderStatus] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [notificationSent, setNotificationSent] = useState(false);
 
   useEffect(() => {
     // Try to get orderId from sessionStorage if not in URL
@@ -61,6 +62,23 @@ function OrderStatusContent() {
 
         setOrderStatus(data);
         setIsLoading(false);
+
+        // Send Telegram notification for status update (only once per page load)
+        if (data.state && !notificationSent) {
+          setNotificationSent(true);
+          fetch('/api/telegram/notify-status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              orderId: orderIdToCheck,
+              status: data.state,
+              amount: data.amount,
+              phonepeOrderId: data.orderId,
+            }),
+          }).catch(err => {
+            console.error('Failed to send status notification:', err);
+          });
+        }
       })
       .catch(err => {
         console.error('Error checking order status:', err);

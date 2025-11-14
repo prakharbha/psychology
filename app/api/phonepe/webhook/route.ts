@@ -120,6 +120,31 @@ export async function POST(request: NextRequest) {
           console.error('Failed to send Telegram notification:', telegramError);
         }
       }
+      
+      // Handle pending payment status
+      if (stateUpper === 'PENDING' || stateUpper === 'PAYMENT_PENDING') {
+        // Send Telegram notification for pending payment
+        try {
+          // Get base URL from request headers
+          const baseUrl = request.headers.get('host') 
+            ? `https://${request.headers.get('host')}`
+            : process.env.NEXT_PUBLIC_BASE_URL || 'https://www.prakharpsychologicaltest.com';
+          
+          const telegramMessage = `⏳ *Payment Pending*\n\n` +
+            `📦 *Order ID:* ${merchantOrderId}\n` +
+            `💰 *Amount:* ₹${(amount / 100).toLocaleString('en-IN')}\n` +
+            `📱 *PhonePe Order ID:* ${callbackResponse.payload.orderId}\n` +
+            `\nPayment is pending. Waiting for confirmation.`;
+          
+          await fetch(`${baseUrl}/api/telegram/notify`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: telegramMessage }),
+          }).catch(err => console.error('Telegram notification failed:', err));
+        } catch (telegramError) {
+          console.error('Failed to send Telegram notification:', telegramError);
+        }
+      }
 
       return NextResponse.json({ 
         success: true,
