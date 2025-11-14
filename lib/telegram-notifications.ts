@@ -24,7 +24,7 @@ export async function sendTelegramStatusNotification(data: StatusNotificationDat
       if (!botToken) missingVars.push('TELEGRAM_BOT_TOKEN');
       if (!chatId) missingVars.push('TELEGRAM_CHAT_ID');
       
-      console.error('Telegram bot not configured. Missing:', missingVars.join(', '));
+      console.error('[Telegram] Bot not configured. Missing:', missingVars.join(', '));
       return false;
     }
 
@@ -71,7 +71,7 @@ export async function sendTelegramStatusNotification(data: StatusNotificationDat
       return false;
     }
 
-    console.log('Telegram status notification sent successfully:', {
+    console.log('[Telegram] Status notification sent successfully:', {
       messageId: responseData.result?.message_id,
       chatId: responseData.result?.chat?.id,
       orderId: data.orderId,
@@ -80,7 +80,7 @@ export async function sendTelegramStatusNotification(data: StatusNotificationDat
 
     return true;
   } catch (error) {
-    console.error('Error sending Telegram status notification:', error);
+    console.error('[Telegram] Error sending status notification:', error);
     return false;
   }
 }

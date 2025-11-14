@@ -130,10 +130,22 @@ export default function CheckoutPage() {
         },
       };
 
-      // Send notification (don't wait for it, proceed with payment)
-      sendTelegramNotification(orderData).catch((error) => {
+      // Send notification - wait a bit to ensure it's sent before redirect
+      try {
+        const notificationSent = await Promise.race([
+          sendTelegramNotification(orderData),
+          new Promise<boolean>((resolve) => setTimeout(() => resolve(false), 2000))
+        ]);
+        
+        if (!notificationSent) {
+          console.warn('Telegram notification may not have completed before redirect');
+        } else {
+          console.log('Telegram notification sent successfully for order:', orderId);
+        }
+      } catch (error) {
         console.error('Failed to send Telegram notification for PhonePe order:', error);
-      });
+        // Continue with payment even if notification fails
+      }
 
       // Redirect to PhonePe checkout
       if (paymentData.checkoutUrl) {

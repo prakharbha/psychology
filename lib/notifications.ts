@@ -48,10 +48,7 @@ export async function sendTelegramNotification(data: OrderNotificationData): Pro
       `${data.shippingAddress.address}\n` +
       `${data.shippingAddress.city}, ${data.shippingAddress.state} ${data.shippingAddress.pincode}`;
 
-    // Call API route to send Telegram message with timeout
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
-
+    // Call API route to send Telegram message (same pattern as contact form)
     try {
       const response = await fetch('/api/telegram/notify', {
         method: 'POST',
@@ -59,25 +56,19 @@ export async function sendTelegramNotification(data: OrderNotificationData): Pro
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ message }),
-        signal: controller.signal,
       });
 
-      clearTimeout(timeoutId);
+      const data = await response.json();
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        console.error('Telegram API error:', errorData);
+        console.error('Telegram API error:', data);
         return false;
       }
 
+      console.log('Order notification sent successfully to Telegram');
       return true;
     } catch (error: any) {
-      clearTimeout(timeoutId);
-      if (error.name === 'AbortError') {
-        console.error('Telegram notification timeout');
-      } else {
-        console.error('Failed to send Telegram notification:', error);
-      }
+      console.error('Failed to send Telegram notification:', error);
       return false;
     }
   } catch (error) {

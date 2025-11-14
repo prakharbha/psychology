@@ -72,9 +72,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('Telegram message sent successfully:', {
+    console.log('[Telegram] Message sent successfully:', {
       messageId: data.result?.message_id,
       chatId: data.result?.chat?.id,
+      messagePreview: message.substring(0, 50) + '...',
     });
 
     return NextResponse.json({ success: true, messageId: data.result.message_id });
