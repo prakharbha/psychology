@@ -58,8 +58,8 @@ export default function CheckoutPage() {
       // Use environment variables if available, otherwise construct from current origin
       const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
       // These will be used as fallback if env vars are not set
-      const redirectUrl = `${baseUrl}/order-status?orderId=${orderId}`;
-      const failureUrl = `${baseUrl}/order-status?orderId=${orderId}`;
+      const redirectUrl = `${baseUrl}/order-confirmation?orderId=${orderId}`;
+      const failureUrl = `${baseUrl}/order-confirmation?orderId=${orderId}`;
 
       // Initiate PhonePe payment
       const paymentResponse = await fetch('/api/phonepe/initiate', {
@@ -108,43 +108,13 @@ export default function CheckoutPage() {
         sessionStorage.setItem(`order_${orderId}`, JSON.stringify(orderData));
       }
 
-      // Send Telegram notification for PhonePe order initiation
-      const orderData: OrderNotificationData = {
-        orderId,
-        customerName: formData.name,
-        customerEmail: formData.email,
-        customerPhone: formData.phone,
-        items: items.map((item) => ({
-          productName: item.productName,
-          packSize: item.packSize,
-          quantity: item.quantity,
-          price: item.price,
-        })),
-        total,
-        paymentMethod: 'PhonePe',
-        shippingAddress: {
-          address: formData.address,
-          city: formData.city,
-          state: formData.state,
-          pincode: formData.pincode,
-        },
-      };
-
-      // Send notification - wait a bit to ensure it's sent before redirect
-      try {
-        const notificationSent = await Promise.race([
-          sendTelegramNotification(orderData),
-          new Promise<boolean>((resolve) => setTimeout(() => resolve(false), 2000))
-        ]);
-        
-        if (!notificationSent) {
-          console.warn('Telegram notification may not have completed before redirect');
-        } else {
-          console.log('Telegram notification sent successfully for order:', orderId);
-        }
-      } catch (error) {
-        console.error('Failed to send Telegram notification for PhonePe order:', error);
-        // Continue with payment even if notification fails
+      // Order notification will be sent after payment status is confirmed via webhook
+      
+      // Clear abandoned cart timer since user has initiated checkout
+      // The cart will be cleared after successful payment
+      if (typeof window !== 'undefined') {
+        // Mark that checkout has been initiated (prevents abandoned cart notification)
+        localStorage.setItem('checkout_initiated', 'true');
       }
 
       // Redirect to PhonePe checkout

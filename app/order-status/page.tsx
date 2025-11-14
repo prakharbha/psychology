@@ -63,6 +63,15 @@ function OrderStatusContent() {
         setOrderStatus(data);
         setIsLoading(false);
 
+        // Clear cart and abandoned cart flags on successful payment
+        const state = data.state?.toUpperCase();
+        if (state === 'COMPLETED' && typeof window !== 'undefined') {
+          // Clear cart from localStorage
+          localStorage.removeItem('cart');
+          // Clear checkout initiated flag
+          localStorage.removeItem('checkout_initiated');
+        }
+
         // Send Telegram notification for status update (only once per page load)
         if (data.state && !notificationSent) {
           setNotificationSent(true);

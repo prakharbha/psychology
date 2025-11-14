@@ -70,18 +70,17 @@ export async function POST(request: NextRequest) {
         // TODO: Send confirmation email
         // TODO: Trigger fulfillment process
         
-        // Send Telegram notification for successful payment
+        // Send Telegram notification for successful payment with order details
         try {
-          // Import and call notification API directly
           const { sendTelegramStatusNotification } = await import('@/lib/telegram-notifications');
           await sendTelegramStatusNotification({
             orderId: merchantOrderId,
             status: 'COMPLETED',
             amount: amount,
             phonepeOrderId: callbackResponse.payload.orderId,
-          }).catch(err => console.error('Telegram notification failed:', err));
+          }).catch(err => console.error('[Telegram] Notification failed:', err));
         } catch (telegramError) {
-          console.error('Failed to send Telegram notification:', telegramError);
+          console.error('[Telegram] Failed to send notification:', telegramError);
         }
       }
       
@@ -98,9 +97,9 @@ export async function POST(request: NextRequest) {
             status: 'FAILED',
             amount: amount,
             phonepeOrderId: callbackResponse.payload.orderId,
-          }).catch(err => console.error('Telegram notification failed:', err));
+          }).catch(err => console.error('[Telegram] Notification failed:', err));
         } catch (telegramError) {
-          console.error('Failed to send Telegram notification:', telegramError);
+          console.error('[Telegram] Failed to send notification:', telegramError);
         }
       }
       
@@ -114,9 +113,9 @@ export async function POST(request: NextRequest) {
             status: 'PENDING',
             amount: amount,
             phonepeOrderId: callbackResponse.payload.orderId,
-          }).catch(err => console.error('Telegram notification failed:', err));
+          }).catch(err => console.error('[Telegram] Notification failed:', err));
         } catch (telegramError) {
-          console.error('Failed to send Telegram notification:', telegramError);
+          console.error('[Telegram] Failed to send notification:', telegramError);
         }
       }
 
