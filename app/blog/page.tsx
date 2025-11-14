@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
+import { getAllBlogPosts } from '@/lib/blog';
 
 export const metadata: Metadata = {
-  title: 'Blog - Prakhar Psychological Testing',
-  description: 'Articles and insights about psychological testing and assessment',
+  title: 'Blog - Psychological Insights & Research | Prakhar Psychological Testing',
+  description: 'Explore expert articles on psychological testing, mental health, personal development, and research insights from Prakhar Psychological Testing.',
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },
@@ -18,6 +20,8 @@ export const metadata: Metadata = {
 };
 
 export default function BlogPage() {
+  const posts = getAllBlogPosts();
+
   return (
     <div className="bg-white relative py-12 px-4 sm:px-6 lg:px-8 overflow-hidden">
       {/* Floral animated background */}
@@ -27,20 +31,54 @@ export default function BlogPage() {
         <div className="floral-orb-banner floral-orb-banner-3"></div>
         <div className="floral-orb-banner floral-orb-banner-4"></div>
       </div>
-      <div className="max-w-4xl mx-auto relative z-10">
+      <div className="max-w-6xl mx-auto relative z-10">
         <h1 className="font-heading text-4xl md:text-5xl font-bold text-slate-900 mb-8 text-center">
           Blog
         </h1>
 
-        <div className="glass-card rounded-3xl p-12 text-center">
-          <h2 className="font-heading text-2xl font-bold text-slate-900 mb-4">
-            Coming Soon
-          </h2>
-          <p className="text-lg text-slate-600">
-            We're working on bringing you insightful articles about psychological testing, 
-            assessment tools, and research findings. Check back soon!
-          </p>
-        </div>
+        {posts.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {posts.map((post) => (
+              <Link
+                key={post.id}
+                href={`/blog/${post.slug}`}
+                className="glass-card rounded-2xl p-6 hover:shadow-xl transition-all duration-300 block"
+              >
+                <div className="mb-4">
+                  <span className="px-3 py-1 bg-dark-blue-100 text-dark-blue-800 rounded-full text-sm font-semibold">
+                    {post.category}
+                  </span>
+                </div>
+                <h2 className="font-heading text-2xl font-bold text-slate-900 mb-3 line-clamp-2">
+                  {post.title}
+                </h2>
+                <p className="text-slate-600 mb-4 line-clamp-3">
+                  {post.excerpt}
+                </p>
+                <div className="flex items-center justify-between text-sm text-slate-500">
+                  <span>{post.author}</span>
+                  <time dateTime={post.publishedDate}>
+                    {new Date(post.publishedDate).toLocaleDateString('en-US', { 
+                      year: 'numeric', 
+                      month: 'short', 
+                      day: 'numeric' 
+                    })}
+                  </time>
+                </div>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <div className="glass-card rounded-3xl p-12 text-center">
+            <h2 className="font-heading text-2xl font-bold text-slate-900 mb-4">
+              Coming Soon
+            </h2>
+            <p className="text-lg text-slate-600">
+              We're working on bringing you insightful articles about psychological testing, 
+              assessment tools, and research findings. Check back soon!
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
