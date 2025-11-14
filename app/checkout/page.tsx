@@ -21,9 +21,6 @@ export default function CheckoutPage() {
     pincode: '',
   });
   
-  const abandonTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const abandonNotificationSentRef = useRef(false);
-  const formFilledRef = useRef(false);
 
   const total = getTotal();
 
@@ -113,20 +110,6 @@ export default function CheckoutPage() {
       }
 
       // Order notification will be sent after payment status is confirmed via webhook
-      
-      // Clear abandoned checkout timer since user has completed checkout
-      if (abandonTimerRef.current) {
-        clearTimeout(abandonTimerRef.current);
-        abandonTimerRef.current = null;
-      }
-      abandonNotificationSentRef.current = true; // Prevent notification after successful checkout
-      
-      // Clear abandoned cart timer since user has initiated checkout
-      // The cart will be cleared after successful payment
-      if (typeof window !== 'undefined') {
-        // Mark that checkout has been initiated (prevents abandoned cart notification)
-        localStorage.setItem('checkout_initiated', 'true');
-      }
 
       // Redirect to PhonePe checkout
       if (paymentData.checkoutUrl) {
@@ -143,69 +126,11 @@ export default function CheckoutPage() {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const updatedFormData = {
+    setFormData({
       ...formData,
       [e.target.name]: e.target.value,
-    };
-    
-    setFormData(updatedFormData);
-    
-    // Check if form has meaningful data (name, email, or phone filled)
-    if (updatedFormData.name || updatedFormData.email || updatedFormData.phone) {
-      formFilledRef.current = true;
-      
-      // Reset and start abandon timer (5 minutes of inactivity)
-      if (abandonTimerRef.current) {
-        clearTimeout(abandonTimerRef.current);
-      }
-      
-      // Capture current cart state to avoid closure issues
-      const currentItems = items.map((item) => ({
-        productName: item.productName,
-        packSize: item.packSize,
-        quantity: item.quantity,
-        price: item.price,
-      }));
-      const currentTotal = total;
-      
-      abandonTimerRef.current = setTimeout(() => {
-        // User has been inactive for 5 minutes with form data filled
-        if (!abandonNotificationSentRef.current && formFilledRef.current) {
-          abandonNotificationSentRef.current = true;
-          
-          // Send abandoned checkout notification
-          fetch('/api/telegram/notify-abandoned-checkout', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              customerName: updatedFormData.name,
-              customerEmail: updatedFormData.email,
-              customerPhone: updatedFormData.phone,
-              shippingAddress: {
-                address: updatedFormData.address,
-                city: updatedFormData.city,
-                state: updatedFormData.state,
-                pincode: updatedFormData.pincode,
-              },
-              items: currentItems,
-              total: currentTotal,
-            }),
-          }).catch(err => {
-            console.error('Failed to send abandoned checkout notification:', err);
-          });
-        }
-      }, 5 * 60 * 1000); // 5 minutes
-    }
+    });
   };
-  
-  // Cleanup timer on unmount
-  useEffect(() => {
-    return () => {
-      if (abandonTimerRef.current) {
-        clearTimeout(abandonTimerRef.current);
-      }
-    };
-  }, []);
 
   return (
     <div className="bg-white py-12 px-4 sm:px-6 lg:px-8">
