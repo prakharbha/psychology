@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     title: 'The Power of Altruism: How Helping Others Transforms You',
     description: 'Discover the psychological benefits of altruism and how helping others enhances well-being.',
     type: 'article',
-    publishedTime: '2025-01-28T00:00:00Z',
+    publishedTime: '2025-05-03T00:00:00Z',
     authors: ['Prakhar Psychological Testing'],
     images: [
       {
@@ -50,8 +50,8 @@ export default function BlogPost() {
     headline: 'The Power of Altruism: How Helping Others Transforms You',
     description: 'Discover the psychological benefits of altruism and how helping others enhances well-being.',
     image: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-wellbeing.jpg',
-    datePublished: '2025-01-28T00:00:00Z',
-    dateModified: '2025-01-28T00:00:00Z',
+    datePublished: '2025-05-03T00:00:00Z',
+    dateModified: '2025-05-03T00:00:00Z',
     author: { '@type': 'Organization', name: 'Prakhar Psychological Testing' },
   };
 

@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     title: '10 Core Personality Traits That Influence Success',
     description: 'Discover 10 core personality traits that significantly influence success and achievement.',
     type: 'article',
-    publishedTime: '2025-02-04T00:00:00Z',
+    publishedTime: '2025-01-18T00:00:00Z',
     authors: ['Prakhar Psychological Testing'],
     images: [
       {
@@ -50,8 +50,8 @@ export default function BlogPost() {
     headline: '10 Core Personality Traits That Influence Success',
     description: 'Discover 10 core personality traits that significantly influence success and achievement.',
     image: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-achievement-motivation.jpg',
-    datePublished: '2025-02-04T00:00:00Z',
-    dateModified: '2025-02-04T00:00:00Z',
+    datePublished: '2025-01-18T00:00:00Z',
+    dateModified: '2025-01-18T00:00:00Z',
     author: { '@type': 'Organization', name: 'Prakhar Psychological Testing' },
   };
 

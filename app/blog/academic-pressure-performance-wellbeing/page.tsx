@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     title: 'How Academic Pressure Impacts Performance & Well-Being',
     description: 'Explore how academic pressure affects student performance and well-being.',
     type: 'article',
-    publishedTime: '2025-01-21T00:00:00Z',
+    publishedTime: '2025-08-16T00:00:00Z',
     authors: ['Prakhar Psychological Testing'],
     images: [
       {
@@ -50,8 +50,8 @@ export default function BlogPost() {
     headline: 'How Academic Pressure Impacts Performance & Well-Being',
     description: 'Explore how academic pressure affects student performance and well-being.',
     image: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-academic-pressure.jpg',
-    datePublished: '2025-01-21T00:00:00Z',
-    dateModified: '2025-01-21T00:00:00Z',
+    datePublished: '2025-08-16T00:00:00Z',
+    dateModified: '2025-08-16T00:00:00Z',
     author: { '@type': 'Organization', name: 'Prakhar Psychological Testing' },
   };
 

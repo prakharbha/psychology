@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     title: 'How Couples Can Build a Balanced & Supportive Marriage',
     description: 'Explore evidence-based strategies for building a balanced and supportive marriage.',
     type: 'article',
-    publishedTime: '2025-02-06T00:00:00Z',
+    publishedTime: '2024-12-19T00:00:00Z',
     authors: ['Prakhar Psychological Testing'],
     images: [
       {
@@ -50,8 +50,8 @@ export default function BlogPost() {
     headline: 'How Couples Can Build a Balanced & Supportive Marriage',
     description: 'Explore evidence-based strategies for building a balanced and supportive marriage.',
     image: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-wellbeing.jpg',
-    datePublished: '2025-02-06T00:00:00Z',
-    dateModified: '2025-02-06T00:00:00Z',
+    datePublished: '2024-12-19T00:00:00Z',
+    dateModified: '2024-12-19T00:00:00Z',
     author: { '@type': 'Organization', name: 'Prakhar Psychological Testing' },
   };
 

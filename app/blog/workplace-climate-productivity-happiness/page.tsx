@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     title: 'How Workplace Climate Influences Productivity & Happiness',
     description: 'Discover how workplace climate affects employee productivity and job satisfaction.',
     type: 'article',
-    publishedTime: '2025-01-26T00:00:00Z',
+    publishedTime: '2025-06-02T00:00:00Z',
     authors: ['Prakhar Psychological Testing'],
     images: [
       {
@@ -50,8 +50,8 @@ export default function BlogPost() {
     headline: 'How Workplace Climate Influences Productivity & Happiness',
     description: 'Discover how workplace climate affects employee productivity and job satisfaction.',
     image: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-workplace-climate.jpg',
-    datePublished: '2025-01-26T00:00:00Z',
-    dateModified: '2025-01-26T00:00:00Z',
+    datePublished: '2025-06-02T00:00:00Z',
+    dateModified: '2025-06-02T00:00:00Z',
     author: { '@type': 'Organization', name: 'Prakhar Psychological Testing' },
   };
 

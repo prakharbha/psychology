@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     title: 'Understanding Depression Through a Modern Psychological Lens',
     description: 'Explore modern psychological understanding of depression and evidence-based approaches.',
     type: 'article',
-    publishedTime: '2025-02-02T00:00:00Z',
+    publishedTime: '2025-02-17T00:00:00Z',
     authors: ['Prakhar Psychological Testing'],
     images: [
       {
@@ -50,8 +50,8 @@ export default function BlogPost() {
     headline: 'Understanding Depression Through a Modern Psychological Lens',
     description: 'Explore modern psychological understanding of depression and evidence-based approaches.',
     image: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-mental-health-dimensions.jpg',
-    datePublished: '2025-02-02T00:00:00Z',
-    dateModified: '2025-02-02T00:00:00Z',
+    datePublished: '2025-02-17T00:00:00Z',
+    dateModified: '2025-02-17T00:00:00Z',
     author: { '@type': 'Organization', name: 'Prakhar Psychological Testing' },
   };
 

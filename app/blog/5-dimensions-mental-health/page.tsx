@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     title: '5 Dimensions of Mental Health Everyone Should Understand',
     description: 'Explore the five essential dimensions of mental health and learn how they interconnect to impact overall well-being.',
     type: 'article',
-    publishedTime: '2025-01-16T00:00:00Z',
+    publishedTime: '2025-10-30T00:00:00Z',
     authors: ['Prakhar Psychological Testing'],
     images: [
       {
@@ -50,8 +50,8 @@ export default function BlogPost() {
     headline: '5 Dimensions of Mental Health Everyone Should Understand',
     description: 'Explore the five essential dimensions of mental health: emotional, psychological, social, spiritual, and physical.',
     image: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-mental-health-dimensions.jpg',
-    datePublished: '2025-01-16T00:00:00Z',
-    dateModified: '2025-01-16T00:00:00Z',
+    datePublished: '2025-10-30T00:00:00Z',
+    dateModified: '2025-10-30T00:00:00Z',
     author: {
       '@type': 'Organization',
       name: 'Prakhar Psychological Testing',

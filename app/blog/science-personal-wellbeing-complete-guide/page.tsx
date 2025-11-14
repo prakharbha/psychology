@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     title: 'The Science of Personal Well-Being: A Complete Guide',
     description: 'Explore the science behind personal well-being and evidence-based strategies for enhancing life satisfaction.',
     type: 'article',
-    publishedTime: '2025-01-24T00:00:00Z',
+    publishedTime: '2025-07-02T00:00:00Z',
     authors: ['Prakhar Psychological Testing'],
     images: [
       {
@@ -50,8 +50,8 @@ export default function BlogPost() {
     headline: 'The Science of Personal Well-Being: A Complete Guide',
     description: 'Explore the science behind personal well-being and evidence-based strategies.',
     image: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-wellbeing.jpg',
-    datePublished: '2025-01-24T00:00:00Z',
-    dateModified: '2025-01-24T00:00:00Z',
+    datePublished: '2025-07-02T00:00:00Z',
+    dateModified: '2025-07-02T00:00:00Z',
     author: { '@type': 'Organization', name: 'Prakhar Psychological Testing' },
   };
 

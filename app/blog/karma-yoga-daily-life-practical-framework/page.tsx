@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     title: 'Karma Yoga in Daily Life: A Practical Framework for Inner Peace',
     description: 'Explore Karma Yoga as a practical framework for finding inner peace through selfless action.',
     type: 'article',
-    publishedTime: '2025-02-03T00:00:00Z',
+    publishedTime: '2025-02-02T00:00:00Z',
     authors: ['Prakhar Psychological Testing'],
     images: [
       {
@@ -50,8 +50,8 @@ export default function BlogPost() {
     headline: 'Karma Yoga in Daily Life: A Practical Framework for Inner Peace',
     description: 'Explore Karma Yoga as a practical framework for finding inner peace through selfless action.',
     image: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-wellbeing.jpg',
-    datePublished: '2025-02-03T00:00:00Z',
-    dateModified: '2025-02-03T00:00:00Z',
+    datePublished: '2025-02-02T00:00:00Z',
+    dateModified: '2025-02-02T00:00:00Z',
     author: { '@type': 'Organization', name: 'Prakhar Psychological Testing' },
   };
 

@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     title: 'What Really Defines Quality of Life? A Practical Breakdown',
     description: 'Explore what truly defines quality of life beyond material wealth.',
     type: 'article',
-    publishedTime: '2025-01-25T00:00:00Z',
+    publishedTime: '2025-06-17T00:00:00Z',
     authors: ['Prakhar Psychological Testing'],
     images: [
       {
@@ -50,8 +50,8 @@ export default function BlogPost() {
     headline: 'What Really Defines Quality of Life? A Practical Breakdown',
     description: 'Explore what truly defines quality of life beyond material wealth.',
     image: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-wellbeing.jpg',
-    datePublished: '2025-01-25T00:00:00Z',
-    dateModified: '2025-01-25T00:00:00Z',
+    datePublished: '2025-06-17T00:00:00Z',
+    dateModified: '2025-06-17T00:00:00Z',
     author: { '@type': 'Organization', name: 'Prakhar Psychological Testing' },
   };
 

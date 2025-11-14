@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     title: 'How Parental Expectations Shape a Child\'s Future',
     description: 'Explore how parental expectations influence child development, achievement, and well-being.',
     type: 'article',
-    publishedTime: '2025-01-23T00:00:00Z',
+    publishedTime: '2025-07-17T00:00:00Z',
     authors: ['Prakhar Psychological Testing'],
     images: [
       {
@@ -50,8 +50,8 @@ export default function BlogPost() {
     headline: 'How Parental Expectations Shape a Child\'s Future',
     description: 'Explore how parental expectations influence child development, achievement, and well-being.',
     image: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-wellbeing.jpg',
-    datePublished: '2025-01-23T00:00:00Z',
-    dateModified: '2025-01-23T00:00:00Z',
+    datePublished: '2025-07-17T00:00:00Z',
+    dateModified: '2025-07-17T00:00:00Z',
     author: { '@type': 'Organization', name: 'Prakhar Psychological Testing' },
   };
 

@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     title: 'Eco-Friendly Living: Small Actions That Create Big Impact',
     description: 'Discover how small eco-friendly actions create significant environmental and psychological benefits.',
     type: 'article',
-    publishedTime: '2025-02-05T00:00:00Z',
+    publishedTime: '2025-01-03T00:00:00Z',
     authors: ['Prakhar Psychological Testing'],
     images: [
       {
@@ -50,8 +50,8 @@ export default function BlogPost() {
     headline: 'Eco-Friendly Living: Small Actions That Create Big Impact',
     description: 'Discover how small eco-friendly actions create significant environmental and psychological benefits.',
     image: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-wellbeing.jpg',
-    datePublished: '2025-02-05T00:00:00Z',
-    dateModified: '2025-02-05T00:00:00Z',
+    datePublished: '2025-01-03T00:00:00Z',
+    dateModified: '2025-01-03T00:00:00Z',
     author: { '@type': 'Organization', name: 'Prakhar Psychological Testing' },
   };
 

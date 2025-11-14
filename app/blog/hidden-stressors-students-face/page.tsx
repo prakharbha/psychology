@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     title: 'Hidden Stressors Students Face in Today\'s Academic World',
     description: 'Discover the hidden stressors affecting students today and learn how to address these challenges.',
     type: 'article',
-    publishedTime: '2025-01-17T00:00:00Z',
+    publishedTime: '2025-10-15T00:00:00Z',
     authors: ['Prakhar Psychological Testing'],
     images: [
       {
@@ -50,8 +50,8 @@ export default function BlogPost() {
     headline: 'Hidden Stressors Students Face in Today\'s Academic World',
     description: 'Discover the hidden stressors affecting students today and learn how to address these challenges.',
     image: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-student-stress.jpg',
-    datePublished: '2025-01-17T00:00:00Z',
-    dateModified: '2025-01-17T00:00:00Z',
+    datePublished: '2025-10-15T00:00:00Z',
+    dateModified: '2025-10-15T00:00:00Z',
     author: { '@type': 'Organization', name: 'Prakhar Psychological Testing' },
   };
 

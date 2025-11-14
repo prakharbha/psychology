@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     title: 'How Adjustment Shapes a Young Adult\'s Success | Psychological Insights',
     description: 'Discover how psychological adjustment during young adulthood becomes the foundation for lifelong success, career achievement, and personal fulfillment.',
     type: 'article',
-    publishedTime: '2025-01-15T00:00:00Z',
+    publishedTime: '2025-11-14T00:00:00Z',
     authors: ['Prakhar Psychological Testing'],
     tags: ['adjustment', 'young adults', 'success', 'psychology', 'personal growth'],
     images: [
@@ -51,8 +51,8 @@ export default function BlogPost() {
     headline: 'How Adjustment Shapes a Young Adult\'s Success',
     description: 'Discover how psychological adjustment during young adulthood becomes the foundation for lifelong success, career achievement, and personal fulfillment.',
     image: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-young-adults-success.jpg',
-    datePublished: '2025-01-15T00:00:00Z',
-    dateModified: '2025-01-15T00:00:00Z',
+    datePublished: '2025-11-14T00:00:00Z',
+    dateModified: '2025-11-14T00:00:00Z',
     author: {
       '@type': 'Organization',
       name: 'Prakhar Psychological Testing',

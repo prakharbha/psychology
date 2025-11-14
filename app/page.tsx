@@ -1,10 +1,16 @@
 import Link from 'next/link';
 import { getAllProducts } from '@/lib/products';
 import ProductCard from '@/components/ProductCard';
+import { getAllBlogPosts } from '@/lib/blog';
 
 export default function HomePage() {
   const allProducts = getAllProducts();
   const featuredProducts = allProducts.slice(0, 9);
+  const allBlogPosts = getAllBlogPosts();
+  // Get 3 latest blog posts (sorted by publishedDate descending)
+  const latestBlogPosts = allBlogPosts
+    .sort((a, b) => new Date(b.publishedDate).getTime() - new Date(a.publishedDate).getTime())
+    .slice(0, 3);
 
   return (
     <div className="bg-white relative">
@@ -76,6 +82,74 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Latest Blog Posts */}
+      {latestBlogPosts.length > 0 && (
+        <section className="py-20 px-4 sm:px-6 lg:px-8 relative">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="font-heading text-3xl md:text-4xl font-bold text-dark-blue-900 mb-4">
+                Latest Insights
+              </h2>
+              <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+                Explore our latest articles on psychological testing, mental health, and personal development
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+              {latestBlogPosts.map((post) => (
+                <Link
+                  key={post.id}
+                  href={`/blog/${post.slug}`}
+                  className="glass-card rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 block"
+                >
+                  {post.image && (
+                    <div className="w-full h-48 overflow-hidden bg-slate-100">
+                      <img 
+                        src={post.image} 
+                        alt={post.title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                  <div className="p-6">
+                    <div className="mb-4">
+                      <span className="px-3 py-1 bg-dark-blue-100 text-dark-blue-800 rounded-full text-sm font-semibold">
+                        {post.category}
+                      </span>
+                    </div>
+                    <h3 className="font-heading text-xl font-bold text-slate-900 mb-3 line-clamp-2">
+                      {post.title}
+                    </h3>
+                    <p className="text-slate-600 mb-4 line-clamp-3 text-sm">
+                      {post.excerpt}
+                    </p>
+                    <div className="flex items-center justify-between text-sm text-slate-500">
+                      <span>{post.author}</span>
+                      <time dateTime={post.publishedDate}>
+                        {new Date(post.publishedDate).toLocaleDateString('en-US', { 
+                          year: 'numeric', 
+                          month: 'short', 
+                          day: 'numeric' 
+                        })}
+                      </time>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+
+            <div className="text-center">
+              <Link
+                href="/blog"
+                className="inline-block px-8 py-4 bg-white/80 text-dark-blue-700 rounded-xl font-semibold border border-dark-blue-200 hover:bg-white transition-all duration-300 hover:shadow-lg"
+              >
+                View All Blog Posts
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* About Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white relative">

@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     title: 'How Your Value System Shapes Your Personality & Decisions',
     description: 'Explore how personal values influence personality development and decision-making.',
     type: 'article',
-    publishedTime: '2025-01-30T00:00:00Z',
+    publishedTime: '2025-04-03T00:00:00Z',
     authors: ['Prakhar Psychological Testing'],
     images: [
       {
@@ -50,8 +50,8 @@ export default function BlogPost() {
     headline: 'How Your Value System Shapes Your Personality & Decisions',
     description: 'Explore how personal values influence personality development and decision-making.',
     image: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-personality-types.jpg',
-    datePublished: '2025-01-30T00:00:00Z',
-    dateModified: '2025-01-30T00:00:00Z',
+    datePublished: '2025-04-03T00:00:00Z',
+    dateModified: '2025-04-03T00:00:00Z',
     author: { '@type': 'Organization', name: 'Prakhar Psychological Testing' },
   };
 

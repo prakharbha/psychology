@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     title: '7 Elements of a Truly Satisfying Life',
     description: 'Discover the seven essential elements that contribute to a truly satisfying life.',
     type: 'article',
-    publishedTime: '2025-01-20T00:00:00Z',
+    publishedTime: '2025-08-31T00:00:00Z',
     authors: ['Prakhar Psychological Testing'],
     images: [
       {
@@ -50,8 +50,8 @@ export default function BlogPost() {
     headline: '7 Elements of a Truly Satisfying Life',
     description: 'Discover the seven essential elements that contribute to a truly satisfying life.',
     image: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-life-satisfaction.jpg',
-    datePublished: '2025-01-20T00:00:00Z',
-    dateModified: '2025-01-20T00:00:00Z',
+    datePublished: '2025-08-31T00:00:00Z',
+    dateModified: '2025-08-31T00:00:00Z',
     author: { '@type': 'Organization', name: 'Prakhar Psychological Testing' },
   };
 

@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     title: 'What Drives High Performers? The Psychology of Achievement Motivation',
     description: 'Explore the psychological factors that drive high performers and sustained achievement.',
     type: 'article',
-    publishedTime: '2025-01-19T00:00:00Z',
+    publishedTime: '2025-09-15T00:00:00Z',
     authors: ['Prakhar Psychological Testing'],
     images: [
       {
@@ -50,8 +50,8 @@ export default function BlogPost() {
     headline: 'What Drives High Performers? The Psychology of Achievement Motivation',
     description: 'Explore the psychological factors that drive high performers and sustained achievement.',
     image: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-achievement-motivation.jpg',
-    datePublished: '2025-01-19T00:00:00Z',
-    dateModified: '2025-01-19T00:00:00Z',
+    datePublished: '2025-09-15T00:00:00Z',
+    dateModified: '2025-09-15T00:00:00Z',
     author: { '@type': 'Organization', name: 'Prakhar Psychological Testing' },
   };
 

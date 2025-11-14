@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     title: 'Understanding Swadharma: The Psychology of Duty & Balance',
     description: 'Explore Swadharma from a psychological perspective and find balance between duty and personal fulfillment.',
     type: 'article',
-    publishedTime: '2025-01-22T00:00:00Z',
+    publishedTime: '2025-08-01T00:00:00Z',
     authors: ['Prakhar Psychological Testing'],
     images: [
       {
@@ -50,8 +50,8 @@ export default function BlogPost() {
     headline: 'Understanding Swadharma: The Psychology of Duty & Balance',
     description: 'Explore Swadharma from a psychological perspective and find balance between duty and personal fulfillment.',
     image: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-wellbeing.jpg',
-    datePublished: '2025-01-22T00:00:00Z',
-    dateModified: '2025-01-22T00:00:00Z',
+    datePublished: '2025-08-01T00:00:00Z',
+    dateModified: '2025-08-01T00:00:00Z',
     author: { '@type': 'Organization', name: 'Prakhar Psychological Testing' },
   };
 

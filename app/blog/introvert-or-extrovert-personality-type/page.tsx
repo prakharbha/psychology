@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     title: 'Introvert or Extrovert? Understanding Your Personality Type',
     description: 'Discover the differences between introversion and extroversion and learn how to leverage your personality type.',
     type: 'article',
-    publishedTime: '2025-01-18T00:00:00Z',
+    publishedTime: '2025-09-30T00:00:00Z',
     authors: ['Prakhar Psychological Testing'],
     images: [
       {
@@ -50,8 +50,8 @@ export default function BlogPost() {
     headline: 'Introvert or Extrovert? Understanding Your Personality Type',
     description: 'Discover the differences between introversion and extroversion and learn how to leverage your personality type for success.',
     image: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-personality-types.jpg',
-    datePublished: '2025-01-18T00:00:00Z',
-    dateModified: '2025-01-18T00:00:00Z',
+    datePublished: '2025-09-30T00:00:00Z',
+    dateModified: '2025-09-30T00:00:00Z',
     author: { '@type': 'Organization', name: 'Prakhar Psychological Testing' },
   };
 

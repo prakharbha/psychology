@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     title: 'Identity Styles Explained: How You Understand Yourself',
     description: 'Explore identity styles and how different approaches to identity formation influence self-understanding.',
     type: 'article',
-    publishedTime: '2025-01-31T00:00:00Z',
+    publishedTime: '2025-03-19T00:00:00Z',
     authors: ['Prakhar Psychological Testing'],
     images: [
       {
@@ -50,8 +50,8 @@ export default function BlogPost() {
     headline: 'Identity Styles Explained: How You Understand Yourself',
     description: 'Explore identity styles and how different approaches to identity formation influence self-understanding.',
     image: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-personality-types.jpg',
-    datePublished: '2025-01-31T00:00:00Z',
-    dateModified: '2025-01-31T00:00:00Z',
+    datePublished: '2025-03-19T00:00:00Z',
+    dateModified: '2025-03-19T00:00:00Z',
     author: { '@type': 'Organization', name: 'Prakhar Psychological Testing' },
   };
 

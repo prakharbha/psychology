@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     title: '8 Types of Anxiety Adults Commonly Overlook',
     description: 'Discover 8 types of anxiety that adults often overlook and learn to recognize these hidden patterns.',
     type: 'article',
-    publishedTime: '2025-02-01T00:00:00Z',
+    publishedTime: '2025-03-04T00:00:00Z',
     authors: ['Prakhar Psychological Testing'],
     images: [
       {
@@ -50,8 +50,8 @@ export default function BlogPost() {
     headline: '8 Types of Anxiety Adults Commonly Overlook',
     description: 'Discover 8 types of anxiety that adults often overlook and learn to recognize these hidden patterns.',
     image: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-student-stress.jpg',
-    datePublished: '2025-02-01T00:00:00Z',
-    dateModified: '2025-02-01T00:00:00Z',
+    datePublished: '2025-03-04T00:00:00Z',
+    dateModified: '2025-03-04T00:00:00Z',
     author: { '@type': 'Organization', name: 'Prakhar Psychological Testing' },
   };
 

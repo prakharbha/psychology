@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     title: 'The Four Psychological Resources That Build Resilience',
     description: 'Discover the four essential psychological resources that build resilience.',
     type: 'article',
-    publishedTime: '2025-01-29T00:00:00Z',
+    publishedTime: '2025-04-18T00:00:00Z',
     authors: ['Prakhar Psychological Testing'],
     images: [
       {
@@ -50,8 +50,8 @@ export default function BlogPost() {
     headline: 'The Four Psychological Resources That Build Resilience',
     description: 'Discover the four essential psychological resources that build resilience.',
     image: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-wellbeing.jpg',
-    datePublished: '2025-01-29T00:00:00Z',
-    dateModified: '2025-01-29T00:00:00Z',
+    datePublished: '2025-04-18T00:00:00Z',
+    dateModified: '2025-04-18T00:00:00Z',
     author: { '@type': 'Organization', name: 'Prakhar Psychological Testing' },
   };
 
