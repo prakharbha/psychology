@@ -72,21 +72,13 @@ export async function POST(request: NextRequest) {
         
         // Send Telegram notification for successful payment
         try {
-          // Get base URL from request headers
-          const baseUrl = request.headers.get('host') 
-            ? `https://${request.headers.get('host')}`
-            : process.env.NEXT_PUBLIC_BASE_URL || 'https://www.prakharpsychologicaltest.com';
-          
-          const telegramMessage = `✅ *Payment Successful*\n\n` +
-            `📦 *Order ID:* ${merchantOrderId}\n` +
-            `💰 *Amount:* ₹${(amount / 100).toLocaleString('en-IN')}\n` +
-            `📱 *PhonePe Order ID:* ${callbackResponse.payload.orderId}\n` +
-            `\nPayment has been confirmed and order is ready for processing.`;
-          
-          await fetch(`${baseUrl}/api/telegram/notify`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: telegramMessage }),
+          // Import and call notification API directly
+          const { sendTelegramStatusNotification } = await import('@/lib/telegram-notifications');
+          await sendTelegramStatusNotification({
+            orderId: merchantOrderId,
+            status: 'COMPLETED',
+            amount: amount,
+            phonepeOrderId: callbackResponse.payload.orderId,
           }).catch(err => console.error('Telegram notification failed:', err));
         } catch (telegramError) {
           console.error('Failed to send Telegram notification:', telegramError);
@@ -100,21 +92,12 @@ export async function POST(request: NextRequest) {
         
         // Send Telegram notification for failed payment
         try {
-          // Get base URL from request headers
-          const baseUrl = request.headers.get('host') 
-            ? `https://${request.headers.get('host')}`
-            : process.env.NEXT_PUBLIC_BASE_URL || 'https://www.prakharpsychologicaltest.com';
-          
-          const telegramMessage = `❌ *Payment Failed*\n\n` +
-            `📦 *Order ID:* ${merchantOrderId}\n` +
-            `💰 *Amount:* ₹${(amount / 100).toLocaleString('en-IN')}\n` +
-            `📱 *PhonePe Order ID:* ${callbackResponse.payload.orderId}\n` +
-            `\nPayment failed. Order requires attention.`;
-          
-          await fetch(`${baseUrl}/api/telegram/notify`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: telegramMessage }),
+          const { sendTelegramStatusNotification } = await import('@/lib/telegram-notifications');
+          await sendTelegramStatusNotification({
+            orderId: merchantOrderId,
+            status: 'FAILED',
+            amount: amount,
+            phonepeOrderId: callbackResponse.payload.orderId,
           }).catch(err => console.error('Telegram notification failed:', err));
         } catch (telegramError) {
           console.error('Failed to send Telegram notification:', telegramError);
@@ -125,21 +108,12 @@ export async function POST(request: NextRequest) {
       if (stateUpper === 'PENDING' || stateUpper === 'PAYMENT_PENDING') {
         // Send Telegram notification for pending payment
         try {
-          // Get base URL from request headers
-          const baseUrl = request.headers.get('host') 
-            ? `https://${request.headers.get('host')}`
-            : process.env.NEXT_PUBLIC_BASE_URL || 'https://www.prakharpsychologicaltest.com';
-          
-          const telegramMessage = `⏳ *Payment Pending*\n\n` +
-            `📦 *Order ID:* ${merchantOrderId}\n` +
-            `💰 *Amount:* ₹${(amount / 100).toLocaleString('en-IN')}\n` +
-            `📱 *PhonePe Order ID:* ${callbackResponse.payload.orderId}\n` +
-            `\nPayment is pending. Waiting for confirmation.`;
-          
-          await fetch(`${baseUrl}/api/telegram/notify`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: telegramMessage }),
+          const { sendTelegramStatusNotification } = await import('@/lib/telegram-notifications');
+          await sendTelegramStatusNotification({
+            orderId: merchantOrderId,
+            status: 'PENDING',
+            amount: amount,
+            phonepeOrderId: callbackResponse.payload.orderId,
           }).catch(err => console.error('Telegram notification failed:', err));
         } catch (telegramError) {
           console.error('Failed to send Telegram notification:', telegramError);
