@@ -16,34 +16,46 @@ export default function HomePage() {
     <div className="bg-white relative">
       {/* Hero Section */}
       <section className="relative py-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
-        {/* Floral animated background */}
+        {/* Enhanced colorful animated background */}
         <div className="floral-banner-bg absolute inset-0 pointer-events-none">
           <div className="floral-orb-banner floral-orb-banner-1"></div>
           <div className="floral-orb-banner floral-orb-banner-2"></div>
           <div className="floral-orb-banner floral-orb-banner-3"></div>
           <div className="floral-orb-banner floral-orb-banner-4"></div>
+          <div className="floral-orb-banner floral-orb-banner-5"></div>
+          <div className="floral-orb-banner floral-orb-banner-6"></div>
+          {/* Animated gradient mesh */}
+          <div className="animated-gradient-mesh absolute inset-0"></div>
         </div>
         <div className="max-w-7xl mx-auto relative z-10">
-          <div className="glass-hero rounded-3xl p-12 md:p-16 text-center relative overflow-hidden">
+          <div className="glass-hero-enhanced rounded-3xl p-12 md:p-16 text-center relative overflow-hidden">
+            {/* Animated gradient background */}
+            <div className="hero-gradient-bg absolute inset-0 rounded-3xl"></div>
             <div className="subtle-shimmer absolute inset-0 rounded-3xl"></div>
+            {/* Floating particles */}
+            <div className="hero-particle hero-particle-1"></div>
+            <div className="hero-particle hero-particle-2"></div>
+            <div className="hero-particle hero-particle-3"></div>
+            <div className="hero-particle hero-particle-4"></div>
+            <div className="hero-particle hero-particle-5"></div>
             <div className="relative z-10">
-              <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-dark-blue-900 mb-6">
+              <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-dark-blue-900 mb-6 animate-fade-in-up">
                 Premium Psychological<br />Assessment Tools
               </h1>
-              <p className="text-lg md:text-xl text-slate-600 mb-8 max-w-2xl mx-auto">
+              <p className="text-lg md:text-xl text-slate-700 mb-8 max-w-2xl mx-auto animate-fade-in-up animate-delay-200">
                 Professional-grade psychological tests and inventories for researchers, 
                 clinicians, and educational institutions.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up animate-delay-300">
                 <Link
                   href="/products"
-                  className="px-8 py-4 bg-dark-blue-700 text-white rounded-xl font-semibold hover:bg-dark-blue-800 transition-all duration-300 hover:shadow-lg"
+                  className="px-8 py-4 bg-dark-blue-700 text-white rounded-xl font-semibold hover:bg-dark-blue-800 transition-all duration-300 hover:shadow-lg hover:scale-105"
                 >
                   View All Tests
                 </Link>
                 <Link
                   href="/about"
-                  className="px-8 py-4 bg-white/80 text-dark-blue-700 rounded-xl font-semibold border border-dark-blue-200 hover:bg-white transition-all duration-300"
+                  className="px-8 py-4 bg-white/90 text-dark-blue-700 rounded-xl font-semibold border border-dark-blue-200 hover:bg-white transition-all duration-300 hover:scale-105"
                   aria-label="Learn more about Prakhar Psychological Testing"
                 >
                   Learn More About Us
