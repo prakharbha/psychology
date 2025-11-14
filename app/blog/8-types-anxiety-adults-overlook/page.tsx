@@ -11,11 +11,20 @@ export const metadata: Metadata = {
     type: 'article',
     publishedTime: '2025-02-01T00:00:00Z',
     authors: ['Prakhar Psychological Testing'],
+    images: [
+      {
+        url: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-student-stress.jpg',
+        width: 1200,
+        height: 630,
+        alt: '8 types of anxiety that adults commonly overlook in daily life',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: '8 Types of Anxiety Adults Commonly Overlook',
     description: 'Discover 8 types of anxiety that adults often overlook.',
+    images: ['https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-student-stress.jpg'],
   },
   alternates: {
     canonical: '/blog/8-types-anxiety-adults-overlook',
@@ -40,6 +49,7 @@ export default function BlogPost() {
     '@type': 'Article',
     headline: '8 Types of Anxiety Adults Commonly Overlook',
     description: 'Discover 8 types of anxiety that adults often overlook and learn to recognize these hidden patterns.',
+    image: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-student-stress.jpg',
     datePublished: '2025-02-01T00:00:00Z',
     dateModified: '2025-02-01T00:00:00Z',
     author: { '@type': 'Organization', name: 'Prakhar Psychological Testing' },
@@ -102,6 +112,13 @@ export default function BlogPost() {
           </header>
 
           <div className="prose prose-lg max-w-none">
+            <div className="mb-8 rounded-xl overflow-hidden">
+              <img 
+                src="/images/blog/prakhar-psychological-testing-student-stress.jpg" 
+                alt="8 types of anxiety that adults commonly overlook in daily life"
+                className="w-full h-auto"
+              />
+            </div>
             <p className="text-xl text-slate-700 leading-relaxed mb-6">
               Anxiety doesn't always announce itself with panic attacks or obvious symptoms. Many adults live with 
               subtle, persistent forms of anxiety that go unrecognized because they're normalized, masked as "normal" 

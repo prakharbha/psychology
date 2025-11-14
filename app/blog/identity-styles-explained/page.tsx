@@ -11,11 +11,20 @@ export const metadata: Metadata = {
     type: 'article',
     publishedTime: '2025-01-31T00:00:00Z',
     authors: ['Prakhar Psychological Testing'],
+    images: [
+      {
+        url: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-personality-types.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Identity styles explained: how you understand yourself through different identity formation approaches',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Identity Styles Explained: How You Understand Yourself',
     description: 'Explore identity styles and identity formation approaches.',
+    images: ['https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-personality-types.jpg'],
   },
   alternates: {
     canonical: '/blog/identity-styles-explained',
@@ -40,6 +49,7 @@ export default function BlogPost() {
     '@type': 'Article',
     headline: 'Identity Styles Explained: How You Understand Yourself',
     description: 'Explore identity styles and how different approaches to identity formation influence self-understanding.',
+    image: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-personality-types.jpg',
     datePublished: '2025-01-31T00:00:00Z',
     dateModified: '2025-01-31T00:00:00Z',
     author: { '@type': 'Organization', name: 'Prakhar Psychological Testing' },
@@ -102,6 +112,13 @@ export default function BlogPost() {
           </header>
 
           <div className="prose prose-lg max-w-none">
+            <div className="mb-8 rounded-xl overflow-hidden">
+              <img 
+                src="/images/blog/prakhar-psychological-testing-personality-types.jpg" 
+                alt="Identity styles explained: how you understand yourself through different identity formation approaches"
+                className="w-full h-auto"
+              />
+            </div>
             <p className="text-xl text-slate-700 leading-relaxed mb-6">
               How do you come to understand who you are? The process of identity formation—developing a coherent sense 
               of self—varies dramatically between individuals. James Marcia's identity status model identifies distinct 

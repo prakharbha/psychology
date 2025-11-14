@@ -11,11 +11,20 @@ export const metadata: Metadata = {
     type: 'article',
     publishedTime: '2025-01-24T00:00:00Z',
     authors: ['Prakhar Psychological Testing'],
+    images: [
+      {
+        url: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-wellbeing.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'The science of personal well-being: evidence-based insights and strategies',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'The Science of Personal Well-Being: A Complete Guide',
     description: 'Explore the science behind personal well-being.',
+    images: ['https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-wellbeing.jpg'],
   },
   alternates: {
     canonical: '/blog/science-personal-wellbeing-complete-guide',
@@ -40,6 +49,7 @@ export default function BlogPost() {
     '@type': 'Article',
     headline: 'The Science of Personal Well-Being: A Complete Guide',
     description: 'Explore the science behind personal well-being and evidence-based strategies.',
+    image: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-wellbeing.jpg',
     datePublished: '2025-01-24T00:00:00Z',
     dateModified: '2025-01-24T00:00:00Z',
     author: { '@type': 'Organization', name: 'Prakhar Psychological Testing' },
@@ -102,6 +112,13 @@ export default function BlogPost() {
           </header>
 
           <div className="prose prose-lg max-w-none">
+            <div className="mb-8 rounded-xl overflow-hidden">
+              <img 
+                src="/images/blog/prakhar-psychological-testing-wellbeing.jpg" 
+                alt="The science of personal well-being: evidence-based insights and strategies"
+                className="w-full h-auto"
+              />
+            </div>
             <p className="text-xl text-slate-700 leading-relaxed mb-6">
               Well-being isn't just the absence of illness—it's a positive state of thriving across multiple dimensions 
               of human experience. Over the past few decades, psychological science has moved beyond simply treating 

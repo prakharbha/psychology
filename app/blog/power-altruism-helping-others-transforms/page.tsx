@@ -11,11 +11,20 @@ export const metadata: Metadata = {
     type: 'article',
     publishedTime: '2025-01-28T00:00:00Z',
     authors: ['Prakhar Psychological Testing'],
+    images: [
+      {
+        url: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-wellbeing.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'The power of altruism: how helping others transforms your psychological well-being',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'The Power of Altruism: How Helping Others Transforms You',
     description: 'Discover the psychological benefits of altruism.',
+    images: ['https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-wellbeing.jpg'],
   },
   alternates: {
     canonical: '/blog/power-altruism-helping-others-transforms',
@@ -40,6 +49,7 @@ export default function BlogPost() {
     '@type': 'Article',
     headline: 'The Power of Altruism: How Helping Others Transforms You',
     description: 'Discover the psychological benefits of altruism and how helping others enhances well-being.',
+    image: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-wellbeing.jpg',
     datePublished: '2025-01-28T00:00:00Z',
     dateModified: '2025-01-28T00:00:00Z',
     author: { '@type': 'Organization', name: 'Prakhar Psychological Testing' },
@@ -102,6 +112,13 @@ export default function BlogPost() {
           </header>
 
           <div className="prose prose-lg max-w-none">
+            <div className="mb-8 rounded-xl overflow-hidden">
+              <img 
+                src="/images/blog/prakhar-psychological-testing-wellbeing.jpg" 
+                alt="The power of altruism: how helping others transforms your psychological well-being"
+                className="w-full h-auto"
+              />
+            </div>
             <p className="text-xl text-slate-700 leading-relaxed mb-6">
               The act of helping others creates a remarkable psychological paradox: in giving, we receive. Altruism—the 
               selfless concern for others' welfare—doesn't just benefit recipients; it fundamentally transforms the 

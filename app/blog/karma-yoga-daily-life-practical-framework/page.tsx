@@ -11,11 +11,20 @@ export const metadata: Metadata = {
     type: 'article',
     publishedTime: '2025-02-03T00:00:00Z',
     authors: ['Prakhar Psychological Testing'],
+    images: [
+      {
+        url: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-wellbeing.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Karma Yoga in daily life: a practical framework for inner peace and well-being',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Karma Yoga in Daily Life: A Practical Framework for Inner Peace',
     description: 'Explore Karma Yoga as a practical framework for inner peace.',
+    images: ['https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-wellbeing.jpg'],
   },
   alternates: {
     canonical: '/blog/karma-yoga-daily-life-practical-framework',
@@ -40,6 +49,7 @@ export default function BlogPost() {
     '@type': 'Article',
     headline: 'Karma Yoga in Daily Life: A Practical Framework for Inner Peace',
     description: 'Explore Karma Yoga as a practical framework for finding inner peace through selfless action.',
+    image: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-wellbeing.jpg',
     datePublished: '2025-02-03T00:00:00Z',
     dateModified: '2025-02-03T00:00:00Z',
     author: { '@type': 'Organization', name: 'Prakhar Psychological Testing' },
@@ -102,6 +112,13 @@ export default function BlogPost() {
           </header>
 
           <div className="prose prose-lg max-w-none">
+            <div className="mb-8 rounded-xl overflow-hidden">
+              <img 
+                src="/images/blog/prakhar-psychological-testing-wellbeing.jpg" 
+                alt="Karma Yoga in daily life: a practical framework for inner peace and well-being"
+                className="w-full h-auto"
+              />
+            </div>
             <p className="text-xl text-slate-700 leading-relaxed mb-6">
               Karma Yoga, the path of selfless action, offers profound psychological insights that extend far beyond 
               spiritual practice. This ancient framework provides a practical approach to finding inner peace, reducing 

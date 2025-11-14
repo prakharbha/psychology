@@ -11,11 +11,20 @@ export const metadata: Metadata = {
     type: 'article',
     publishedTime: '2025-02-04T00:00:00Z',
     authors: ['Prakhar Psychological Testing'],
+    images: [
+      {
+        url: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-achievement-motivation.jpg',
+        width: 1200,
+        height: 630,
+        alt: '10 core personality traits that influence success and achievement',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: '10 Core Personality Traits That Influence Success',
     description: 'Discover 10 core personality traits that influence success.',
+    images: ['https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-achievement-motivation.jpg'],
   },
   alternates: {
     canonical: '/blog/10-core-personality-traits-influence-success',
@@ -40,6 +49,7 @@ export default function BlogPost() {
     '@type': 'Article',
     headline: '10 Core Personality Traits That Influence Success',
     description: 'Discover 10 core personality traits that significantly influence success and achievement.',
+    image: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-achievement-motivation.jpg',
     datePublished: '2025-02-04T00:00:00Z',
     dateModified: '2025-02-04T00:00:00Z',
     author: { '@type': 'Organization', name: 'Prakhar Psychological Testing' },
@@ -102,6 +112,13 @@ export default function BlogPost() {
           </header>
 
           <div className="prose prose-lg max-w-none">
+            <div className="mb-8 rounded-xl overflow-hidden">
+              <img 
+                src="/images/blog/prakhar-psychological-testing-achievement-motivation.jpg" 
+                alt="10 core personality traits that influence success and achievement"
+                className="w-full h-auto"
+              />
+            </div>
             <p className="text-xl text-slate-700 leading-relaxed mb-6">
               Success isn't just about talent or opportunity—it's significantly influenced by personality traits that 
               shape how we approach challenges, interact with others, and persist through difficulties. Decades of 

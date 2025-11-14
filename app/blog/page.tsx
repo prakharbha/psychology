@@ -42,28 +42,39 @@ export default function BlogPage() {
               <Link
                 key={post.id}
                 href={`/blog/${post.slug}`}
-                className="glass-card rounded-2xl p-6 hover:shadow-xl transition-all duration-300 block"
+                className="glass-card rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 block"
               >
-                <div className="mb-4">
-                  <span className="px-3 py-1 bg-dark-blue-100 text-dark-blue-800 rounded-full text-sm font-semibold">
-                    {post.category}
-                  </span>
-                </div>
-                <h2 className="font-heading text-2xl font-bold text-slate-900 mb-3 line-clamp-2">
-                  {post.title}
-                </h2>
-                <p className="text-slate-600 mb-4 line-clamp-3">
-                  {post.excerpt}
-                </p>
-                <div className="flex items-center justify-between text-sm text-slate-500">
-                  <span>{post.author}</span>
-                  <time dateTime={post.publishedDate}>
-                    {new Date(post.publishedDate).toLocaleDateString('en-US', { 
-                      year: 'numeric', 
-                      month: 'short', 
-                      day: 'numeric' 
-                    })}
-                  </time>
+                {post.image && (
+                  <div className="w-full h-48 overflow-hidden bg-slate-100">
+                    <img 
+                      src={post.image} 
+                      alt={post.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+                <div className="p-6">
+                  <div className="mb-4">
+                    <span className="px-3 py-1 bg-dark-blue-100 text-dark-blue-800 rounded-full text-sm font-semibold">
+                      {post.category}
+                    </span>
+                  </div>
+                  <h2 className="font-heading text-2xl font-bold text-slate-900 mb-3 line-clamp-2">
+                    {post.title}
+                  </h2>
+                  <p className="text-slate-600 mb-4 line-clamp-3">
+                    {post.excerpt}
+                  </p>
+                  <div className="flex items-center justify-between text-sm text-slate-500">
+                    <span>{post.author}</span>
+                    <time dateTime={post.publishedDate}>
+                      {new Date(post.publishedDate).toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'short', 
+                        day: 'numeric' 
+                      })}
+                    </time>
+                  </div>
                 </div>
               </Link>
             ))}

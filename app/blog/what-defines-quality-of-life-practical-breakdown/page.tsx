@@ -11,11 +11,20 @@ export const metadata: Metadata = {
     type: 'article',
     publishedTime: '2025-01-25T00:00:00Z',
     authors: ['Prakhar Psychological Testing'],
+    images: [
+      {
+        url: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-wellbeing.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'What really defines quality of life: a practical breakdown of key factors',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'What Really Defines Quality of Life? A Practical Breakdown',
     description: 'Explore what truly defines quality of life.',
+    images: ['https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-wellbeing.jpg'],
   },
   alternates: {
     canonical: '/blog/what-defines-quality-of-life-practical-breakdown',
@@ -40,6 +49,7 @@ export default function BlogPost() {
     '@type': 'Article',
     headline: 'What Really Defines Quality of Life? A Practical Breakdown',
     description: 'Explore what truly defines quality of life beyond material wealth.',
+    image: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-wellbeing.jpg',
     datePublished: '2025-01-25T00:00:00Z',
     dateModified: '2025-01-25T00:00:00Z',
     author: { '@type': 'Organization', name: 'Prakhar Psychological Testing' },
@@ -102,6 +112,13 @@ export default function BlogPost() {
           </header>
 
           <div className="prose prose-lg max-w-none">
+            <div className="mb-8 rounded-xl overflow-hidden">
+              <img 
+                src="/images/blog/prakhar-psychological-testing-wellbeing.jpg" 
+                alt="What really defines quality of life: a practical breakdown of key factors"
+                className="w-full h-auto"
+              />
+            </div>
             <p className="text-xl text-slate-700 leading-relaxed mb-6">
               Quality of life is one of those concepts everyone recognizes but few can precisely define. Is it wealth? 
               Health? Happiness? The answer, according to decades of research, is more nuanced than any single factor. 

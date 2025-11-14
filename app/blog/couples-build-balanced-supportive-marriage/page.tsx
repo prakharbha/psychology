@@ -11,11 +11,20 @@ export const metadata: Metadata = {
     type: 'article',
     publishedTime: '2025-02-06T00:00:00Z',
     authors: ['Prakhar Psychological Testing'],
+    images: [
+      {
+        url: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-wellbeing.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'How couples can build a balanced and supportive marriage through evidence-based strategies',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'How Couples Can Build a Balanced & Supportive Marriage',
     description: 'Explore strategies for building a balanced and supportive marriage.',
+    images: ['https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-wellbeing.jpg'],
   },
   alternates: {
     canonical: '/blog/couples-build-balanced-supportive-marriage',
@@ -40,6 +49,7 @@ export default function BlogPost() {
     '@type': 'Article',
     headline: 'How Couples Can Build a Balanced & Supportive Marriage',
     description: 'Explore evidence-based strategies for building a balanced and supportive marriage.',
+    image: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-wellbeing.jpg',
     datePublished: '2025-02-06T00:00:00Z',
     dateModified: '2025-02-06T00:00:00Z',
     author: { '@type': 'Organization', name: 'Prakhar Psychological Testing' },
@@ -102,6 +112,13 @@ export default function BlogPost() {
           </header>
 
           <div className="prose prose-lg max-w-none">
+            <div className="mb-8 rounded-xl overflow-hidden">
+              <img 
+                src="/images/blog/prakhar-psychological-testing-wellbeing.jpg" 
+                alt="How couples can build a balanced and supportive marriage through evidence-based strategies"
+                className="w-full h-auto"
+              />
+            </div>
             <p className="text-xl text-slate-700 leading-relaxed mb-6">
               A balanced and supportive marriage doesn't happen by accident—it's built through intentional practices, 
               effective communication, and mutual commitment to growth. Research in relationship psychology reveals 

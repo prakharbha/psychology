@@ -11,11 +11,20 @@ export const metadata: Metadata = {
     type: 'article',
     publishedTime: '2025-01-29T00:00:00Z',
     authors: ['Prakhar Psychological Testing'],
+    images: [
+      {
+        url: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-wellbeing.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'The four psychological resources that build resilience: self-efficacy, optimism, social support, and adaptability',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'The Four Psychological Resources That Build Resilience',
     description: 'Discover the four essential psychological resources that build resilience.',
+    images: ['https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-wellbeing.jpg'],
   },
   alternates: {
     canonical: '/blog/four-psychological-resources-build-resilience',
@@ -40,6 +49,7 @@ export default function BlogPost() {
     '@type': 'Article',
     headline: 'The Four Psychological Resources That Build Resilience',
     description: 'Discover the four essential psychological resources that build resilience.',
+    image: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-wellbeing.jpg',
     datePublished: '2025-01-29T00:00:00Z',
     dateModified: '2025-01-29T00:00:00Z',
     author: { '@type': 'Organization', name: 'Prakhar Psychological Testing' },
@@ -102,6 +112,13 @@ export default function BlogPost() {
           </header>
 
           <div className="prose prose-lg max-w-none">
+            <div className="mb-8 rounded-xl overflow-hidden">
+              <img 
+                src="/images/blog/prakhar-psychological-testing-wellbeing.jpg" 
+                alt="The four psychological resources that build resilience: self-efficacy, optimism, social support, and adaptability"
+                className="w-full h-auto"
+              />
+            </div>
             <p className="text-xl text-slate-700 leading-relaxed mb-6">
               Resilience—the ability to bounce back from adversity and thrive despite challenges—isn't a mysterious 
               trait reserved for the naturally strong. It's a psychological capacity built from specific resources that 

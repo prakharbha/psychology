@@ -11,11 +11,20 @@ export const metadata: Metadata = {
     type: 'article',
     publishedTime: '2025-02-02T00:00:00Z',
     authors: ['Prakhar Psychological Testing'],
+    images: [
+      {
+        url: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-mental-health-dimensions.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Understanding depression through a modern psychological lens: beyond sadness',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Understanding Depression Through a Modern Psychological Lens',
     description: 'Explore modern psychological understanding of depression.',
+    images: ['https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-mental-health-dimensions.jpg'],
   },
   alternates: {
     canonical: '/blog/understanding-depression-modern-psychological-lens',
@@ -40,6 +49,7 @@ export default function BlogPost() {
     '@type': 'Article',
     headline: 'Understanding Depression Through a Modern Psychological Lens',
     description: 'Explore modern psychological understanding of depression and evidence-based approaches.',
+    image: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-mental-health-dimensions.jpg',
     datePublished: '2025-02-02T00:00:00Z',
     dateModified: '2025-02-02T00:00:00Z',
     author: { '@type': 'Organization', name: 'Prakhar Psychological Testing' },
@@ -102,6 +112,13 @@ export default function BlogPost() {
           </header>
 
           <div className="prose prose-lg max-w-none">
+            <div className="mb-8 rounded-xl overflow-hidden">
+              <img 
+                src="/images/blog/prakhar-psychological-testing-mental-health-dimensions.jpg" 
+                alt="Understanding depression through a modern psychological lens: beyond sadness"
+                className="w-full h-auto"
+              />
+            </div>
             <p className="text-xl text-slate-700 leading-relaxed mb-6">
               Depression is one of the most misunderstood mental health conditions. Popular conceptions often reduce it 
               to "feeling sad" or "being negative," but modern psychological understanding reveals a far more complex 

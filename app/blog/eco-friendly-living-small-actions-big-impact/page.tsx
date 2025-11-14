@@ -11,11 +11,20 @@ export const metadata: Metadata = {
     type: 'article',
     publishedTime: '2025-02-05T00:00:00Z',
     authors: ['Prakhar Psychological Testing'],
+    images: [
+      {
+        url: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-wellbeing.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Eco-friendly living: small actions that create big impact on well-being and environment',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Eco-Friendly Living: Small Actions That Create Big Impact',
     description: 'Discover how small eco-friendly actions create big impact.',
+    images: ['https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-wellbeing.jpg'],
   },
   alternates: {
     canonical: '/blog/eco-friendly-living-small-actions-big-impact',
@@ -40,6 +49,7 @@ export default function BlogPost() {
     '@type': 'Article',
     headline: 'Eco-Friendly Living: Small Actions That Create Big Impact',
     description: 'Discover how small eco-friendly actions create significant environmental and psychological benefits.',
+    image: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-wellbeing.jpg',
     datePublished: '2025-02-05T00:00:00Z',
     dateModified: '2025-02-05T00:00:00Z',
     author: { '@type': 'Organization', name: 'Prakhar Psychological Testing' },
@@ -102,6 +112,13 @@ export default function BlogPost() {
           </header>
 
           <div className="prose prose-lg max-w-none">
+            <div className="mb-8 rounded-xl overflow-hidden">
+              <img 
+                src="/images/blog/prakhar-psychological-testing-wellbeing.jpg" 
+                alt="Eco-friendly living: small actions that create big impact on well-being and environment"
+                className="w-full h-auto"
+              />
+            </div>
             <p className="text-xl text-slate-700 leading-relaxed mb-6">
               The scale of environmental challenges can feel overwhelming, leading many to believe that individual actions 
               don't matter. However, psychological and environmental research reveals that small, consistent eco-friendly 

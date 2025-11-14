@@ -11,11 +11,20 @@ export const metadata: Metadata = {
     type: 'article',
     publishedTime: '2025-01-30T00:00:00Z',
     authors: ['Prakhar Psychological Testing'],
+    images: [
+      {
+        url: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-personality-types.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'How your value system shapes your personality and decision-making processes',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'How Your Value System Shapes Your Personality & Decisions',
     description: 'Explore how personal values influence personality and decisions.',
+    images: ['https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-personality-types.jpg'],
   },
   alternates: {
     canonical: '/blog/value-system-shapes-personality-decisions',
@@ -40,6 +49,7 @@ export default function BlogPost() {
     '@type': 'Article',
     headline: 'How Your Value System Shapes Your Personality & Decisions',
     description: 'Explore how personal values influence personality development and decision-making.',
+    image: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-personality-types.jpg',
     datePublished: '2025-01-30T00:00:00Z',
     dateModified: '2025-01-30T00:00:00Z',
     author: { '@type': 'Organization', name: 'Prakhar Psychological Testing' },
@@ -102,6 +112,13 @@ export default function BlogPost() {
           </header>
 
           <div className="prose prose-lg max-w-none">
+            <div className="mb-8 rounded-xl overflow-hidden">
+              <img 
+                src="/images/blog/prakhar-psychological-testing-personality-types.jpg" 
+                alt="How your value system shapes your personality and decision-making processes"
+                className="w-full h-auto"
+              />
+            </div>
             <p className="text-xl text-slate-700 leading-relaxed mb-6">
               Your values aren't just abstract ideals—they're the psychological architecture that shapes your 
               personality, guides your decisions, and determines the trajectory of your life. Values serve as internal 

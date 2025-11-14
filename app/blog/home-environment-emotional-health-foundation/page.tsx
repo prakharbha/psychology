@@ -11,11 +11,20 @@ export const metadata: Metadata = {
     type: 'article',
     publishedTime: '2025-01-27T00:00:00Z',
     authors: ['Prakhar Psychological Testing'],
+    images: [
+      {
+        url: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-wellbeing.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Why home environment is the foundation of emotional health and well-being',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Why Home Environment Is the Foundation of Emotional Health',
     description: 'Explore how home environment shapes emotional health.',
+    images: ['https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-wellbeing.jpg'],
   },
   alternates: {
     canonical: '/blog/home-environment-emotional-health-foundation',
@@ -40,6 +49,7 @@ export default function BlogPost() {
     '@type': 'Article',
     headline: 'Why Home Environment Is the Foundation of Emotional Health',
     description: 'Explore how home environment shapes emotional health and mental well-being.',
+    image: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-wellbeing.jpg',
     datePublished: '2025-01-27T00:00:00Z',
     dateModified: '2025-01-27T00:00:00Z',
     author: { '@type': 'Organization', name: 'Prakhar Psychological Testing' },
@@ -102,6 +112,13 @@ export default function BlogPost() {
           </header>
 
           <div className="prose prose-lg max-w-none">
+            <div className="mb-8 rounded-xl overflow-hidden">
+              <img 
+                src="/images/blog/prakhar-psychological-testing-wellbeing.jpg" 
+                alt="Why home environment is the foundation of emotional health and well-being"
+                className="w-full h-auto"
+              />
+            </div>
             <p className="text-xl text-slate-700 leading-relaxed mb-6">
               Home is more than a physical space—it's the primary environment where emotional patterns are established, 
               relationships are formed, and psychological foundations are laid. The home environment, encompassing both 

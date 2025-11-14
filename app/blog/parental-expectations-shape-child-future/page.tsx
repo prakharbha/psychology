@@ -11,11 +11,20 @@ export const metadata: Metadata = {
     type: 'article',
     publishedTime: '2025-01-23T00:00:00Z',
     authors: ['Prakhar Psychological Testing'],
+    images: [
+      {
+        url: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-wellbeing.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'How parental expectations shape a child\'s future development and well-being',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'How Parental Expectations Shape a Child\'s Future',
     description: 'Explore how parental expectations influence child development.',
+    images: ['https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-wellbeing.jpg'],
   },
   alternates: {
     canonical: '/blog/parental-expectations-shape-child-future',
@@ -40,6 +49,7 @@ export default function BlogPost() {
     '@type': 'Article',
     headline: 'How Parental Expectations Shape a Child\'s Future',
     description: 'Explore how parental expectations influence child development, achievement, and well-being.',
+    image: 'https://www.prakharpsychologicaltest.com/images/blog/prakhar-psychological-testing-wellbeing.jpg',
     datePublished: '2025-01-23T00:00:00Z',
     dateModified: '2025-01-23T00:00:00Z',
     author: { '@type': 'Organization', name: 'Prakhar Psychological Testing' },
@@ -102,6 +112,13 @@ export default function BlogPost() {
           </header>
 
           <div className="prose prose-lg max-w-none">
+            <div className="mb-8 rounded-xl overflow-hidden">
+              <img 
+                src="/images/blog/prakhar-psychological-testing-wellbeing.jpg" 
+                alt="How parental expectations shape a child's future development and well-being"
+                className="w-full h-auto"
+              />
+            </div>
             <p className="text-xl text-slate-700 leading-relaxed mb-6">
               Parental expectations are among the most powerful forces shaping child development. They influence not 
               just academic achievement but also self-concept, motivation, resilience, and long-term life outcomes. 
