@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { getAllProducts } from '@/lib/products';
 import ProductCard from '@/components/ProductCard';
 import { getAllBlogPosts } from '@/lib/blog';
+import AnimatedGrid from '@/components/AnimatedGrid';
 
 export default function HomePage() {
   const allProducts = getAllProducts();
@@ -26,6 +27,8 @@ export default function HomePage() {
           <div className="floral-orb-banner floral-orb-banner-6"></div>
           {/* Animated gradient mesh */}
           <div className="animated-gradient-mesh absolute inset-0"></div>
+          {/* Cursor-based animated grid */}
+          <AnimatedGrid />
         </div>
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="glass-hero-enhanced rounded-3xl p-12 md:p-16 text-center relative overflow-hidden">
