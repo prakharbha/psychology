@@ -32,6 +32,20 @@ function OrderConfirmationContent() {
 
     if (finalOrderId) {
       setIsLoadingStatus(true);
+      
+      // Get order details from sessionStorage
+      let orderDetails = null;
+      if (typeof window !== 'undefined') {
+        const orderDataStr = sessionStorage.getItem(`order_${finalOrderId}`);
+        if (orderDataStr) {
+          try {
+            orderDetails = JSON.parse(orderDataStr);
+          } catch (e) {
+            console.error('Failed to parse order details:', e);
+          }
+        }
+      }
+      
       fetch(`/api/phonepe/status?orderId=${finalOrderId}`)
         .then(res => res.json())
         .then(data => {
@@ -42,15 +56,28 @@ function OrderConfirmationContent() {
             const state = data.state?.toUpperCase();
             if (state && !notificationSentRef.current) {
               notificationSentRef.current = true;
+              
+              // Include customer details and order items in notification
+              const notificationData: any = {
+                orderId: finalOrderId,
+                status: state,
+                amount: data.amount,
+                phonepeOrderId: data.orderId,
+              };
+              
+              // Add customer details if available
+              if (orderDetails) {
+                notificationData.customerName = orderDetails.customerName;
+                notificationData.customerEmail = orderDetails.customerEmail;
+                notificationData.customerPhone = orderDetails.customerPhone;
+                notificationData.shippingAddress = orderDetails.shippingAddress;
+                notificationData.items = orderDetails.items;
+              }
+              
               fetch('/api/telegram/notify-status', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  orderId: finalOrderId,
-                  status: state,
-                  amount: data.amount,
-                  phonepeOrderId: data.orderId,
-                }),
+                body: JSON.stringify(notificationData),
               }).catch(err => {
                 console.error('Failed to send status notification:', err);
               });

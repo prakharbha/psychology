@@ -7,7 +7,17 @@ import { NextRequest, NextResponse } from 'next/server';
  */
 export async function POST(request: NextRequest) {
   try {
-    const { orderId, status, amount, phonepeOrderId } = await request.json();
+    const { 
+      orderId, 
+      status, 
+      amount, 
+      phonepeOrderId,
+      customerName,
+      customerEmail,
+      customerPhone,
+      shippingAddress,
+      items
+    } = await request.json();
 
     if (!orderId || !status) {
       return NextResponse.json(
@@ -51,10 +61,39 @@ export async function POST(request: NextRequest) {
 
     const amountText = amount ? `\n💰 *Amount:* ₹${(amount / 100).toLocaleString('en-IN')}` : '';
     const phonepeText = phonepeOrderId ? `\n📱 *PhonePe Order ID:* ${phonepeOrderId}` : '';
+    
+    // Customer details
+    let customerDetails = '';
+    if (customerName || customerEmail || customerPhone) {
+      customerDetails = '\n\n👤 *Customer Details:*';
+      if (customerName) customerDetails += `\n• Name: ${customerName}`;
+      if (customerEmail) customerDetails += `\n• Email: ${customerEmail}`;
+      if (customerPhone) customerDetails += `\n• Phone: ${customerPhone}`;
+    }
+    
+    // Shipping address
+    let addressDetails = '';
+    if (shippingAddress) {
+      addressDetails = '\n\n📍 *Shipping Address:*';
+      if (shippingAddress.address) addressDetails += `\n${shippingAddress.address}`;
+      if (shippingAddress.city) addressDetails += `\n${shippingAddress.city}`;
+      if (shippingAddress.state) addressDetails += `, ${shippingAddress.state}`;
+      if (shippingAddress.pincode) addressDetails += ` - ${shippingAddress.pincode}`;
+    }
+    
+    // Order items
+    let itemsDetails = '';
+    if (items && items.length > 0) {
+      itemsDetails = '\n\n📋 *Order Items:*';
+      items.forEach((item: any) => {
+        const packSizeText = item.packSize === 100 ? '100 copies' : '500 copies';
+        itemsDetails += `\n• ${item.productName} (${packSizeText}) × ${item.quantity} = ₹${(item.price * item.quantity).toLocaleString('en-IN')}`;
+      });
+    }
 
     const message = `${emoji} *${statusText}*\n\n` +
-      `📦 *Order ID:* ${orderId}${amountText}${phonepeText}\n` +
-      `\nOrder status has been updated.`;
+      `📦 *Order ID:* ${orderId}${amountText}${phonepeText}` +
+      `${customerDetails}${addressDetails}${itemsDetails}`;
 
     const telegramApiUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
     
