@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
-import Image from 'next/image';
 import { getProductBySlug, getAllProducts, formatPrice, getProductVariant } from '@/lib/products';
 import ProductPageClient from '@/components/ProductPageClient';
+import ProductImageGallery from '@/components/ProductImageGallery';
 import type { Metadata } from 'next';
 
 interface ProductPageProps {
@@ -136,18 +136,18 @@ export default async function ProductPage({ params }: ProductPageProps) {
         </div>
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            {/* Product Image */}
+            {/* Product Image Gallery */}
             <div className="glass-card rounded-3xl p-8">
-              <div className="relative w-full h-96 rounded-xl overflow-hidden bg-slate-100">
-                <Image
-                  src={product.image || '/images/placeholder-test.svg'}
-                  alt={product.name}
-                  width={800}
-                  height={600}
-                  className="object-cover w-full h-full"
-                  priority
-                />
-              </div>
+              <ProductImageGallery
+                images={
+                  product.images && product.images.length > 0
+                    ? product.images
+                    : product.image
+                    ? [product.image]
+                    : ['/images/placeholder-test.svg']
+                }
+                productName={product.name}
+              />
             </div>
 
             {/* Product Details */}

@@ -9,7 +9,8 @@ export interface Product {
   language: string;
   itemCount: number;
   slug: string;
-  image?: string; // Optional image path (defaults to placeholder if not provided)
+  image?: string; // Optional image path (defaults to placeholder if not provided) - DEPRECATED: Use images array
+  images?: string[]; // Array of image paths (supports multiple images per product)
   price100?: number; // Optional: Custom price for pack of 100 (defaults to PRODUCT_VARIANTS[100])
   price500?: number; // Optional: Custom price for pack of 500 (defaults to PRODUCT_VARIANTS[500])
   removed?: boolean; // Optional: Mark products as removed (commented out)

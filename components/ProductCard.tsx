@@ -7,7 +7,11 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
-  const imagePath = product.image || '/images/placeholder-test.svg';
+  // Use first image from images array if available, otherwise fall back to image property
+  const imagePath = 
+    (product.images && product.images.length > 0) 
+      ? product.images[0] 
+      : product.image || '/images/placeholder-test.svg';
   const pack100Variant = getProductVariant(product, 100);
   const minPrice = pack100Variant.price;
 
