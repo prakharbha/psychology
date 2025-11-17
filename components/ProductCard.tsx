@@ -19,13 +19,13 @@ export default function ProductCard({ product }: ProductCardProps) {
     <Link href={`/${product.slug}`}>
       <div className="glass-card rounded-2xl p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 h-full flex flex-col">
         {/* Product Image */}
-        <div className="relative w-full h-48 mb-4 rounded-xl overflow-hidden bg-slate-100 flex items-center justify-center">
+        <div className="relative w-full aspect-[4/3] mb-4 rounded-xl overflow-hidden bg-slate-100 flex items-center justify-center">
           <Image
             src={imagePath}
             alt={product.name}
             width={400}
             height={300}
-            className="object-cover w-full h-full"
+            className="object-contain w-full h-full"
           />
         </div>
 
