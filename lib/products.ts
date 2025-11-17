@@ -52,3 +52,21 @@ export function formatPrice(price: number): string {
   return `₹${price.toLocaleString('en-IN')}`;
 }
 
+/**
+ * Check if a product has at least one image
+ */
+export function hasProductImage(product: Product): boolean {
+  return !!(product.images && product.images.length > 0) || !!product.image;
+}
+
+/**
+ * Get products that have at least one image, prioritized first
+ */
+export function getProductsWithImages(): Product[] {
+  const allProducts = getAllProducts();
+  const productsWithImages = allProducts.filter(hasProductImage);
+  const productsWithoutImages = allProducts.filter(p => !hasProductImage(p));
+  // Return products with images first, then products without images
+  return [...productsWithImages, ...productsWithoutImages];
+}
+

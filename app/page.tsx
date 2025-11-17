@@ -1,12 +1,16 @@
 import Link from 'next/link';
-import { getAllProducts } from '@/lib/products';
+import { getProductsWithImages } from '@/lib/products';
 import ProductCard from '@/components/ProductCard';
 import { getAllBlogPosts } from '@/lib/blog';
 import AnimatedGrid from '@/components/AnimatedGrid';
 
 export default function HomePage() {
-  const allProducts = getAllProducts();
-  const featuredProducts = allProducts.slice(0, 9);
+  // Get products with images prioritized first
+  const productsWithImages = getProductsWithImages();
+  // Only show products that have at least one image on homepage
+  const featuredProducts = productsWithImages.filter(p => 
+    (p.images && p.images.length > 0) || p.image
+  ).slice(0, 9);
   const allBlogPosts = getAllBlogPosts();
   // Get 3 latest blog posts (sorted by publishedDate descending)
   const latestBlogPosts = allBlogPosts
@@ -92,7 +96,7 @@ export default function HomePage() {
               href="/products"
               className="inline-block px-8 py-4 bg-white/80 text-dark-blue-700 rounded-xl font-semibold border border-dark-blue-200 hover:bg-white transition-all duration-300 hover:shadow-lg"
             >
-              View All {allProducts.length} Tests
+              View All {productsWithImages.length} Tests
             </Link>
           </div>
         </div>
