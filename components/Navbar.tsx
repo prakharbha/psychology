@@ -270,7 +270,8 @@ export default function Navbar() {
                     setIsCatalogueModalOpen(true);
                     closeMobileMenu();
                   }}
-                  className="flex items-center justify-center gap-2 w-full px-6 py-4 border-2 border-dark-blue-700 text-dark-blue-700 rounded-xl font-bold text-xl hover:bg-dark-blue-50 transition-all duration-300 mt-5 mb-5"
+                  className="flex items-center justify-center gap-2 w-full px-6 py-4 border-2 border-dark-blue-700 text-dark-blue-700 rounded-xl font-bold text-xl hover:bg-dark-blue-50 transition-all duration-300"
+                  style={{ marginTop: '20px', marginBottom: '20px' }}
                 >
                   <svg
                     className="w-6 h-6"
