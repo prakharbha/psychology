@@ -189,7 +189,7 @@ export default function HomePage() {
       )}
 
       {/* About Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white relative">
+      <section className="py-[60px] px-4 sm:px-6 lg:px-8 bg-white relative">
         <div className="max-w-4xl mx-auto">
           <div className="glass-card rounded-3xl p-12 text-center relative overflow-hidden">
             <div className="subtle-shimmer absolute inset-0 rounded-3xl"></div>
