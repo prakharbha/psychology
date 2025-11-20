@@ -3,6 +3,24 @@ import { getProductsWithImages } from '@/lib/products';
 import ProductCard from '@/components/ProductCard';
 import { getAllBlogPosts } from '@/lib/blog';
 import AnimatedGrid from '@/components/AnimatedGrid';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Prakhar Psychological Testing and Research Centre - Premium Assessment Tools',
+  description: 'Premium psychological assessment tools and tests for professionals. Browse our validated psychological tests for researchers, clinicians, and educational institutions.',
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/images/favicon-32.webp", sizes: "32x32", type: "image/webp" },
+      { url: "/images/favicon-48.webp", sizes: "48x48", type: "image/webp" },
+      { url: "/images/favicon-192.webp", sizes: "192x192", type: "image/webp" },
+    ],
+    apple: [
+      { url: "/images/favicon-192.webp", sizes: "192x192", type: "image/webp" },
+    ],
+    shortcut: "/favicon.ico",
+  },
+};
 
 export default function HomePage() {
   // Get products with images prioritized first
