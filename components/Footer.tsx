@@ -119,7 +119,7 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Catalogue Download Section */}
+        {/* Catalog Download Section */}
         <div className="mt-8 pt-8 border-t border-white/30 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex flex-col items-center md:items-start gap-2">
             <p className="text-sm text-slate-800">

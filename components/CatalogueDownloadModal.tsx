@@ -52,10 +52,10 @@ export default function CatalogueDownloadModal({ isOpen, onClose }: CatalogueDow
 
       // Send notification to Telegram (optional)
       try {
-        const telegramMessage = `📥 *Catalogue Download Request*\n\n` +
+        const telegramMessage = `📥 *Catalog Download Request*\n\n` +
           `👤 *Name:* ${formData.name}\n` +
           `📱 *Mobile:* ${formData.mobile}\n` +
-          `📄 *Catalogue:* 2025 Catalogue`;
+          `📄 *Catalog:* 2025 Catalog`;
 
         await fetch('/api/telegram/notify', {
           method: 'POST',
@@ -69,7 +69,7 @@ export default function CatalogueDownloadModal({ isOpen, onClose }: CatalogueDow
         // Continue with download even if notification fails
       }
 
-      // Download the catalogue
+      // Download the catalog
       const link = document.createElement('a');
       link.href = '/catalogue-2025.pdf';
       link.download = 'Prakhar_Psychological_Testing_Catalogue_2025.pdf';
@@ -84,8 +84,8 @@ export default function CatalogueDownloadModal({ isOpen, onClose }: CatalogueDow
         setIsSubmitting(false);
       }, 500);
     } catch (error) {
-      console.error('Error downloading catalogue:', error);
-      setError('Failed to download catalogue. Please try again.');
+      console.error('Error downloading catalog:', error);
+      setError('Failed to download catalog. Please try again.');
       setIsSubmitting(false);
     }
   };
@@ -140,10 +140,10 @@ export default function CatalogueDownloadModal({ isOpen, onClose }: CatalogueDow
           </button>
 
           <h2 className="font-heading text-2xl font-bold text-slate-900 mb-2">
-            Download 2025 Catalogue
+            Download 2025 Catalog
           </h2>
           <p className="text-slate-600 mb-6">
-            Please provide your details to download our catalogue
+            Please provide your details to download our catalog
           </p>
 
           {error && (
@@ -189,7 +189,7 @@ export default function CatalogueDownloadModal({ isOpen, onClose }: CatalogueDow
               disabled={isSubmitting}
               className="w-full py-3 bg-dark-blue-700 text-white rounded-xl font-semibold hover:bg-slate-800 transition-all duration-300 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? 'Downloading...' : 'Download Catalogue'}
+              {isSubmitting ? 'Downloading...' : 'Download Catalog'}
             </button>
           </form>
         </div>
