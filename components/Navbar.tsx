@@ -230,35 +230,35 @@ export default function Navbar() {
               <div className="flex flex-col items-center space-y-0 w-full max-w-md overflow-y-auto">
                 <Link
                   href="/"
-                  className="text-dark-blue-900 hover:text-dark-blue-700 transition-colors duration-200 font-bold text-4xl md:text-5xl w-full text-center py-4 border-b border-dark-blue-200"
+                  className="text-dark-blue-900 hover:text-dark-blue-700 transition-colors duration-200 font-normal text-4xl md:text-5xl w-full text-center py-4 border-b border-dark-blue-200"
                   onClick={closeMobileMenu}
                 >
                   Home
                 </Link>
                 <Link
                   href="/products"
-                  className="text-dark-blue-900 hover:text-dark-blue-700 transition-colors duration-200 font-bold text-4xl md:text-5xl w-full text-center py-4 border-b border-dark-blue-200"
+                  className="text-dark-blue-900 hover:text-dark-blue-700 transition-colors duration-200 font-normal text-4xl md:text-5xl w-full text-center py-4 border-b border-dark-blue-200"
                   onClick={closeMobileMenu}
                 >
                   Products
                 </Link>
                 <Link
                   href="/about"
-                  className="text-dark-blue-900 hover:text-dark-blue-700 transition-colors duration-200 font-bold text-4xl md:text-5xl w-full text-center py-4 border-b border-dark-blue-200"
+                  className="text-dark-blue-900 hover:text-dark-blue-700 transition-colors duration-200 font-normal text-4xl md:text-5xl w-full text-center py-4 border-b border-dark-blue-200"
                   onClick={closeMobileMenu}
                 >
                   About
                 </Link>
                 <Link
                   href="/blog"
-                  className="text-dark-blue-900 hover:text-dark-blue-700 transition-colors duration-200 font-bold text-4xl md:text-5xl w-full text-center py-4 border-b border-dark-blue-200"
+                  className="text-dark-blue-900 hover:text-dark-blue-700 transition-colors duration-200 font-normal text-4xl md:text-5xl w-full text-center py-4 border-b border-dark-blue-200"
                   onClick={closeMobileMenu}
                 >
                   Blog
                 </Link>
                 <Link
                   href="/contact"
-                  className="text-dark-blue-900 hover:text-dark-blue-700 transition-colors duration-200 font-bold text-4xl md:text-5xl w-full text-center py-4 border-b border-dark-blue-200"
+                  className="text-dark-blue-900 hover:text-dark-blue-700 transition-colors duration-200 font-normal text-4xl md:text-5xl w-full text-center py-4 border-b border-dark-blue-200"
                   onClick={closeMobileMenu}
                 >
                   Contact
@@ -270,7 +270,7 @@ export default function Navbar() {
                     setIsCatalogueModalOpen(true);
                     closeMobileMenu();
                   }}
-                  className="flex items-center justify-center gap-2 w-full px-6 py-4 border-2 border-dark-blue-700 text-dark-blue-700 rounded-xl font-bold text-xl hover:bg-dark-blue-50 transition-all duration-300"
+                  className="flex items-center justify-center gap-2 w-full px-6 py-4 border-2 border-dark-blue-700 text-dark-blue-700 rounded-xl font-bold text-xl hover:bg-dark-blue-50 transition-all duration-300 mt-5 mb-5"
                 >
                   <svg
                     className="w-6 h-6"
