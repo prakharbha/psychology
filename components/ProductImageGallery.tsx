@@ -24,12 +24,27 @@ export default function ProductImageGallery({ images, productName }: ProductImag
     document.body.style.overflow = 'unset';
   };
 
+  // Deduplicate images to prevent showing the same image multiple times
+  const uniqueImages = images.length > 0 
+    ? Array.from(new Set(images)) // Remove duplicate paths
+    : [];
+  
+  // Ensure we have at least one image
+  const displayImages = uniqueImages.length > 0 ? uniqueImages : ['/images/placeholder-test.svg'];
+  
+  // Reset selected index if it's out of bounds after deduplication
+  useEffect(() => {
+    if (selectedImageIndex >= displayImages.length) {
+      setSelectedImageIndex(0);
+    }
+  }, [displayImages.length, selectedImageIndex]);
+
   const nextImage = () => {
-    setLightboxImageIndex((prev) => (prev + 1) % images.length);
+    setLightboxImageIndex((prev) => (prev + 1) % displayImages.length);
   };
 
   const prevImage = () => {
-    setLightboxImageIndex((prev) => (prev - 1 + images.length) % images.length);
+    setLightboxImageIndex((prev) => (prev - 1 + displayImages.length) % displayImages.length);
   };
 
   // Keyboard navigation for lightbox
@@ -39,19 +54,16 @@ export default function ProductImageGallery({ images, productName }: ProductImag
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         closeLightbox();
-      } else if (e.key === 'ArrowRight' && images.length > 1) {
-        setLightboxImageIndex((prev) => (prev + 1) % images.length);
-      } else if (e.key === 'ArrowLeft' && images.length > 1) {
-        setLightboxImageIndex((prev) => (prev - 1 + images.length) % images.length);
+      } else if (e.key === 'ArrowRight' && displayImages.length > 1) {
+        setLightboxImageIndex((prev) => (prev + 1) % displayImages.length);
+      } else if (e.key === 'ArrowLeft' && displayImages.length > 1) {
+        setLightboxImageIndex((prev) => (prev - 1 + displayImages.length) % displayImages.length);
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isLightboxOpen, images.length]);
-
-  // Ensure we have at least one image
-  const displayImages = images.length > 0 ? images : ['/images/placeholder-test.svg'];
+  }, [isLightboxOpen, displayImages.length]);
 
   return (
     <>
