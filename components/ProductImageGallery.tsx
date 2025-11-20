@@ -24,15 +24,10 @@ export default function ProductImageGallery({ images, productName }: ProductImag
     document.body.style.overflow = 'unset';
   };
 
-  // Deduplicate images to prevent showing the same image multiple times
-  const uniqueImages = images.length > 0 
-    ? Array.from(new Set(images)) // Remove duplicate paths
-    : [];
-  
   // Ensure we have at least one image
-  const displayImages = uniqueImages.length > 0 ? uniqueImages : ['/images/placeholder-test.svg'];
+  const displayImages = images.length > 0 ? images : ['/images/placeholder-test.svg'];
   
-  // Reset selected index if it's out of bounds after deduplication
+  // Reset selected index if it's out of bounds
   useEffect(() => {
     if (selectedImageIndex >= displayImages.length) {
       setSelectedImageIndex(0);
@@ -90,7 +85,7 @@ export default function ProductImageGallery({ images, productName }: ProductImag
           </div>
         </div>
 
-        {/* Thumbnail Images */}
+        {/* Thumbnail Images - Only show if more than one image */}
         {displayImages.length > 1 && (
           <div className="grid grid-cols-2 gap-4">
             {displayImages.map((image, index) => (
@@ -214,4 +209,3 @@ export default function ProductImageGallery({ images, productName }: ProductImag
     </>
   );
 }
-
