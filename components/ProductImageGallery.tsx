@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import Image from 'next/image';
 
 interface ProductImageGalleryProps {
@@ -67,6 +68,12 @@ export default function ProductImageGallery({ images, productName }: ProductImag
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isLightboxOpen, displayImages.length]);
 
+  // Portal target state
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   return (
     <>
       <div className="space-y-4">
@@ -117,12 +124,19 @@ export default function ProductImageGallery({ images, productName }: ProductImag
         )}
       </div>
 
-      {/* Lightbox Modal */}
-      {isLightboxOpen && (
+      {/* Lightbox Modal - Rendered via Portal */}
+      {isLightboxOpen && mounted && createPortal(
         <div
           className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 backdrop-blur-sm"
           onClick={closeLightbox}
-          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
+          style={{ 
+            position: 'fixed', 
+            top: 0, 
+            left: 0, 
+            right: 0, 
+            bottom: 0,
+            zIndex: 9999
+          }}
         >
           {/* Close Button */}
           <button
@@ -132,6 +146,7 @@ export default function ProductImageGallery({ images, productName }: ProductImag
             }}
             className="absolute top-4 right-4 z-[10000] p-3 bg-white/10 hover:bg-white/20 rounded-full backdrop-blur-sm transition-all duration-300"
             aria-label="Close lightbox"
+            style={{ zIndex: 10000 }}
           >
             <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -148,6 +163,7 @@ export default function ProductImageGallery({ images, productName }: ProductImag
                 }}
                 className="absolute left-4 z-[10000] p-3 bg-white/10 hover:bg-white/20 rounded-full backdrop-blur-sm transition-all duration-300"
                 aria-label="Previous image"
+                style={{ zIndex: 10000 }}
               >
                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -160,6 +176,7 @@ export default function ProductImageGallery({ images, productName }: ProductImag
                 }}
                 className="absolute right-4 z-[10000] p-3 bg-white/10 hover:bg-white/20 rounded-full backdrop-blur-sm transition-all duration-300"
                 aria-label="Next image"
+                style={{ zIndex: 10000 }}
               >
                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -172,6 +189,7 @@ export default function ProductImageGallery({ images, productName }: ProductImag
           <div
             className="relative w-full h-full max-w-7xl max-h-[90vh] mx-4 z-[10000]"
             onClick={(e) => e.stopPropagation()}
+            style={{ zIndex: 10000 }}
           >
             <Image
               src={displayImages[lightboxImageIndex]}
@@ -187,6 +205,7 @@ export default function ProductImageGallery({ images, productName }: ProductImag
             <div 
               className="absolute bottom-4 left-1/2 transform -translate-x-1/2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-white text-sm z-[10000]"
               onClick={(e) => e.stopPropagation()}
+              style={{ zIndex: 10000 }}
             >
               {lightboxImageIndex + 1} / {displayImages.length}
             </div>
@@ -197,6 +216,7 @@ export default function ProductImageGallery({ images, productName }: ProductImag
             <div 
               className="absolute bottom-20 left-1/2 transform -translate-x-1/2 flex gap-2 max-w-4xl overflow-x-auto px-4 z-[10000]"
               onClick={(e) => e.stopPropagation()}
+              style={{ zIndex: 10000 }}
             >
               {displayImages.map((image, index) => (
                 <button
@@ -221,7 +241,8 @@ export default function ProductImageGallery({ images, productName }: ProductImag
               ))}
             </div>
           )}
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
