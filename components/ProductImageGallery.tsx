@@ -24,6 +24,13 @@ export default function ProductImageGallery({ images, productName }: ProductImag
     document.body.style.overflow = 'unset';
   };
 
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, []);
+
   // Ensure we have at least one image
   const displayImages = images.length > 0 ? images : ['/images/placeholder-test.svg'];
   
@@ -113,13 +120,17 @@ export default function ProductImageGallery({ images, productName }: ProductImag
       {/* Lightbox Modal */}
       {isLightboxOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm"
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 backdrop-blur-sm"
           onClick={closeLightbox}
+          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
         >
           {/* Close Button */}
           <button
-            onClick={closeLightbox}
-            className="absolute top-4 right-4 z-10 p-3 bg-white/10 hover:bg-white/20 rounded-full backdrop-blur-sm transition-all duration-300"
+            onClick={(e) => {
+              e.stopPropagation();
+              closeLightbox();
+            }}
+            className="absolute top-4 right-4 z-[10000] p-3 bg-white/10 hover:bg-white/20 rounded-full backdrop-blur-sm transition-all duration-300"
             aria-label="Close lightbox"
           >
             <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -135,7 +146,7 @@ export default function ProductImageGallery({ images, productName }: ProductImag
                   e.stopPropagation();
                   prevImage();
                 }}
-                className="absolute left-4 z-10 p-3 bg-white/10 hover:bg-white/20 rounded-full backdrop-blur-sm transition-all duration-300"
+                className="absolute left-4 z-[10000] p-3 bg-white/10 hover:bg-white/20 rounded-full backdrop-blur-sm transition-all duration-300"
                 aria-label="Previous image"
               >
                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -147,7 +158,7 @@ export default function ProductImageGallery({ images, productName }: ProductImag
                   e.stopPropagation();
                   nextImage();
                 }}
-                className="absolute right-4 z-10 p-3 bg-white/10 hover:bg-white/20 rounded-full backdrop-blur-sm transition-all duration-300"
+                className="absolute right-4 z-[10000] p-3 bg-white/10 hover:bg-white/20 rounded-full backdrop-blur-sm transition-all duration-300"
                 aria-label="Next image"
               >
                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -159,7 +170,7 @@ export default function ProductImageGallery({ images, productName }: ProductImag
 
           {/* Main Lightbox Image */}
           <div
-            className="relative w-full h-full max-w-7xl max-h-[90vh] mx-4"
+            className="relative w-full h-full max-w-7xl max-h-[90vh] mx-4 z-[10000]"
             onClick={(e) => e.stopPropagation()}
           >
             <Image
@@ -173,14 +184,20 @@ export default function ProductImageGallery({ images, productName }: ProductImag
 
           {/* Image Counter */}
           {displayImages.length > 1 && (
-            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-white text-sm">
+            <div 
+              className="absolute bottom-4 left-1/2 transform -translate-x-1/2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-white text-sm z-[10000]"
+              onClick={(e) => e.stopPropagation()}
+            >
               {lightboxImageIndex + 1} / {displayImages.length}
             </div>
           )}
 
           {/* Thumbnail Strip (if multiple images) */}
           {displayImages.length > 1 && (
-            <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 flex gap-2 max-w-4xl overflow-x-auto px-4">
+            <div 
+              className="absolute bottom-20 left-1/2 transform -translate-x-1/2 flex gap-2 max-w-4xl overflow-x-auto px-4 z-[10000]"
+              onClick={(e) => e.stopPropagation()}
+            >
               {displayImages.map((image, index) => (
                 <button
                   key={index}
