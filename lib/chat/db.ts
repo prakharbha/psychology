@@ -152,6 +152,34 @@ export async function getCustomer(idOrEmail: string): Promise<Customer | null> {
   }
 }
 
+// Get all customers by email (for handling duplicates)
+export async function getAllCustomersByEmail(email: string): Promise<Customer[]> {
+  try {
+    const result = await sql`
+      SELECT * FROM chat_customers
+      WHERE email = ${email}
+      ORDER BY created_at DESC
+    `;
+    
+    return result.rows.map(row => ({
+      id: row.id,
+      name: row.name,
+      email: row.email,
+      phone: row.phone,
+      pageUrl: row.page_url,
+      ipAddress: row.ip_address,
+      location: row.location,
+      browser: row.browser,
+      device: row.device,
+      network: row.network,
+      createdAt: new Date(row.created_at),
+    }));
+  } catch (error) {
+    console.error('Error getting customers by email:', error);
+    return [];
+  }
+}
+
 // Save message (with conflict handling to prevent duplicates)
 export async function saveMessage(message: Message): Promise<boolean> {
   try {

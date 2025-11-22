@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { TelegramWebhookUpdate } from '@/types/chat';
 import { broadcastToCustomer } from '@/lib/chat/sse';
 import { Message } from '@/types/chat';
-import { getCustomer, saveMessage, getActiveSessions } from '@/lib/chat/db';
+import { getCustomer, getAllCustomersByEmail, saveMessage, getActiveSessions } from '@/lib/chat/db';
 
 export async function POST(request: NextRequest) {
   try {
@@ -160,15 +160,17 @@ export async function POST(request: NextRequest) {
           
           // Strategy: Prioritize customerId with active SSE connection
           if (email) {
-            // First, check all active SSE connections and see if any belong to this email
-            let customerIdWithSSE: string | null = null;
+            // Get all customers with this email (might be duplicates)
+            const allCustomersWithEmail = await getAllCustomersByEmail(email);
+            console.log(`Found ${allCustomersWithEmail.length} customer(s) with email ${email}`);
             
-            // Check each active SSE connection to see if it belongs to a customer with this email
-            for (const sseCustomerId of activeSSEIds) {
-              const sseCustomer = await getCustomer(sseCustomerId);
-              if (sseCustomer && sseCustomer.email === email) {
-                customerIdWithSSE = sseCustomer.id;
-                console.log('✅ Found customer with active SSE connection for this email:', customerIdWithSSE);
+            // Check which customer has an active SSE connection
+            let customerIdWithSSE: string | null = null;
+            for (const customer of allCustomersWithEmail) {
+              if (activeSSEIds.includes(customer.id)) {
+                customerIdWithSSE = customer.id;
+                dbCustomer = customer;
+                console.log('✅ Found customer with active SSE connection:', customerIdWithSSE);
                 break;
               }
             }
@@ -176,22 +178,23 @@ export async function POST(request: NextRequest) {
             if (customerIdWithSSE) {
               // Use the customerId that has active SSE
               finalCustomerId = customerIdWithSSE;
-              dbCustomer = await getCustomer(customerIdWithSSE);
               console.log('✅ Using customerId with active SSE:', finalCustomerId);
+            } else if (allCustomersWithEmail.length > 0) {
+              // No SSE connection found, use the most recent customer
+              dbCustomer = allCustomersWithEmail[0];
+              finalCustomerId = dbCustomer.id;
+              console.log('⚠️ No active SSE connection, using most recent customer:', finalCustomerId);
+              console.log('⚠️ Available SSE connections:', activeSSEIds);
             } else {
-              // No SSE connection found, find customer by email
-              dbCustomer = await getCustomer(email);
-              if (dbCustomer) {
-                finalCustomerId = dbCustomer.id;
-                console.log('✅ Found customer in database by email:', dbCustomer.id);
-                console.log('⚠️ But no active SSE connection for this customer');
-              } else {
-                console.log('⚠️ Customer not found in database for email:', email);
-                // Last resort: use extracted customerId if available
-                if (customerId) {
-                  finalCustomerId = customerId;
-                  console.log('⚠️ Using extracted customerId as fallback:', customerId);
-                }
+              console.log('⚠️ No customers found in database for email:', email);
+              // Last resort: check if any active SSE connection might belong to this email
+              // (by checking if customerId matches the pattern)
+              if (customerId && activeSSEIds.includes(customerId)) {
+                finalCustomerId = customerId;
+                console.log('⚠️ Using extracted customerId with active SSE:', customerId);
+              } else if (customerId) {
+                finalCustomerId = customerId;
+                console.log('⚠️ Using extracted customerId as fallback:', customerId);
               }
             }
           } else if (customerId) {
