@@ -53,9 +53,13 @@ export async function sendMessageToTelegram(options: TelegramMessageOptions): Pr
   let lastMessageId: number | null = null;
 
   // Send to all configured chat IDs
+  let hasSuccess = false;
+  const errors: string[] = [];
+
   for (const chatId of TELEGRAM_CHAT_IDS) {
     try {
-      const response = await fetch(`${TELEGRAM_API_URL}/sendMessage`, {
+      // Try with Markdown first
+      let response = await fetch(`${TELEGRAM_API_URL}/sendMessage`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -68,19 +72,68 @@ export async function sendMessageToTelegram(options: TelegramMessageOptions): Pr
         }),
       });
 
-      if (!response.ok) {
-        const error = await response.json();
-        console.error(`Failed to send message to Telegram chat ${chatId}:`, error);
-        continue;
+      let data = await response.json();
+
+      // If Markdown fails, try without parse_mode (plain text)
+      if (!response.ok || !data.ok) {
+        if (data.error_code === 400 && data.description?.includes('parse')) {
+          // Markdown parsing error, try plain text
+          console.warn(`Markdown parse error for chat ${chatId}, retrying with plain text`);
+          const plainText = `💬 New Customer Message\n\n` +
+            `Customer ID: ${customerId}\n` +
+            `Name: ${customer.name}\n` +
+            `Email: ${customer.email}\n` +
+            `Phone: ${customer.phone}\n` +
+            `Page URL: ${customer.pageUrl}\n` +
+            (customer.location ? `Location: ${customer.location}\n` : '') +
+            (customer.browser ? `Browser: ${customer.browser}\n` : '') +
+            (customer.device ? `Device: ${customer.device}\n` : '') +
+            (customer.network ? `Network: ${customer.network}\n` : '') +
+            `\nMessage:\n${message}\n\n` +
+            `Reply to this message to respond to the customer.`;
+
+          response = await fetch(`${TELEGRAM_API_URL}/sendMessage`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              chat_id: chatId,
+              text: plainText,
+              reply_markup: replyKeyboard,
+            }),
+          });
+
+          data = await response.json();
+        }
+
+        if (!response.ok || !data.ok) {
+          const errorMsg = data.description || `HTTP ${response.status}`;
+          console.error(`Failed to send message to Telegram chat ${chatId}:`, {
+            error: errorMsg,
+            errorCode: data.error_code,
+            fullResponse: data,
+          });
+          errors.push(`Chat ${chatId}: ${errorMsg}`);
+          continue;
+        }
       }
 
-      const data = await response.json();
-      if (data.ok && data.result) {
+      if (data.result) {
         lastMessageId = data.result.message_id;
+        hasSuccess = true;
+        console.log(`Successfully sent message to Telegram chat ${chatId}, message ID: ${lastMessageId}`);
       }
     } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
       console.error(`Error sending message to Telegram chat ${chatId}:`, error);
+      errors.push(`Chat ${chatId}: ${errorMsg}`);
     }
+  }
+
+  // If no messages were sent successfully, throw an error with details
+  if (!hasSuccess) {
+    throw new Error(`Failed to send to all Telegram chats. Errors: ${errors.join('; ')}`);
   }
 
   return lastMessageId;

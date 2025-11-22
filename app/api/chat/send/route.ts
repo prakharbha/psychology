@@ -84,6 +84,7 @@ export async function POST(request: NextRequest) {
     addMessage(currentCustomer.id, newMessage);
 
     // Send to Telegram
+    let telegramError: string | null = null;
     try {
       const telegramMessageId = await sendMessageToTelegram({
         customerId: currentCustomer.id,
@@ -94,16 +95,21 @@ export async function POST(request: NextRequest) {
 
       if (telegramMessageId) {
         newMessage.telegramMessageId = telegramMessageId;
+        console.log(`Message sent to Telegram successfully. Message ID: ${telegramMessageId}`);
       }
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown Telegram error';
       console.error('Error sending message to Telegram:', error);
+      telegramError = errorMessage;
       // Don't fail the request if Telegram fails - message is stored in session
+      // But log it for debugging
     }
 
     return NextResponse.json({
       success: true,
       customerId: currentCustomer.id,
       message: newMessage,
+      telegramError: telegramError || undefined, // Include error if Telegram failed
     });
   } catch (error) {
     console.error('Error in send message API:', error);

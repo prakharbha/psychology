@@ -303,6 +303,12 @@ export default function ChatWidget() {
         setMessages((prev) => prev.map((msg) => 
           msg.id === tempMessage.id ? data.message : msg
         ));
+        
+        // Show warning if Telegram failed but message was saved
+        if (data.telegramError) {
+          console.warn('Message saved but Telegram delivery failed:', data.telegramError);
+          // Don't show alert to user - message is saved and will be sent when Telegram is available
+        }
       } else {
         // Remove temp message on error
         setMessages((prev) => prev.filter((msg) => msg.id !== tempMessage.id));
