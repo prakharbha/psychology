@@ -66,7 +66,9 @@ export function validateEmail(email: string): boolean {
 
 export function validatePhone(phone: string): boolean {
   // Basic phone validation - accepts digits, spaces, dashes, parentheses, and +
+  // Minimum 10 digits (supports international formats)
   const phoneRegex = /^[\d\s\-\+\(\)]+$/;
-  return phoneRegex.test(phone) && phone.replace(/\D/g, '').length >= 10;
+  const digitsOnly = phone.replace(/\D/g, '');
+  return phoneRegex.test(phone) && digitsOnly.length >= 10;
 }
 

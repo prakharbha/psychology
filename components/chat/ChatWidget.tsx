@@ -9,7 +9,7 @@ import { Message, Customer } from '@/types/chat';
 // Hardcoded configuration
 const CONFIG = {
   position: 'right' as 'left' | 'right',
-  autoPop: true,
+  autoPop: false, // Changed to false - modal shows on first message send
   autoPopDelay: 5000, // 5 seconds
   supportName: 'Support',
   supportAvatar: '/images/logo.webp', // Using existing logo as placeholder
@@ -23,6 +23,7 @@ export default function ChatWidget() {
   const [customerId, setCustomerId] = useState<string | null>(null);
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [inputMessage, setInputMessage] = useState('');
+  const [pendingMessage, setPendingMessage] = useState<string | null>(null); // Store message when modal shows
   const [isLoading, setIsLoading] = useState(false);
   const [pageUrl, setPageUrl] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -30,16 +31,16 @@ export default function ChatWidget() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const hasShownWelcome = useRef(false);
 
-  // Auto-pop chat widget
-  useEffect(() => {
-    if (CONFIG.autoPop && !isOpen && !customerId) {
-      const timer = setTimeout(() => {
-        setIsOpen(true);
-        setIsDetailsModalOpen(true);
-      }, CONFIG.autoPopDelay);
-      return () => clearTimeout(timer);
-    }
-  }, [isOpen, customerId]);
+  // Auto-pop chat widget (disabled - modal shows on first message send instead)
+  // useEffect(() => {
+  //   if (CONFIG.autoPop && !isOpen && !customerId) {
+  //     const timer = setTimeout(() => {
+  //       setIsOpen(true);
+  //       setIsDetailsModalOpen(true);
+  //     }, CONFIG.autoPopDelay);
+  //     return () => clearTimeout(timer);
+  //   }
+  // }, [isOpen, customerId]);
 
   // Get page URL
   useEffect(() => {
@@ -173,6 +174,66 @@ export default function ChatWidget() {
       setCustomer(customerData);
       setCustomerId(customerData.id);
       hasShownWelcome.current = true;
+
+      // After customer details are submitted, send the pending message if there is one
+      const messageToSend = pendingMessage || inputMessage.trim();
+      if (messageToSend) {
+        setPendingMessage(null);
+        setInputMessage('');
+        
+        // Optimistically add message
+        const tempMessage: Message = {
+          id: `temp_${Date.now()}`,
+          customerId: customerData.id,
+          text: messageToSend,
+          sender: 'customer',
+          timestamp: new Date(),
+        };
+        setMessages((prev) => [...prev, tempMessage]);
+
+        // Send the message
+        try {
+          const response = await fetch('/api/chat/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              customerId: customerData.id,
+              message: messageToSend,
+              customer: {
+                name: customerData.name,
+                email: customerData.email,
+                phone: customerData.phone,
+                pageUrl: customerData.pageUrl,
+              },
+            }),
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ error: 'Network error' }));
+            console.error('API error:', errorData);
+            setMessages((prev) => prev.filter((msg) => msg.id !== tempMessage.id));
+            alert(`Failed to send message: ${errorData.error || 'Unknown error'}`);
+            return;
+          }
+
+          const data = await response.json();
+          if (data.success) {
+            if (data.customerId && data.customerId !== customerData.id) {
+              setCustomerId(data.customerId);
+            }
+            setMessages((prev) => prev.map((msg) => 
+              msg.id === tempMessage.id ? data.message : msg
+            ));
+          } else {
+            setMessages((prev) => prev.filter((msg) => msg.id !== tempMessage.id));
+            alert(`Failed to send message: ${data.error || 'Unknown error'}`);
+          }
+        } catch (error) {
+          console.error('Error sending message:', error);
+          setMessages((prev) => prev.filter((msg) => msg.id !== tempMessage.id));
+          alert(`Failed to send message: ${error instanceof Error ? error.message : 'Network error'}`);
+        }
+      }
     } catch (error) {
       console.error('Error creating customer:', error);
     } finally {
@@ -181,7 +242,14 @@ export default function ChatWidget() {
   };
 
   const handleSendMessage = async () => {
-    if (!inputMessage.trim() || !customerId || !customer || isLoading) return;
+    if (!inputMessage.trim() || isLoading) return;
+
+    // If no customer details, show modal first and store the message
+    if (!customerId || !customer) {
+      setPendingMessage(inputMessage.trim());
+      setIsDetailsModalOpen(true);
+      return;
+    }
 
     const messageText = inputMessage.trim();
     setInputMessage('');
@@ -358,6 +426,10 @@ export default function ChatWidget() {
         isOpen={isDetailsModalOpen}
         onClose={() => {
           setIsDetailsModalOpen(false);
+          // Restore pending message to input if modal is closed without submitting
+          if (pendingMessage && !customerId) {
+            setInputMessage(pendingMessage);
+          }
           if (!customerId) {
             setIsOpen(false);
           }

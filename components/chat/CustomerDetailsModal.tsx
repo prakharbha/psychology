@@ -28,8 +28,10 @@ export default function CustomerDetailsModal({
   };
 
   const validatePhone = (phone: string): boolean => {
+    // Accepts digits, spaces, dashes, parentheses, and + (no specific format required)
     const phoneRegex = /^[\d\s\-\+\(\)]+$/;
-    return phoneRegex.test(phone) && phone.replace(/\D/g, '').length >= 10;
+    const digitsOnly = phone.replace(/\D/g, '');
+    return phoneRegex.test(phone) && digitsOnly.length >= 10;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -69,7 +71,7 @@ export default function CustomerDetailsModal({
       <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6">
         <h2 className="text-2xl font-bold text-slate-900 mb-4">Let's get started</h2>
         <p className="text-slate-600 mb-6">
-          Please provide your details to start chatting with our support team.
+          Please provide your details to send your message to our support team.
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -121,7 +123,7 @@ export default function CustomerDetailsModal({
               className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                 errors.phone ? 'border-red-500' : 'border-slate-300'
               }`}
-              placeholder="+1 234 567 8900"
+              placeholder="1234567890 or +91 1234567890"
               required
             />
             {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
