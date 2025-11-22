@@ -2,12 +2,24 @@ import { createClient } from '@vercel/postgres';
 import { Customer, Message, ChatSession } from '@/types/chat';
 
 // CHAT__POSTGRES_URL is a direct connection string
-// We must use createClient() for direct connections (not sql directly)
+// We must use createClient() for direct connections
 const client = createClient({
   connectionString: process.env.CHAT__POSTGRES_URL,
 });
 
-const sql = client.sql;
+// Helper for template literal SQL (compatible with @vercel/postgres sql template tag)
+const sql = (strings: TemplateStringsArray, ...values: any[]) => {
+  let queryText = strings[0];
+  const params: any[] = [];
+  
+  for (let i = 0; i < values.length; i++) {
+    queryText += `$${i + 1}`;
+    params.push(values[i]);
+    queryText += strings[i + 1];
+  }
+  
+  return client.query(queryText, params);
+};
 
 // Initialize database tables
 export async function initializeDatabase() {
