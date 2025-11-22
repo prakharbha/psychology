@@ -181,7 +181,7 @@ export default function ChatWidget() {
   };
 
   const handleSendMessage = async () => {
-    if (!inputMessage.trim() || !customerId || isLoading) return;
+    if (!inputMessage.trim() || !customerId || !customer || isLoading) return;
 
     const messageText = inputMessage.trim();
     setInputMessage('');
@@ -204,11 +204,30 @@ export default function ChatWidget() {
         body: JSON.stringify({
           customerId,
           message: messageText,
+          // Include customer details for first message (API will check if session exists)
+          customer: {
+            name: customer.name,
+            email: customer.email,
+            phone: customer.phone,
+            pageUrl: customer.pageUrl,
+          },
         }),
       });
 
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Network error' }));
+        console.error('API error:', errorData);
+        setMessages((prev) => prev.filter((msg) => msg.id !== tempMessage.id));
+        alert(`Failed to send message: ${errorData.error || 'Unknown error'}`);
+        return;
+      }
+
       const data = await response.json();
       if (data.success) {
+        // Update customerId if it changed (first message creates session)
+        if (data.customerId && data.customerId !== customerId) {
+          setCustomerId(data.customerId);
+        }
         // Replace temp message with real one
         setMessages((prev) => prev.map((msg) => 
           msg.id === tempMessage.id ? data.message : msg
@@ -216,12 +235,12 @@ export default function ChatWidget() {
       } else {
         // Remove temp message on error
         setMessages((prev) => prev.filter((msg) => msg.id !== tempMessage.id));
-        alert('Failed to send message. Please try again.');
+        alert(`Failed to send message: ${data.error || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Error sending message:', error);
       setMessages((prev) => prev.filter((msg) => msg.id !== tempMessage.id));
-      alert('Failed to send message. Please try again.');
+      alert(`Failed to send message: ${error instanceof Error ? error.message : 'Network error'}`);
     } finally {
       setIsLoading(false);
     }
