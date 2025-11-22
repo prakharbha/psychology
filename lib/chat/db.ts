@@ -1,13 +1,13 @@
-import { sql as defaultSql } from '@vercel/postgres';
+import { createClient } from '@vercel/postgres';
 import { Customer, Message, ChatSession } from '@/types/chat';
 
-// Override the default POSTGRES_URL with our CHAT__ prefixed one
-// @vercel/postgres looks for POSTGRES_URL by default, but we have CHAT__POSTGRES_URL
-if (process.env.CHAT__POSTGRES_URL) {
-  process.env.POSTGRES_URL = process.env.CHAT__POSTGRES_URL;
-}
+// CHAT__POSTGRES_URL is a direct connection string
+// We must use createClient() for direct connections (not sql directly)
+const client = createClient({
+  connectionString: process.env.CHAT__POSTGRES_URL,
+});
 
-const sql = defaultSql;
+const sql = client.sql;
 
 // Initialize database tables
 export async function initializeDatabase() {
