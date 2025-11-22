@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sendMessageToTelegram } from '@/lib/chat/telegram';
-import { createSession, getSession, addMessage, generateCustomerId } from '@/lib/chat/session';
-import { getClientInfo, validateEmail, validatePhone } from '@/lib/chat/utils';
+import { createSession, getSession, addMessage } from '@/lib/chat/session';
+import { getClientInfo, validateEmail, validatePhone, generateCustomerId } from '@/lib/chat/utils';
 import { Customer, Message } from '@/types/chat';
 
 export async function POST(request: NextRequest) {
