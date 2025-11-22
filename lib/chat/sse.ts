@@ -9,6 +9,11 @@ export function addSSEConnection(customerId: string, controller: ReadableStreamD
     sseConnections.set(customerId, []);
   }
   sseConnections.get(customerId)!.push(controller);
+  console.log('SSE connection added:', {
+    customerId,
+    totalConnections: sseConnections.get(customerId)!.length,
+    allCustomerIds: Array.from(sseConnections.keys()),
+  });
 }
 
 export function removeSSEConnection(customerId: string, controller: ReadableStreamDefaultController): void {
@@ -26,16 +31,26 @@ export function removeSSEConnection(customerId: string, controller: ReadableStre
 
 export function broadcastToCustomer(customerId: string, data: any): void {
   const connections = sseConnections.get(customerId);
-  if (connections) {
+  console.log('Broadcasting to customer:', {
+    customerId,
+    hasConnections: !!connections,
+    connectionCount: connections?.length || 0,
+    allCustomerIds: Array.from(sseConnections.keys()),
+  });
+  
+  if (connections && connections.length > 0) {
     const message = `data: ${JSON.stringify(data)}\n\n`;
     const encoder = new TextEncoder();
-    connections.forEach(controller => {
+    connections.forEach((controller, index) => {
       try {
         controller.enqueue(encoder.encode(message));
+        console.log(`Successfully sent SSE message to connection ${index} for customer ${customerId}`);
       } catch (error) {
-        console.error('Error sending SSE message:', error);
+        console.error(`Error sending SSE message to connection ${index}:`, error);
       }
     });
+  } else {
+    console.warn(`No active SSE connections found for customerId: ${customerId}`);
   }
 }
 

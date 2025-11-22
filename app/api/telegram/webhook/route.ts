@@ -11,13 +11,32 @@ export async function POST(request: NextRequest) {
     // Handle callback query (button clicks)
     if (update.callback_query) {
       const callbackData = update.callback_query.data;
+      const message = update.callback_query.message;
       
       // Handle reply button click
-      if (callbackData?.startsWith('reply_')) {
-        // Extract customerId from callback_data (format: reply_<customerId>)
-        const customerId = callbackData.substring(6); // Remove "reply_" prefix
+      if (callbackData?.startsWith('reply_') && message?.text) {
+        // Extract customerId from the message text (same as regular reply)
+        const originalText = message.text;
         
-        if (customerId) {
+        // Try multiple formats to extract customer ID
+        let customerIdMatch = originalText.match(/Customer ID:.*?`([^`]+)`/);
+        if (!customerIdMatch) {
+          customerIdMatch = originalText.match(/Customer ID:\s*([^\n]+)/);
+        }
+        if (!customerIdMatch) {
+          customerIdMatch = originalText.match(/\*Customer ID:\*\s*([^\n*]+)/);
+        }
+        
+        if (customerIdMatch && customerIdMatch[1]) {
+          const customerId = customerIdMatch[1].trim();
+          const session = getSession(customerId);
+          
+          console.log('Reply button clicked:', {
+            customerId,
+            hasSession: !!session,
+            messageId: message.message_id,
+          });
+          
           // Answer callback query to remove loading state
           const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
           if (TELEGRAM_BOT_TOKEN) {
@@ -26,7 +45,29 @@ export async function POST(request: NextRequest) {
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 callback_query_id: update.callback_query.id,
-                text: 'Type your reply below',
+                text: session ? 'Type your reply below' : 'Customer session not found',
+                show_alert: !session,
+              }),
+            });
+          }
+          
+          // If session exists, we can optionally send a prompt message
+          // The actual reply will come through the regular message handler
+        } else {
+          console.warn('Could not extract customerId from button message:', {
+            originalText: originalText.substring(0, 200),
+          });
+          
+          // Answer with error
+          const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+          if (TELEGRAM_BOT_TOKEN) {
+            await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/answerCallbackQuery`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                callback_query_id: update.callback_query.id,
+                text: 'Could not identify customer. Please reply to the message directly.',
+                show_alert: true,
               }),
             });
           }
@@ -61,13 +102,33 @@ export async function POST(request: NextRequest) {
         }
         
         if (customerIdMatch && customerIdMatch[1] && message.text) {
-          const customerId = customerIdMatch[1].trim();
-          const session = getSession(customerId);
+          let customerId = customerIdMatch[1].trim();
+          
+          // Try to find session with exact match first
+          let session = getSession(customerId);
+          
+          // If not found, try to find by partial match (in case of formatting issues)
+          if (!session) {
+            // Get all sessions and try to match
+            const { getAllSessions } = await import('@/lib/chat/session');
+            const allSessions = getAllSessions();
+            const matchingSession = allSessions.find(s => 
+              s.customerId === customerId || 
+              s.customerId.includes(customerId) ||
+              customerId.includes(s.customerId)
+            );
+            if (matchingSession) {
+              customerId = matchingSession.customerId;
+              session = matchingSession;
+            }
+          }
 
           console.log('Processing admin reply:', {
-            customerId,
+            extractedCustomerId: customerIdMatch[1].trim(),
+            finalCustomerId: customerId,
             hasSession: !!session,
             messageText: message.text.substring(0, 50),
+            originalTextPreview: originalText.substring(0, 100),
           });
 
           if (session) {
@@ -83,6 +144,7 @@ export async function POST(request: NextRequest) {
 
             // Add message to session
             addMessage(customerId, adminMessage);
+            console.log('Message added to session:', customerId);
 
             // Broadcast to customer via SSE
             broadcastToCustomer(customerId, {
@@ -90,10 +152,13 @@ export async function POST(request: NextRequest) {
               message: adminMessage,
             });
 
-            console.log('Admin reply sent to customer:', customerId);
+            console.log('Admin reply processed and broadcasted:', customerId);
             return NextResponse.json({ ok: true });
           } else {
-            console.warn('No session found for customerId:', customerId);
+            console.warn('No session found for customerId:', {
+              extracted: customerIdMatch[1].trim(),
+              final: customerId,
+            });
           }
         } else {
           console.warn('Could not extract customerId from message:', {
