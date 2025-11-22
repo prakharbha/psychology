@@ -152,42 +152,7 @@ export default function ChatWidget() {
     }
   }, [customerId, isOpen]);
 
-  // Poll for new messages as fallback (every 3 seconds when chat is open)
-  useEffect(() => {
-    if (!customerId || !isOpen) return;
-
-    const pollInterval = setInterval(async () => {
-      try {
-        const response = await fetch(`/api/chat/messages?customerId=${encodeURIComponent(customerId)}`);
-        const data = await response.json();
-        if (data.success && data.messages) {
-          setMessages((prev) => {
-            // Merge messages, avoiding duplicates
-            const existingIds = new Set(prev.map(m => m.id));
-            const newMessages = data.messages.filter((m: Message) => !existingIds.has(m.id));
-            if (newMessages.length > 0) {
-              console.log('Found new messages via polling:', newMessages.length);
-              // Play sound for new admin messages
-              const adminMessages = newMessages.filter((m: Message) => m.sender === 'admin');
-              if (adminMessages.length > 0 && (audioRef as any).current) {
-                try {
-                  (audioRef as any).current();
-                } catch (e) {
-                  // Ignore audio errors
-                }
-              }
-              return [...prev, ...newMessages];
-            }
-            return prev;
-          });
-        }
-      } catch (error) {
-        console.error('Error polling for messages:', error);
-      }
-    }, 3000); // Poll every 3 seconds
-
-    return () => clearInterval(pollInterval);
-  }, [customerId, isOpen]);
+  // Polling disabled - using SSE/webhook only for real-time delivery
 
   // Load messages when customer is set
   useEffect(() => {

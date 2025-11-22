@@ -130,6 +130,9 @@ export async function POST(request: NextRequest) {
             messageText: message.text.substring(0, 50),
             originalTextPreview: originalText.substring(0, 100),
           });
+          
+          // Import SSE functions to check connections
+          const { broadcastToCustomer } = await import('@/lib/chat/sse');
 
           if (session) {
             // Create admin message

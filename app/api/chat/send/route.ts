@@ -54,9 +54,15 @@ export async function POST(request: NextRequest) {
       const clientInfo = getClientInfo(request);
       const pageUrl = customer.pageUrl || request.headers.get('referer') || 'Unknown';
 
+      // Use provided customerId if valid, otherwise generate new one
+      // This ensures consistency between frontend and backend
+      const finalCustomerId = customerId && customerId.startsWith('customer_') 
+        ? customerId 
+        : generateCustomerId();
+
       // Create customer
       currentCustomer = {
-        id: generateCustomerId(),
+        id: finalCustomerId,
         name: customer.name,
         email: customer.email,
         phone: customer.phone,
@@ -67,8 +73,10 @@ export async function POST(request: NextRequest) {
 
       // Create session
       session = createSession(currentCustomer);
+      console.log('Created new session with customerId:', finalCustomerId);
     } else {
       currentCustomer = session.customer;
+      console.log('Using existing session with customerId:', currentCustomer.id);
     }
 
     // Create message
