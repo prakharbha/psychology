@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { CartProvider } from "@/components/CartProvider";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import ChatWidget from "@/components/chat/ChatWidget";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -35,6 +37,19 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      {/* Google Analytics - Load after page becomes interactive for better performance */}
+      <Script
+        src="https://www.googletagmanager.com/gtag/js?id=G-6F86RVCQZW"
+        strategy="afterInteractive"
+      />
+      <Script id="google-analytics" strategy="afterInteractive">
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-6F86RVCQZW');
+        `}
+      </Script>
       <body
         className={`${inter.variable} antialiased flex flex-col min-h-screen relative`}
       >
@@ -50,6 +65,7 @@ export default function RootLayout({
             {children}
           </main>
           <Footer />
+          <ChatWidget />
         </CartProvider>
       </body>
     </html>
