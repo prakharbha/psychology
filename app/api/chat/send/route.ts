@@ -18,6 +18,15 @@ export async function POST(request: NextRequest) {
 
     // Check if customer exists in database
     let currentCustomer: Customer | null = customerId ? await getCustomer(customerId) : null;
+    
+    // Also check by email if customer not found by ID (to prevent duplicate customers)
+    if (!currentCustomer && customer && customer.email) {
+      currentCustomer = await getCustomer(customer.email);
+      if (currentCustomer) {
+        console.log('Found existing customer by email, reusing customerId:', currentCustomer.id);
+      }
+    }
+    
     let isFirstMessage = !currentCustomer; // First message if customer doesn't exist
 
     // If this is the first message, create customer
@@ -107,8 +116,18 @@ export async function POST(request: NextRequest) {
 
       if (telegramMessageId) {
         newMessage.telegramMessageId = telegramMessageId;
-        // Update message in database with Telegram message ID
-        await saveMessage({ ...newMessage, telegramMessageId });
+        // Update message in database with Telegram message ID (using UPDATE instead of INSERT)
+        try {
+          const { sql } = await import('@/lib/chat/db');
+          const result = await sql`
+            UPDATE chat_messages
+            SET telegram_message_id = ${telegramMessageId}
+            WHERE id = ${newMessage.id}
+          `;
+          console.log(`Message updated with Telegram ID: ${telegramMessageId}, rows affected: ${result.rowCount}`);
+        } catch (error) {
+          console.error('Error updating message with Telegram ID:', error);
+        }
         console.log(`Message sent to Telegram successfully. Message ID: ${telegramMessageId}`);
       }
     } catch (error) {

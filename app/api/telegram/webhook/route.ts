@@ -109,6 +109,7 @@ export async function POST(request: NextRequest) {
         
         // Also try to extract customer ID (fallback)
         // Handle both Markdown italic format (_Customer ID: xxx_) and plain text
+        // Customer ID format: customer_TIMESTAMP_RANDOM or customerTIMESTAMPRANDOM
         let customerIdMatch = originalText.match(/Customer ID:\s*([^\n_*]+)/);
         if (!customerIdMatch) {
           customerIdMatch = originalText.match(/\*Customer ID:\*\s*([^\n*]+)/);
@@ -122,7 +123,19 @@ export async function POST(request: NextRequest) {
         }
         
         const email = emailMatch ? emailMatch[1].trim() : null;
-        const customerId = customerIdMatch ? customerIdMatch[1].trim() : null;
+        let customerId = customerIdMatch ? customerIdMatch[1].trim() : null;
+        
+        // Normalize customerId: if it's missing underscores, try to add them
+        // Format: customer_TIMESTAMP_RANDOM
+        if (customerId && customerId.startsWith('customer') && !customerId.includes('_')) {
+          // Try to reconstruct: customer_TIMESTAMP_RANDOM
+          // Pattern: customer + 13 digits (timestamp) + random string
+          const normalized = customerId.match(/^customer(\d{13})(\w+)$/);
+          if (normalized) {
+            customerId = `customer_${normalized[1]}_${normalized[2]}`;
+            console.log('Normalized customerId:', customerId);
+          }
+        }
         
         console.log('Extracted identifiers:', { email, customerId, originalTextPreview: originalText.substring(0, 200) });
         
@@ -139,25 +152,69 @@ export async function POST(request: NextRequest) {
           let finalCustomerId = customerId;
           let dbCustomer = null;
           
-          // Try to find customer by email first (most reliable)
-          if (email) {
-            dbCustomer = await getCustomer(email);
-            if (dbCustomer) {
-              finalCustomerId = dbCustomer.id;
-              console.log('✅ Found customer in database by email:', dbCustomer.id, 'Email:', dbCustomer.email);
-            } else {
-              console.log('⚠️ Customer not found in database for email:', email);
-            }
-          }
+          // Import SSE functions to check active connections
+          const { getSSEConnectionInfo } = await import('@/lib/chat/sse');
+          const activeSSEConnections = getSSEConnectionInfo();
+          const activeSSEIds = activeSSEConnections.map(c => c.customerId);
+          console.log('🔍 Active SSE connections:', activeSSEIds);
           
-          // Fallback: Try to find by customerId if email lookup failed
-          if (!dbCustomer && customerId) {
+          // Strategy: Find customer by email, but prioritize customerId that has active SSE
+          if (email) {
+            // First, check if the extracted customerId has an active SSE connection
+            if (customerId && activeSSEIds.includes(customerId)) {
+              console.log('✅ Extracted customerId has active SSE, using it:', customerId);
+              dbCustomer = await getCustomer(customerId);
+              if (dbCustomer && dbCustomer.email === email) {
+                finalCustomerId = customerId;
+                console.log('✅ Confirmed customer in database matches email');
+              } else {
+                // CustomerId has SSE but doesn't match email - find by email instead
+                dbCustomer = await getCustomer(email);
+                if (dbCustomer) {
+                  // Check if this customer has SSE
+                  if (activeSSEIds.includes(dbCustomer.id)) {
+                    finalCustomerId = dbCustomer.id;
+                    console.log('✅ Found customer by email with active SSE:', dbCustomer.id);
+                  } else {
+                    // Use the customerId with SSE even if email doesn't match (better than nothing)
+                    finalCustomerId = customerId;
+                    console.log('⚠️ Using customerId with SSE (email mismatch)');
+                  }
+                } else {
+                  finalCustomerId = customerId;
+                  console.log('⚠️ Customer not in DB, using customerId with SSE');
+                }
+              }
+            } else {
+              // No SSE for extracted customerId, find by email
+              dbCustomer = await getCustomer(email);
+              if (dbCustomer) {
+                finalCustomerId = dbCustomer.id;
+                console.log('✅ Found customer in database by email:', dbCustomer.id);
+                // Check if this customer has SSE
+                if (activeSSEIds.includes(dbCustomer.id)) {
+                  console.log('✅ Customer has active SSE connection');
+                } else {
+                  console.log('⚠️ Customer found but no active SSE connection');
+                }
+              } else {
+                console.log('⚠️ Customer not found in database for email:', email);
+                // Last resort: use extracted customerId
+                if (customerId) {
+                  finalCustomerId = customerId;
+                  console.log('⚠️ Using extracted customerId as fallback:', customerId);
+                }
+              }
+            }
+          } else if (customerId) {
+            // No email, try customerId
             dbCustomer = await getCustomer(customerId);
             if (dbCustomer) {
               finalCustomerId = dbCustomer.id;
               console.log('✅ Found customer in database by customerId:', dbCustomer.id);
             } else {
-              console.log('⚠️ Customer not found in database for customerId:', customerId);
+              finalCustomerId = customerId;
+              console.log('⚠️ Using customerId from message (not in DB):', customerId);
             }
           }
           
@@ -185,12 +242,19 @@ export async function POST(request: NextRequest) {
           };
 
           console.log('📡 Broadcasting message to customerId:', finalCustomerId);
+          console.log('📋 Message details:', {
+            messageId: adminMessage.id,
+            text: adminMessage.text.substring(0, 50),
+            customerId: adminMessage.customerId,
+          });
           
           // Broadcast to the customerId from database
           broadcastToCustomer(finalCustomerId, {
             type: 'new_message',
             message: adminMessage,
           });
+          
+          console.log('✅ Broadcast function called for customerId:', finalCustomerId);
           
           // Save message to database
           try {

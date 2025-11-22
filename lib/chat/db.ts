@@ -14,7 +14,7 @@ const pool = new Pool({
 });
 
 // Helper for template literal SQL (compatible with @vercel/postgres sql template tag)
-const sql = (strings: TemplateStringsArray, ...values: any[]) => {
+export const sql = (strings: TemplateStringsArray, ...values: any[]) => {
   let queryText = strings[0];
   const params: any[] = [];
   
@@ -152,7 +152,7 @@ export async function getCustomer(idOrEmail: string): Promise<Customer | null> {
   }
 }
 
-// Save message
+// Save message (with conflict handling to prevent duplicates)
 export async function saveMessage(message: Message): Promise<boolean> {
   try {
     await sql`
@@ -162,9 +162,17 @@ export async function saveMessage(message: Message): Promise<boolean> {
         ${message.id}, ${message.customerId}, ${message.text}, ${message.sender},
         ${message.timestamp.toISOString()}, ${message.telegramMessageId || null}
       )
+      ON CONFLICT (id) DO UPDATE SET
+        text = EXCLUDED.text,
+        telegram_message_id = COALESCE(EXCLUDED.telegram_message_id, chat_messages.telegram_message_id)
     `;
     return true;
-  } catch (error) {
+  } catch (error: any) {
+    // If it's a duplicate key error, that's okay - message already exists
+    if (error.code === '23505') {
+      console.log('Message already exists, skipping:', message.id);
+      return true;
+    }
     console.error('Error saving message:', error);
     return false;
   }
