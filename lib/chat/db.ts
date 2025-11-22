@@ -1,12 +1,12 @@
 import { createPool } from '@vercel/postgres';
 import { Customer, Message, ChatSession } from '@/types/chat';
 
-// Create connection pool using CHAT__ prefixed environment variables
+// Create a connection pool with the CHAT__ prefixed Prisma URL (pooled connection)
 const pool = createPool({
-  connectionString: process.env.CHAT__POSTGRES_URL,
+  connectionString: process.env.CHAT__PRISMA_DATABASE_URL,
 });
 
-const sql = pool.sql;
+const { sql } = pool;
 
 // Initialize database tables
 export async function initializeDatabase() {
