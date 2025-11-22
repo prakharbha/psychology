@@ -12,7 +12,8 @@ const sql = defaultSql;
 // Initialize database tables
 export async function initializeDatabase() {
   try {
-    // Create customers table
+    console.log('Creating chat_customers table...');
+    // Create customers table (Postgres syntax, not MySQL)
     await sql`
       CREATE TABLE IF NOT EXISTS chat_customers (
         id VARCHAR(255) PRIMARY KEY,
@@ -25,11 +26,14 @@ export async function initializeDatabase() {
         browser VARCHAR(100),
         device VARCHAR(100),
         network VARCHAR(100),
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        INDEX idx_email (email)
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `;
+    
+    console.log('Creating index on email...');
+    await sql`CREATE INDEX IF NOT EXISTS idx_email ON chat_customers(email)`;
 
+    console.log('Creating chat_messages table...');
     // Create messages table
     await sql`
       CREATE TABLE IF NOT EXISTS chat_messages (
@@ -39,28 +43,38 @@ export async function initializeDatabase() {
         sender VARCHAR(20) NOT NULL,
         timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         telegram_message_id INTEGER,
-        FOREIGN KEY (customer_id) REFERENCES chat_customers(id) ON DELETE CASCADE,
-        INDEX idx_customer_id (customer_id),
-        INDEX idx_timestamp (timestamp)
+        FOREIGN KEY (customer_id) REFERENCES chat_customers(id) ON DELETE CASCADE
       )
     `;
+    
+    console.log('Creating indexes on chat_messages...');
+    await sql`CREATE INDEX IF NOT EXISTS idx_customer_id ON chat_messages(customer_id)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_timestamp ON chat_messages(timestamp)`;
 
+    console.log('Creating chat_sessions table...');
     // Create sessions table (for tracking active sessions)
     await sql`
       CREATE TABLE IF NOT EXISTS chat_sessions (
         customer_id VARCHAR(255) PRIMARY KEY,
         is_active BOOLEAN DEFAULT TRUE,
         last_activity TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (customer_id) REFERENCES chat_customers(id) ON DELETE CASCADE,
-        INDEX idx_last_activity (last_activity)
+        FOREIGN KEY (customer_id) REFERENCES chat_customers(id) ON DELETE CASCADE
       )
     `;
+    
+    console.log('Creating index on last_activity...');
+    await sql`CREATE INDEX IF NOT EXISTS idx_last_activity ON chat_sessions(last_activity)`;
 
-    console.log('✅ Database tables initialized');
+    console.log('✅ Database tables initialized successfully');
     return true;
-  } catch (error) {
+  } catch (error: any) {
     console.error('❌ Error initializing database:', error);
-    return false;
+    console.error('Error details:', {
+      message: error.message,
+      code: error.code,
+      detail: error.detail,
+    });
+    throw error; // Re-throw to get full error in API response
   }
 }
 
