@@ -125,20 +125,33 @@ export async function POST(request: NextRequest) {
           let session = null;
           let finalCustomerId = customerId;
           
+          console.log('Searching for session. Email:', email, 'CustomerId:', customerId);
+          
           if (email) {
             // Search all sessions for matching email
             const { getAllSessions } = await import('@/lib/chat/session');
             const allSessions = getAllSessions();
+            console.log('Total active sessions:', allSessions.length);
+            console.log('All session emails:', allSessions.map(s => s.customer.email));
+            
             session = allSessions.find(s => s.customer.email === email);
             if (session) {
               finalCustomerId = session.customerId;
-              console.log('Found session by email:', email, '-> customerId:', finalCustomerId);
+              console.log('✅ Found session by email:', email, '-> customerId:', finalCustomerId);
+            } else {
+              console.log('❌ No session found for email:', email);
             }
           }
           
           // Fallback to customerId if email didn't match
           if (!session && customerId) {
+            console.log('Trying fallback: searching by customerId:', customerId);
             session = getSession(customerId);
+            if (session) {
+              console.log('✅ Found session by customerId');
+            } else {
+              console.log('❌ No session found by customerId');
+            }
           }
           
           // Use the best identifier we have
@@ -165,21 +178,25 @@ export async function POST(request: NextRequest) {
           // Always try to broadcast via SSE (customer might still be connected)
           const { broadcastToCustomer } = await import('@/lib/chat/sse');
           
+          console.log('📡 Broadcasting message to customer...');
+          
           // Try broadcasting to both identifiers to maximize delivery chance
           if (finalCustomerId) {
+            console.log('Broadcasting to customerId:', finalCustomerId);
             broadcastToCustomer(finalCustomerId, {
               type: 'new_message',
               message: adminMessage,
             });
           }
           if (email && email !== finalCustomerId) {
+            console.log('Broadcasting to email:', email);
             broadcastToCustomer(email, {
               type: 'new_message',
               message: adminMessage,
             });
           }
 
-          console.log('Admin reply broadcasted:', { email, customerId: finalCustomerId, hasSession: !!session });
+          console.log('✅ Admin reply processed:', { email, customerId: finalCustomerId, hasSession: !!session, messageAdded: !!session });
           return NextResponse.json({ ok: true, delivered: !!session, email, customerId: finalCustomerId });
         } else {
           console.warn('Could not extract email or customerId from message:', {
