@@ -73,7 +73,7 @@ export async function saveCustomer(customer: Customer): Promise<boolean> {
         ${customer.id}, ${customer.name}, ${customer.email}, ${customer.phone},
         ${customer.pageUrl || null}, ${customer.ipAddress || null}, ${customer.location || null},
         ${customer.browser || null}, ${customer.device || null}, ${customer.network || null},
-        ${customer.createdAt}
+        ${customer.createdAt.toISOString()}
       )
       ON CONFLICT (id) DO UPDATE SET
         name = EXCLUDED.name,
@@ -127,7 +127,7 @@ export async function saveMessage(message: Message): Promise<boolean> {
         id, customer_id, text, sender, timestamp, telegram_message_id
       ) VALUES (
         ${message.id}, ${message.customerId}, ${message.text}, ${message.sender},
-        ${message.timestamp}, ${message.telegramMessageId || null}
+        ${message.timestamp.toISOString()}, ${message.telegramMessageId || null}
       )
     `;
     return true;
