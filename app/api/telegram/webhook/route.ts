@@ -21,9 +21,14 @@ export async function POST(request: NextRequest) {
         // Extract email from the message text (primary identifier)
         const originalText = message.text;
         
+        // Format 1: "Email: email@example.com" or "*Email:* email@example.com"
         let emailMatch = originalText.match(/\*Email:\*\s*([^\n]+)/);
         if (!emailMatch) {
           emailMatch = originalText.match(/Email:\s*([^\n]+)/);
+        }
+        // Format 2: "Name (email@example.com)" - for subsequent messages
+        if (!emailMatch) {
+          emailMatch = originalText.match(/\(([^)]+@[^)]+)\)/);
         }
         
         const email = emailMatch ? emailMatch[1].trim() : null;
@@ -87,9 +92,14 @@ export async function POST(request: NextRequest) {
         const originalText = replyToMessage.text;
         
         // Try to extract email (primary identifier)
+        // Format 1: "Email: email@example.com" or "*Email:* email@example.com"
         let emailMatch = originalText.match(/\*Email:\*\s*([^\n]+)/);
         if (!emailMatch) {
           emailMatch = originalText.match(/Email:\s*([^\n]+)/);
+        }
+        // Format 2: "Name (email@example.com)" - for subsequent messages
+        if (!emailMatch) {
+          emailMatch = originalText.match(/\(([^)]+@[^)]+)\)/);
         }
         
         // Also try to extract customer ID (fallback)

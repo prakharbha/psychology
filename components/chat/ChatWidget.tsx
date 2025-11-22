@@ -89,7 +89,7 @@ export default function ChatWidget() {
   // Setup SSE connection for real-time updates
   useEffect(() => {
     if (customerId && isOpen) {
-      console.log('Setting up SSE connection for customerId:', customerId);
+      console.log('Setting up SSE connection for customerId:', customerId, 'Current messages:', messages.length);
       const eventSource = new EventSource(`/api/chat/stream?customerId=${encodeURIComponent(customerId)}`);
       eventSourceRef.current = eventSource;
 
@@ -253,15 +253,22 @@ export default function ChatWidget() {
           const data = await response.json();
           console.log('First message response:', data);
           if (data.success) {
+            // Update customerId if needed (but this shouldn't change since we generate it on frontend)
             if (data.customerId && data.customerId !== customerData.id) {
+              console.log('CustomerId mismatch - frontend:', customerData.id, 'backend:', data.customerId);
               setCustomerId(data.customerId);
             }
             // Replace temp message with real message
             setMessages((prev) => {
-              const updated = prev.map((msg) => 
-                msg.id === tempMessage.id ? data.message : msg
-              );
-              console.log('First message replaced. Temp ID:', tempMessage.id, 'Real ID:', data.message.id, 'Total messages:', updated.length);
+              console.log('Before replace - messages:', prev.length, 'Looking for temp ID:', tempMessage.id);
+              const updated = prev.map((msg) => {
+                if (msg.id === tempMessage.id) {
+                  console.log('Replacing temp message with real message:', data.message.id);
+                  return data.message;
+                }
+                return msg;
+              });
+              console.log('After replace - messages:', updated.length);
               return updated;
             });
           } else {
