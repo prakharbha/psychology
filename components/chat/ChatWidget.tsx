@@ -9,8 +9,8 @@ import { Message, Customer } from '@/types/chat';
 // Hardcoded configuration
 const CONFIG = {
   position: 'right' as 'left' | 'right',
-  autoPop: false, // Changed to false - modal shows on first message send
-  autoPopDelay: 5000, // 5 seconds
+  autoPop: true,
+  autoPopDelay: 7000, // 7 seconds
   supportName: 'Support',
   supportAvatar: '/images/logo.webp', // Using existing logo as placeholder
   welcomeMessage: 'Hi, I am Support Agent, how can I help you today?',
@@ -31,16 +31,15 @@ export default function ChatWidget() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const hasShownWelcome = useRef(false);
 
-  // Auto-pop chat widget (disabled - modal shows on first message send instead)
-  // useEffect(() => {
-  //   if (CONFIG.autoPop && !isOpen && !customerId) {
-  //     const timer = setTimeout(() => {
-  //       setIsOpen(true);
-  //       setIsDetailsModalOpen(true);
-  //     }, CONFIG.autoPopDelay);
-  //     return () => clearTimeout(timer);
-  //   }
-  // }, [isOpen, customerId]);
+  // Auto-pop chat widget after 7 seconds
+  useEffect(() => {
+    if (CONFIG.autoPop && !isOpen) {
+      const timer = setTimeout(() => {
+        setIsOpen(true);
+      }, CONFIG.autoPopDelay);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
 
   // Get page URL
   useEffect(() => {
@@ -322,10 +321,11 @@ export default function ChatWidget() {
   };
 
   const handleToggle = () => {
-    if (!isOpen && !customerId) {
-      setIsDetailsModalOpen(true);
-    }
     setIsOpen(!isOpen);
+  };
+
+  const handleMinimize = () => {
+    setIsOpen(false);
   };
 
   return (
@@ -354,12 +354,13 @@ export default function ChatWidget() {
               </div>
             </div>
             <button
-              onClick={handleToggle}
+              onClick={handleMinimize}
               className="text-white hover:text-blue-100 transition-colors"
-              aria-label="Close chat"
+              aria-label="Minimize chat"
+              title="Minimize"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
               </svg>
             </button>
           </div>
