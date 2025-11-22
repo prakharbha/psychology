@@ -377,14 +377,12 @@ export default function ChatWidget() {
 
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-4 bg-slate-50 min-h-0">
-            {/* Show welcome message when chat is open and no messages yet */}
-            {isOpen && messages.length === 0 && (
-              <div className="mb-4">
-                <div className="bg-white rounded-2xl px-4 py-3 shadow-sm border border-slate-200">
-                  <p className="text-sm text-slate-700">{CONFIG.welcomeMessage}</p>
-                </div>
+            {/* Show welcome message - always show at the top */}
+            <div className="mb-4">
+              <div className="bg-white rounded-2xl px-4 py-3 shadow-sm border border-slate-200">
+                <p className="text-sm text-slate-700">{CONFIG.welcomeMessage}</p>
               </div>
-            )}
+            </div>
             {messages.map((message) => (
               <MessageBubble key={message.id} message={message} />
             ))}

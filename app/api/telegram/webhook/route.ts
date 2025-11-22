@@ -42,13 +42,33 @@ export async function POST(request: NextRequest) {
       // Check if this is a reply to a customer message
       if (replyToMessage && replyToMessage.text) {
         // Extract customer ID from the original message
-        // The original message format includes customer ID
+        // The original message format includes customer ID in multiple formats:
+        // Markdown: `*Customer ID:* \`customer_xxx\``
+        // Plain text: `Customer ID: customer_xxx`
         const originalText = replyToMessage.text;
-        const customerIdMatch = originalText.match(/Customer ID:.*?`([^`]+)`/);
+        
+        // Try Markdown format first
+        let customerIdMatch = originalText.match(/Customer ID:.*?`([^`]+)`/);
+        
+        // If not found, try plain text format
+        if (!customerIdMatch) {
+          customerIdMatch = originalText.match(/Customer ID:\s*([^\n]+)/);
+        }
+        
+        // Also try without backticks (plain text after colon)
+        if (!customerIdMatch) {
+          customerIdMatch = originalText.match(/\*Customer ID:\*\s*([^\n*]+)/);
+        }
         
         if (customerIdMatch && customerIdMatch[1] && message.text) {
-          const customerId = customerIdMatch[1];
+          const customerId = customerIdMatch[1].trim();
           const session = getSession(customerId);
+
+          console.log('Processing admin reply:', {
+            customerId,
+            hasSession: !!session,
+            messageText: message.text.substring(0, 50),
+          });
 
           if (session) {
             // Create admin message
@@ -70,8 +90,16 @@ export async function POST(request: NextRequest) {
               message: adminMessage,
             });
 
+            console.log('Admin reply sent to customer:', customerId);
             return NextResponse.json({ ok: true });
+          } else {
+            console.warn('No session found for customerId:', customerId);
           }
+        } else {
+          console.warn('Could not extract customerId from message:', {
+            originalText: originalText.substring(0, 200),
+            hasText: !!message.text,
+          });
         }
       }
     }

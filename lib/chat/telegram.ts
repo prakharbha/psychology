@@ -27,8 +27,10 @@ export async function sendMessageToTelegram(options: TelegramMessageOptions): Pr
   const { customer, message, customerId, messageId } = options;
 
   // Format message with customer details
+  // Use both Markdown and plain text format for customer ID to ensure extraction works
   const messageText = `💬 *New Customer Message*\n\n` +
     `*Customer ID:* \`${customerId}\`\n` +
+    `Customer ID: ${customerId}\n` + // Also include plain text version for easier extraction
     `*Name:* ${customer.name}\n` +
     `*Email:* ${customer.email}\n` +
     `*Phone:* ${customer.phone}\n` +
