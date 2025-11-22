@@ -46,12 +46,15 @@ export default function ChatWidget() {
     setPageUrl(window.location.href);
   }, []);
 
-  // Request notification permission
+  // Request notification permission only when user opens chat (user interaction)
   useEffect(() => {
-    if ('Notification' in window && Notification.permission === 'default') {
-      Notification.requestPermission();
+    if (isOpen && 'Notification' in window && Notification.permission === 'default') {
+      // Request permission only once when chat is first opened
+      Notification.requestPermission().catch(err => {
+        console.log('Notification permission denied:', err);
+      });
     }
-  }, []);
+  }, [isOpen]);
 
   // Create notification sound
   useEffect(() => {

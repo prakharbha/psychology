@@ -79,36 +79,50 @@ export function broadcastToCustomer(customerId: string, data: any): void {
 export function createSSEStream(customerId: string): ReadableStream {
   let keepAliveInterval: NodeJS.Timeout | null = null;
   let currentController: ReadableStreamDefaultController | null = null;
+  const encoder = new TextEncoder();
 
   return new ReadableStream({
     start(controller) {
-      currentController = controller;
-      // Send initial connection message
-      const encoder = new TextEncoder();
-      controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'connected' })}\n\n`));
+      try {
+        currentController = controller;
+        console.log('SSE stream started for customerId:', customerId);
+        
+        // Send initial connection message
+        const initialMessage = `data: ${JSON.stringify({ type: 'connected' })}\n\n`;
+        controller.enqueue(encoder.encode(initialMessage));
+        console.log('Sent initial connection message');
 
-      // Add connection
-      addSSEConnection(customerId, controller);
+        // Add connection
+        addSSEConnection(customerId, controller);
 
-      // Send keepalive every 30 seconds
-      keepAliveInterval = setInterval(() => {
-        try {
-          if (controller) {
-            controller.enqueue(encoder.encode(`: keepalive\n\n`));
+        // Send keepalive every 15 seconds (more frequent for better connection stability)
+        keepAliveInterval = setInterval(() => {
+          try {
+            if (controller) {
+              controller.enqueue(encoder.encode(`: keepalive\n\n`));
+              console.log('Sent keepalive for customerId:', customerId);
+            }
+          } catch (error) {
+            console.error('Error sending keepalive:', error);
+            if (keepAliveInterval) {
+              clearInterval(keepAliveInterval);
+            }
           }
-        } catch (error) {
-          if (keepAliveInterval) {
-            clearInterval(keepAliveInterval);
-          }
-        }
-      }, 30000);
+        }, 15000);
+      } catch (error) {
+        console.error('Error in SSE stream start:', error);
+        throw error;
+      }
     },
     cancel() {
+      console.log('SSE stream cancelled for customerId:', customerId);
       if (keepAliveInterval) {
         clearInterval(keepAliveInterval);
+        keepAliveInterval = null;
       }
       if (currentController) {
         removeSSEConnection(customerId, currentController);
+        currentController = null;
       }
     },
   });
