@@ -216,12 +216,13 @@ export default function ChatWidget() {
         
         // Optimistically add message
         const tempMessage: Message = {
-          id: `temp_${Date.now()}`,
+          id: `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
           customerId: customerData.id,
           text: messageToSend,
           sender: 'customer',
           timestamp: new Date(),
         };
+        console.log('Adding first message (temp):', tempMessage.id);
         setMessages((prev) => [...prev, tempMessage]);
 
         // Send the message
@@ -250,13 +251,19 @@ export default function ChatWidget() {
           }
 
           const data = await response.json();
+          console.log('First message response:', data);
           if (data.success) {
             if (data.customerId && data.customerId !== customerData.id) {
               setCustomerId(data.customerId);
             }
-            setMessages((prev) => prev.map((msg) => 
-              msg.id === tempMessage.id ? data.message : msg
-            ));
+            // Replace temp message with real message
+            setMessages((prev) => {
+              const updated = prev.map((msg) => 
+                msg.id === tempMessage.id ? data.message : msg
+              );
+              console.log('First message replaced. Temp ID:', tempMessage.id, 'Real ID:', data.message.id, 'Total messages:', updated.length);
+              return updated;
+            });
           } else {
             setMessages((prev) => prev.filter((msg) => msg.id !== tempMessage.id));
             alert(`Failed to send message: ${data.error || 'Unknown error'}`);
@@ -288,15 +295,18 @@ export default function ChatWidget() {
     setInputMessage('');
     setIsLoading(true);
 
-    // Optimistically add message
+    // Optimistically add message with unique temp ID
     const tempMessage: Message = {
-      id: `temp_${Date.now()}`,
+      id: `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       customerId,
       text: messageText,
       sender: 'customer',
       timestamp: new Date(),
     };
-    setMessages((prev) => [...prev, tempMessage]);
+    setMessages((prev) => {
+      console.log('Adding temp message:', tempMessage.id);
+      return [...prev, tempMessage];
+    });
 
     try {
       const response = await fetch('/api/chat/send', {
@@ -331,12 +341,19 @@ export default function ChatWidget() {
           console.log('CustomerId changed from', customerId, 'to', data.customerId);
           setCustomerId(data.customerId);
         }
-        // Replace temp message with real one
+        // Replace temp message with real one (keep the message visible)
         setMessages((prev) => {
+          // Check if the real message already exists (shouldn't happen but just in case)
+          const realMessageExists = prev.some(msg => msg.id === data.message.id && msg.id !== tempMessage.id);
+          if (realMessageExists) {
+            // Just remove temp message
+            return prev.filter(msg => msg.id !== tempMessage.id);
+          }
+          // Replace temp with real message
           const updated = prev.map((msg) => 
             msg.id === tempMessage.id ? data.message : msg
           );
-          console.log('Messages after send:', updated.length);
+          console.log('Messages after send:', updated.length, 'Real message ID:', data.message.id);
           return updated;
         });
         
