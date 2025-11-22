@@ -131,26 +131,28 @@ export default function ChatWidget() {
 
   // Setup SSE connection for real-time updates
   useEffect(() => {
-    if (customerId && isOpen) {
-      console.log('Setting up SSE connection for customerId:', customerId, 'Current messages:', messages.length);
+    if (customerId) {
+      console.log('Setting up SSE connection for customerId:', customerId, 'isOpen:', isOpen);
       const eventSource = new EventSource(`/api/chat/stream?customerId=${encodeURIComponent(customerId)}`);
       eventSourceRef.current = eventSource;
 
       eventSource.onopen = () => {
-        console.log('SSE connection opened for customerId:', customerId);
+        console.log('✅ SSE connection opened for customerId:', customerId);
       };
 
       eventSource.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
-          console.log('Received SSE message:', data);
+          console.log('📨 Received SSE message:', data);
           if (data.type === 'new_message' && data.message) {
             setMessages((prev) => {
               // Check if message already exists to avoid duplicates
               const exists = prev.some(msg => msg.id === data.message.id);
               if (exists) {
+                console.log('⚠️ Duplicate message, ignoring:', data.message.id);
                 return prev;
               }
+              console.log('✅ Adding new message from SSE:', data.message.id);
               return [...prev, data.message];
             });
             
@@ -171,32 +173,32 @@ export default function ChatWidget() {
               });
             }
           } else if (data.type === 'connected') {
-            console.log('SSE connection confirmed for customerId:', customerId);
+            console.log('✅ SSE connection confirmed for customerId:', customerId);
           }
         } catch (error) {
-          console.error('Error parsing SSE message:', error, event.data);
+          console.error('❌ Error parsing SSE message:', error, event.data);
         }
       };
 
       eventSource.onerror = (error) => {
-        console.error('SSE connection error:', error);
-        // Don't close immediately - let it try to reconnect
+        console.error('❌ SSE connection error:', error);
         // EventSource will automatically try to reconnect
       };
 
       return () => {
-        console.log('Closing SSE connection for customerId:', customerId);
+        console.log('🔌 Closing SSE connection for customerId:', customerId);
         eventSource.close();
         eventSourceRef.current = null;
       };
     } else {
-      // Close connection if customerId or isOpen changes
+      // Close connection if no customerId
       if (eventSourceRef.current) {
+        console.log('🔌 Closing SSE connection (no customerId)');
         eventSourceRef.current.close();
         eventSourceRef.current = null;
       }
     }
-  }, [customerId]); // Keep SSE connected as long as we have customerId
+  }, [customerId]); // Connect as soon as we have customerId, regardless of isOpen
 
   // Polling disabled - using SSE/webhook only for real-time delivery
 
