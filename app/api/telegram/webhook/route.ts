@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
 
       console.log('📬 Received message from Telegram:', {
         hasReplyTo: !!replyToMessage,
-        messageText: message.text.substring(0, 50),
+        messageText: message.text?.substring(0, 50),
         replyToText: replyToMessage?.text?.substring(0, 50),
       });
 
@@ -127,83 +127,71 @@ export async function POST(request: NextRequest) {
             messageText: message.text.substring(0, 50),
           });
           
-          // Find session by email first (more reliable), then by customerId
-          let session = null;
-          let finalCustomerId = customerId;
+          console.log('🔍 Searching for customer. Email:', email, 'CustomerId:', customerId);
           
-          console.log('Searching for session. Email:', email, 'CustomerId:', customerId);
+          // We'll try to broadcast to multiple possible identifiers
+          // Since Vercel is stateless, sessions might not exist, but SSE connections might still be active
+          const { broadcastToCustomer } = await import('@/lib/chat/sse');
           
-          if (email) {
-            // Search all sessions for matching email
-            const { getAllSessions } = await import('@/lib/chat/session');
-            const allSessions = getAllSessions();
-            console.log('Total active sessions:', allSessions.length);
-            console.log('All session emails:', allSessions.map(s => s.customer.email));
-            
-            session = allSessions.find(s => s.customer.email === email);
-            if (session) {
-              finalCustomerId = session.customerId;
-              console.log('✅ Found session by email:', email, '-> customerId:', finalCustomerId);
-            } else {
-              console.log('❌ No session found for email:', email);
-            }
-          }
-          
-          // Fallback to customerId if email didn't match
-          if (!session && customerId) {
-            console.log('Trying fallback: searching by customerId:', customerId);
-            session = getSession(customerId);
-            if (session) {
-              console.log('✅ Found session by customerId');
-            } else {
-              console.log('❌ No session found by customerId');
-            }
-          }
-          
-          // Use the best identifier we have
-          const identifier = finalCustomerId || email || 'unknown';
-          
-          // Create admin message
+          // Create admin message (use email as primary identifier)
           const adminMessage: Message = {
             id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-            customerId: identifier,
+            customerId: customerId || email || 'unknown',
             text: message.text,
             sender: 'admin',
             timestamp: new Date(),
             telegramMessageId: message.message_id,
           };
 
-          // Try to add to session if it exists
-          if (session) {
-            addMessage(session.customerId, adminMessage);
-            console.log('Message added to session for email:', email);
-          } else {
-            console.log('No active session, but will still broadcast to:', identifier);
-          }
-
-          // Always try to broadcast via SSE (customer might still be connected)
-          const { broadcastToCustomer } = await import('@/lib/chat/sse');
-          
           console.log('📡 Broadcasting message to customer...');
           
-          // Try broadcasting to both identifiers to maximize delivery chance
-          if (finalCustomerId) {
-            console.log('Broadcasting to customerId:', finalCustomerId);
-            broadcastToCustomer(finalCustomerId, {
+          let broadcastAttempts = 0;
+          
+          // Try broadcasting to customerId if available
+          if (customerId) {
+            console.log('Broadcasting to customerId:', customerId);
+            broadcastToCustomer(customerId, {
               type: 'new_message',
               message: adminMessage,
             });
+            broadcastAttempts++;
           }
-          if (email && email !== finalCustomerId) {
+          
+          // Try broadcasting to email (different from customerId)
+          if (email && email !== customerId) {
             console.log('Broadcasting to email:', email);
             broadcastToCustomer(email, {
               type: 'new_message',
               message: adminMessage,
             });
+            broadcastAttempts++;
+          }
+          
+          // Also try to store in session if it exists (for message history)
+          try {
+            const { getAllSessions } = await import('@/lib/chat/session');
+            const allSessions = getAllSessions();
+            console.log('📊 Total active sessions:', allSessions.length);
+            
+            const session = allSessions.find(s => s.customer.email === email || s.customerId === customerId);
+            if (session) {
+              addMessage(session.customerId, adminMessage);
+              console.log('✅ Message added to session');
+            } else {
+              console.log('⚠️ No session found (Vercel stateless), but message broadcasted via SSE');
+            }
+          } catch (error) {
+            console.error('Error accessing sessions:', error);
           }
 
-          console.log('✅ Admin reply processed:', { email, customerId: finalCustomerId, hasSession: !!session, messageAdded: !!session });
-          return NextResponse.json({ ok: true, delivered: !!session, email, customerId: finalCustomerId });
+          console.log(`✅ Admin reply processed. Broadcast attempts: ${broadcastAttempts}`);
+          return NextResponse.json({ 
+            ok: true, 
+            broadcastAttempts,
+            email, 
+            customerId,
+            note: 'Message broadcasted via SSE. Session storage is stateless on Vercel.'
+          });
         } else {
           console.warn('Could not extract email or customerId from message:', {
             originalText: originalText.substring(0, 200),

@@ -30,31 +30,34 @@ export function removeSSEConnection(customerId: string, controller: ReadableStre
 }
 
 export function broadcastToCustomer(customerId: string, data: any): void {
+  console.log('🔍 broadcastToCustomer called with:', customerId);
+  console.log('📊 Total SSE connections:', sseConnections.size);
+  console.log('🔑 All connection IDs:', Array.from(sseConnections.keys()));
+  
   // Try exact match first
   let connections = sseConnections.get(customerId);
+  let matchType = 'exact';
   
   // If not found, try to find by partial match (in case of any ID mismatch)
   if (!connections || connections.length === 0) {
+    console.log('⚠️ No exact match, trying partial match...');
     // Check all connections for partial match
     for (const [storedCustomerId, conns] of sseConnections.entries()) {
       if (storedCustomerId === customerId || 
           storedCustomerId.includes(customerId) || 
           customerId.includes(storedCustomerId)) {
         connections = conns;
-        console.log(`Found connection with partial match: ${storedCustomerId} for ${customerId}`);
+        matchType = 'partial';
+        console.log(`✅ Found connection with partial match: ${storedCustomerId} for ${customerId}`);
         break;
       }
     }
+  } else {
+    console.log(`✅ Found exact match for: ${customerId}`);
   }
   
-  console.log('Broadcasting to customer:', {
-    customerId,
-    hasConnections: !!connections,
-    connectionCount: connections?.length || 0,
-    allCustomerIds: Array.from(sseConnections.keys()),
-  });
-  
   if (connections && connections.length > 0) {
+    console.log(`📡 Broadcasting to ${connections.length} connection(s) (${matchType} match)`);
     const message = `data: ${JSON.stringify(data)}\n\n`;
     const encoder = new TextEncoder();
     let successCount = 0;
@@ -62,18 +65,30 @@ export function broadcastToCustomer(customerId: string, data: any): void {
       try {
         controller.enqueue(encoder.encode(message));
         successCount++;
-        console.log(`Successfully sent SSE message to connection ${index} for customer ${customerId}`);
+        console.log(`✅ Sent SSE message to connection ${index}`);
       } catch (error) {
-        console.error(`Error sending SSE message to connection ${index}:`, error);
+        console.error(`❌ Error sending SSE message to connection ${index}:`, error);
         // Remove dead connection
         removeSSEConnection(customerId, controller);
       }
     });
-    console.log(`Broadcast complete: ${successCount}/${connections.length} connections successful`);
+    console.log(`✅ Broadcast complete: ${successCount}/${connections.length} successful`);
   } else {
-    console.warn(`No active SSE connections found for customerId: ${customerId}`);
-    console.warn('Available customerIds:', Array.from(sseConnections.keys()));
+    console.error(`❌ NO SSE CONNECTIONS FOUND!`);
+    console.error(`   Searched for: ${customerId}`);
+    console.error(`   Available IDs: ${Array.from(sseConnections.keys()).join(', ') || 'NONE'}`);
   }
+}
+
+export function getSSEConnectionInfo(): { customerId: string; connectionCount: number }[] {
+  const info: { customerId: string; connectionCount: number }[] = [];
+  for (const [customerId, connections] of sseConnections.entries()) {
+    info.push({
+      customerId,
+      connectionCount: connections.length,
+    });
+  }
+  return info;
 }
 
 export function createSSEStream(customerId: string): ReadableStream {
