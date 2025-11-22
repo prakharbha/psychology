@@ -1,12 +1,13 @@
-import { createPool } from '@vercel/postgres';
+import { sql as defaultSql } from '@vercel/postgres';
 import { Customer, Message, ChatSession } from '@/types/chat';
 
-// Create a connection pool with the CHAT__ prefixed Prisma URL (pooled connection)
-const pool = createPool({
-  connectionString: process.env.CHAT__PRISMA_DATABASE_URL,
-});
+// Override the default POSTGRES_URL with our CHAT__ prefixed one
+// @vercel/postgres looks for POSTGRES_URL by default, but we have CHAT__POSTGRES_URL
+if (process.env.CHAT__POSTGRES_URL) {
+  process.env.POSTGRES_URL = process.env.CHAT__POSTGRES_URL;
+}
 
-const { sql } = pool;
+const sql = defaultSql;
 
 // Initialize database tables
 export async function initializeDatabase() {
