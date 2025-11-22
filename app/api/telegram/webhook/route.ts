@@ -108,16 +108,23 @@ export async function POST(request: NextRequest) {
         }
         
         // Also try to extract customer ID (fallback)
-        let customerIdMatch = originalText.match(/Customer ID:\s*([^\n]+)/);
+        // Handle both Markdown italic format (_Customer ID: xxx_) and plain text
+        let customerIdMatch = originalText.match(/Customer ID:\s*([^\n_*]+)/);
         if (!customerIdMatch) {
           customerIdMatch = originalText.match(/\*Customer ID:\*\s*([^\n*]+)/);
         }
         if (!customerIdMatch) {
           customerIdMatch = originalText.match(/Customer ID:.*?`([^`]+)`/);
         }
+        if (!customerIdMatch) {
+          // Try italic format: _Customer ID: xxx_
+          customerIdMatch = originalText.match(/_Customer ID:\s*([^_\n]+)_/);
+        }
         
         const email = emailMatch ? emailMatch[1].trim() : null;
         const customerId = customerIdMatch ? customerIdMatch[1].trim() : null;
+        
+        console.log('Extracted identifiers:', { email, customerId, originalTextPreview: originalText.substring(0, 200) });
         
         if ((email || customerId) && message.text) {
           console.log('Processing admin reply:', {
@@ -128,43 +135,62 @@ export async function POST(request: NextRequest) {
           
           console.log('🔍 Searching for customer. Email:', email, 'CustomerId:', customerId);
           
-          // We'll try to broadcast to multiple possible identifiers
-          // Since Vercel is stateless, sessions might not exist, but SSE connections might still be active
+          // Get customer from database to get the correct customerId
+          let finalCustomerId = customerId;
+          let dbCustomer = null;
+          
+          // Try to find customer by email first (most reliable)
+          if (email) {
+            dbCustomer = await getCustomer(email);
+            if (dbCustomer) {
+              finalCustomerId = dbCustomer.id;
+              console.log('✅ Found customer in database by email:', dbCustomer.id, 'Email:', dbCustomer.email);
+            } else {
+              console.log('⚠️ Customer not found in database for email:', email);
+            }
+          }
+          
+          // Fallback: Try to find by customerId if email lookup failed
+          if (!dbCustomer && customerId) {
+            dbCustomer = await getCustomer(customerId);
+            if (dbCustomer) {
+              finalCustomerId = dbCustomer.id;
+              console.log('✅ Found customer in database by customerId:', dbCustomer.id);
+            } else {
+              console.log('⚠️ Customer not found in database for customerId:', customerId);
+            }
+          }
+          
+          if (!finalCustomerId) {
+            console.error('❌ Cannot determine customerId for broadcast');
+            return NextResponse.json({
+              ok: false,
+              error: 'Could not determine customerId',
+              email,
+              customerId,
+            }, { status: 400 });
+          }
+          
+          // We'll try to broadcast to the customerId from database
           const { broadcastToCustomer } = await import('@/lib/chat/sse');
           
-          // Create admin message (use email as primary identifier)
+          // Create admin message
           const adminMessage: Message = {
             id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-            customerId: customerId || email || 'unknown',
+            customerId: finalCustomerId,
             text: message.text,
             sender: 'admin',
             timestamp: new Date(),
             telegramMessageId: message.message_id,
           };
 
-          console.log('📡 Broadcasting message to customer...');
+          console.log('📡 Broadcasting message to customerId:', finalCustomerId);
           
-          let broadcastAttempts = 0;
-          
-          // Try broadcasting to customerId if available
-          if (customerId) {
-            console.log('Broadcasting to customerId:', customerId);
-            broadcastToCustomer(customerId, {
-              type: 'new_message',
-              message: adminMessage,
-            });
-            broadcastAttempts++;
-          }
-          
-          // Try broadcasting to email (different from customerId)
-          if (email && email !== customerId) {
-            console.log('Broadcasting to email:', email);
-            broadcastToCustomer(email, {
-              type: 'new_message',
-              message: adminMessage,
-            });
-            broadcastAttempts++;
-          }
+          // Broadcast to the customerId from database
+          broadcastToCustomer(finalCustomerId, {
+            type: 'new_message',
+            message: adminMessage,
+          });
           
           // Save message to database
           try {
@@ -177,13 +203,13 @@ export async function POST(request: NextRequest) {
             console.error('Error saving message to database:', error);
           }
 
-          console.log(`✅ Admin reply processed. Broadcast attempts: ${broadcastAttempts}`);
+          console.log(`✅ Admin reply processed. CustomerId: ${finalCustomerId}`);
           return NextResponse.json({ 
             ok: true, 
-            broadcastAttempts,
             email, 
-            customerId,
-            note: 'Message broadcasted via SSE. Session storage is stateless on Vercel.'
+            customerId: finalCustomerId,
+            messageId: adminMessage.id,
+            note: 'Message saved to database and broadcasted via SSE'
           });
         } else {
           console.warn('Could not extract email or customerId from message:', {
