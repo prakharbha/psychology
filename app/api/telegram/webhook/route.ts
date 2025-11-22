@@ -18,43 +18,34 @@ export async function POST(request: NextRequest) {
       
       // Handle reply button click
       if (callbackData?.startsWith('reply_') && message?.text) {
-        // Extract customerId from the message text (same as regular reply)
+        // Extract email from the message text (primary identifier)
         const originalText = message.text;
         
-        // Try multiple formats to extract customer ID
-        let customerIdMatch = originalText.match(/Customer ID:.*?`([^`]+)`/);
-        if (!customerIdMatch) {
-          customerIdMatch = originalText.match(/Customer ID:\s*([^\n]+)/);
-        }
-        if (!customerIdMatch) {
-          customerIdMatch = originalText.match(/\*Customer ID:\*\s*([^\n*]+)/);
+        let emailMatch = originalText.match(/\*Email:\*\s*([^\n]+)/);
+        if (!emailMatch) {
+          emailMatch = originalText.match(/Email:\s*([^\n]+)/);
         }
         
-        if (customerIdMatch && customerIdMatch[1]) {
-          const customerId = customerIdMatch[1].trim();
-          const session = getSession(customerId);
+        const email = emailMatch ? emailMatch[1].trim() : null;
+        
+        if (email) {
+          // Check if customer is still connected
+          const { getAllSessions } = await import('@/lib/chat/session');
+          const allSessions = getAllSessions();
+          const session = allSessions.find(s => s.customer.email === email);
           
           console.log('Reply button clicked:', {
-            customerId,
+            email,
             hasSession: !!session,
-            messageId: message.message_id,
+            activeSessions: allSessions.length,
           });
           
-          // Answer callback query to remove loading state
+          // Answer callback query
           const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
           if (TELEGRAM_BOT_TOKEN) {
-            let responseText = 'Reply to this message to respond to the customer.';
-            let showAlert = false;
-            
-            if (!session) {
-              // Check if session expired recently
-              const { getAllSessions } = await import('@/lib/chat/session');
-              const allSessions = getAllSessions();
-              responseText = allSessions.length > 0 
-                ? `Session expired. Active sessions: ${allSessions.length}. Reply to the message to try anyway.`
-                : 'Session expired or customer disconnected. Reply to the message to try anyway.';
-              showAlert = false; // Don't block, let them try
-            }
+            const responseText = session 
+              ? `Reply to this message to respond to ${email}`
+              : `Customer may be offline. Reply anyway to send when they reconnect.`;
             
             await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/answerCallbackQuery`, {
               method: 'POST',
@@ -62,16 +53,13 @@ export async function POST(request: NextRequest) {
               body: JSON.stringify({
                 callback_query_id: update.callback_query.id,
                 text: responseText,
-                show_alert: showAlert,
+                show_alert: false,
               }),
             });
           }
         } else {
-          console.warn('Could not extract customerId from button message:', {
-            originalText: originalText.substring(0, 200),
-          });
+          console.warn('Could not extract email from button message');
           
-          // Answer with error
           const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
           if (TELEGRAM_BOT_TOKEN) {
             await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/answerCallbackQuery`, {
@@ -79,8 +67,8 @@ export async function POST(request: NextRequest) {
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 callback_query_id: update.callback_query.id,
-                text: 'Could not identify customer. Please reply to the message directly.',
-                show_alert: true,
+                text: 'Please reply to the message directly.',
+                show_alert: false,
               }),
             });
           }
@@ -95,30 +83,61 @@ export async function POST(request: NextRequest) {
 
       // Check if this is a reply to a customer message
       if (replyToMessage && replyToMessage.text) {
-        // Extract customer ID from the original message
+        // Extract email and customer ID from the original message
         const originalText = replyToMessage.text;
         
-        // Try multiple formats to extract customer ID
-        let customerIdMatch = originalText.match(/Customer ID:.*?`([^`]+)`/);
-        if (!customerIdMatch) {
-          customerIdMatch = originalText.match(/Customer ID:\s*([^\n]+)/);
+        // Try to extract email (primary identifier)
+        let emailMatch = originalText.match(/\*Email:\*\s*([^\n]+)/);
+        if (!emailMatch) {
+          emailMatch = originalText.match(/Email:\s*([^\n]+)/);
         }
+        
+        // Also try to extract customer ID (fallback)
+        let customerIdMatch = originalText.match(/Customer ID:\s*([^\n]+)/);
         if (!customerIdMatch) {
           customerIdMatch = originalText.match(/\*Customer ID:\*\s*([^\n*]+)/);
         }
+        if (!customerIdMatch) {
+          customerIdMatch = originalText.match(/Customer ID:.*?`([^`]+)`/);
+        }
         
-        if (customerIdMatch && customerIdMatch[1] && message.text) {
-          let customerId = customerIdMatch[1].trim();
-          
+        const email = emailMatch ? emailMatch[1].trim() : null;
+        const customerId = customerIdMatch ? customerIdMatch[1].trim() : null;
+        
+        if ((email || customerId) && message.text) {
           console.log('Processing admin reply:', {
-            extractedCustomerId: customerId,
+            email,
+            customerId,
             messageText: message.text.substring(0, 50),
           });
           
-          // Create admin message (works with or without session)
+          // Find session by email first (more reliable), then by customerId
+          let session = null;
+          let finalCustomerId = customerId;
+          
+          if (email) {
+            // Search all sessions for matching email
+            const { getAllSessions } = await import('@/lib/chat/session');
+            const allSessions = getAllSessions();
+            session = allSessions.find(s => s.customer.email === email);
+            if (session) {
+              finalCustomerId = session.customerId;
+              console.log('Found session by email:', email, '-> customerId:', finalCustomerId);
+            }
+          }
+          
+          // Fallback to customerId if email didn't match
+          if (!session && customerId) {
+            session = getSession(customerId);
+          }
+          
+          // Use the best identifier we have
+          const identifier = finalCustomerId || email || 'unknown';
+          
+          // Create admin message
           const adminMessage: Message = {
             id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-            customerId,
+            customerId: identifier,
             text: message.text,
             sender: 'admin',
             timestamp: new Date(),
@@ -126,25 +145,34 @@ export async function POST(request: NextRequest) {
           };
 
           // Try to add to session if it exists
-          const session = getSession(customerId);
           if (session) {
-            addMessage(customerId, adminMessage);
-            console.log('Message added to session:', customerId);
+            addMessage(session.customerId, adminMessage);
+            console.log('Message added to session for email:', email);
           } else {
-            console.log('No session found, but will still broadcast:', customerId);
+            console.log('No active session, but will still broadcast to:', identifier);
           }
 
           // Always try to broadcast via SSE (customer might still be connected)
           const { broadcastToCustomer } = await import('@/lib/chat/sse');
-          broadcastToCustomer(customerId, {
-            type: 'new_message',
-            message: adminMessage,
-          });
+          
+          // Try broadcasting to both identifiers to maximize delivery chance
+          if (finalCustomerId) {
+            broadcastToCustomer(finalCustomerId, {
+              type: 'new_message',
+              message: adminMessage,
+            });
+          }
+          if (email && email !== finalCustomerId) {
+            broadcastToCustomer(email, {
+              type: 'new_message',
+              message: adminMessage,
+            });
+          }
 
-          console.log('Admin reply broadcasted to customerId:', customerId);
-          return NextResponse.json({ ok: true, delivered: !!session });
+          console.log('Admin reply broadcasted:', { email, customerId: finalCustomerId, hasSession: !!session });
+          return NextResponse.json({ ok: true, delivered: !!session, email, customerId: finalCustomerId });
         } else {
-          console.warn('Could not extract customerId from message:', {
+          console.warn('Could not extract email or customerId from message:', {
             originalText: originalText.substring(0, 200),
           });
         }

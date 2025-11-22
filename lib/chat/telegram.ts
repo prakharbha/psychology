@@ -27,12 +27,10 @@ export async function sendMessageToTelegram(options: TelegramMessageOptions): Pr
   const { customer, message, customerId, messageId } = options;
 
   // Format message with customer details
-  // Use both Markdown and plain text format for customer ID to ensure extraction works
+  // Use email as primary identifier (more reliable than session-based customerId)
   const messageText = `💬 *New Customer Message*\n\n` +
-    `*Customer ID:* \`${customerId}\`\n` +
-    `Customer ID: ${customerId}\n` + // Also include plain text version for easier extraction
-    `*Name:* ${customer.name}\n` +
     `*Email:* ${customer.email}\n` +
+    `*Name:* ${customer.name}\n` +
     `*Phone:* ${customer.phone}\n` +
     `*Page URL:* ${customer.pageUrl}\n` +
     (customer.location ? `*Location:* ${customer.location}\n` : '') +
@@ -40,7 +38,8 @@ export async function sendMessageToTelegram(options: TelegramMessageOptions): Pr
     (customer.device ? `*Device:* ${customer.device}\n` : '') +
     (customer.network ? `*Network:* ${customer.network}\n` : '') +
     `\n*Message:*\n${message}\n\n` +
-    `_Reply to this message to respond to the customer._`;
+    `_Reply to this message to respond to the customer._\n` +
+    `_Customer ID: ${customerId}_`; // Keep ID at bottom for reference
 
   // Create inline keyboard with reply button
   // Telegram callback_data must be <= 64 bytes and alphanumeric/underscore/hyphen only
