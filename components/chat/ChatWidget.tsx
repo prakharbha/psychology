@@ -309,19 +309,26 @@ export default function ChatWidget() {
             // DON'T update customerId - keep it stable to prevent SSE reconnection
             // The frontend-generated ID is the source of truth
             
-            // Replace temp message with real message
-            setMessages((prev) => {
-              console.log('Before replace - messages:', prev.length, 'Looking for temp ID:', tempMessage.id);
-              const updated = prev.map((msg) => {
-                if (msg.id === tempMessage.id) {
-                  console.log('Replacing temp message with real message:', data.message.id);
-                  return data.message;
-                }
-                return msg;
-              });
-              console.log('After replace - messages:', updated.length);
-              return updated;
-            });
+            // Reload all messages from server to ensure consistency
+            try {
+              const messagesResponse = await fetch(`/api/chat/messages?customerId=${encodeURIComponent(customerData.id)}`);
+              const messagesData = await messagesResponse.json();
+              if (messagesData.success && messagesData.messages) {
+                setMessages(messagesData.messages);
+                console.log('Reloaded messages after first message:', messagesData.messages.length);
+              } else {
+                // Fallback: replace temp with real message
+                setMessages((prev) => prev.map((msg) => 
+                  msg.id === tempMessage.id ? data.message : msg
+                ));
+              }
+            } catch (error) {
+              console.error('Error reloading messages:', error);
+              // Fallback: replace temp with real message
+              setMessages((prev) => prev.map((msg) => 
+                msg.id === tempMessage.id ? data.message : msg
+              ));
+            }
           } else {
             setMessages((prev) => prev.filter((msg) => msg.id !== tempMessage.id));
             alert(`Failed to send message: ${data.error || 'Unknown error'}`);
@@ -396,21 +403,26 @@ export default function ChatWidget() {
       if (data.success) {
         // DON'T update customerId - keep it stable to prevent SSE reconnection
         
-        // Replace temp message with real one (keep the message visible)
-        setMessages((prev) => {
-          // Check if the real message already exists (shouldn't happen but just in case)
-          const realMessageExists = prev.some(msg => msg.id === data.message.id && msg.id !== tempMessage.id);
-          if (realMessageExists) {
-            // Just remove temp message
-            return prev.filter(msg => msg.id !== tempMessage.id);
+        // Simply reload all messages from server to ensure consistency
+        try {
+          const messagesResponse = await fetch(`/api/chat/messages?customerId=${encodeURIComponent(customerId)}`);
+          const messagesData = await messagesResponse.json();
+          if (messagesData.success && messagesData.messages) {
+            setMessages(messagesData.messages);
+            console.log('Reloaded messages from server:', messagesData.messages.length);
+          } else {
+            // Fallback: replace temp with real message
+            setMessages((prev) => prev.map((msg) => 
+              msg.id === tempMessage.id ? data.message : msg
+            ));
           }
-          // Replace temp with real message
-          const updated = prev.map((msg) => 
+        } catch (error) {
+          console.error('Error reloading messages:', error);
+          // Fallback: replace temp with real message
+          setMessages((prev) => prev.map((msg) => 
             msg.id === tempMessage.id ? data.message : msg
-          );
-          console.log('Messages after send:', updated.length, 'Real message ID:', data.message.id);
-          return updated;
-        });
+          ));
+        }
         
         // Show warning if Telegram failed but message was saved
         if (data.telegramError) {
