@@ -47,21 +47,13 @@ export default function ChatWidget() {
         const maxAge = 24 * 60 * 60 * 1000; // 24 hours
         
         if (age > maxAge) {
-          // Data is too old, clear it and start fresh
-          console.log('Customer data expired, clearing localStorage');
           localStorage.removeItem('chat_customer');
           localStorage.removeItem('chat_customerId');
           localStorage.removeItem('chat_timestamp');
-          setMessages([]); // Clear old messages
+          setMessages([]);
         } else {
-          // Data is recent, restore it
           setCustomer(customerData);
           setCustomerId(savedCustomerId);
-          console.log('Restored customer from localStorage:', savedCustomerId, 'Age:', Math.round(age / 1000 / 60), 'minutes');
-          
-          // Note: Session may have expired on server, but that's OK
-          // The API will recreate the session when the user sends a message
-          // because we always send customer details with each message
         }
       }
     } catch (error) {
@@ -91,10 +83,7 @@ export default function ChatWidget() {
   // Request notification permission only when user opens chat (user interaction)
   useEffect(() => {
     if (isOpen && 'Notification' in window && Notification.permission === 'default') {
-      // Request permission only once when chat is first opened
-      Notification.requestPermission().catch(err => {
-        console.log('Notification permission denied:', err);
-      });
+      Notification.requestPermission().catch(() => {});
     }
   }, [isOpen]);
 
@@ -128,12 +117,8 @@ export default function ChatWidget() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Poll for new messages (like WordPress plugin - every 3 seconds)
-  // Webhook saves to database, polling picks it up - no separate server needed!
   useEffect(() => {
     if (!customerId) return;
-
-    console.log('Starting message polling for customerId:', customerId);
     
     const pollMessages = async () => {
       try {
@@ -142,26 +127,18 @@ export default function ChatWidget() {
         
         if (data.success && data.messages) {
           setMessages((prev) => {
-            // Find new messages (not already in the list)
             const existingIds = new Set(prev.map(msg => msg.id));
             const newMessages = data.messages.filter((msg: Message) => !existingIds.has(msg.id));
             
             if (newMessages.length > 0) {
-              console.log('📨 Found', newMessages.length, 'new message(s) via polling');
-              
-              // Play sound and show notification for new admin messages
               newMessages.forEach((msg: Message) => {
                 if (msg.sender === 'admin') {
-                  // Play sound
                   if ((audioRef as any).current) {
                     try {
                       (audioRef as any).current();
-                    } catch (e) {
-                      // Ignore audio errors
-                    }
+                    } catch (e) {}
                   }
 
-                  // Show browser notification
                   if ('Notification' in window && Notification.permission === 'granted') {
                     new Notification('New message from Support', {
                       body: msg.text,
@@ -181,14 +158,10 @@ export default function ChatWidget() {
       }
     };
 
-    // Poll immediately
     pollMessages();
-    
-    // Then poll every 3 seconds (same as WordPress plugin)
     const pollInterval = setInterval(pollMessages, 3000);
 
     return () => {
-      console.log('Stopping message polling for customerId:', customerId);
       clearInterval(pollInterval);
     };
   }, [customerId]);
@@ -246,12 +219,10 @@ export default function ChatWidget() {
       setCustomerId(customerData.id);
       hasShownWelcome.current = true;
       
-      // Save to localStorage for returning users
       try {
         localStorage.setItem('chat_customer', JSON.stringify(customerData));
         localStorage.setItem('chat_customerId', customerData.id);
         localStorage.setItem('chat_timestamp', Date.now().toString());
-        console.log('Saved customer to localStorage:', customerData.id);
       } catch (error) {
         console.error('Error saving customer to localStorage:', error);
       }
@@ -262,7 +233,6 @@ export default function ChatWidget() {
         setPendingMessage(null);
         setInputMessage('');
         
-        // Optimistically add message
         const tempMessage: Message = {
           id: `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
           customerId: customerData.id,
@@ -270,7 +240,6 @@ export default function ChatWidget() {
           sender: 'customer',
           timestamp: new Date(),
         };
-        console.log('Adding first message (temp):', tempMessage.id);
         setMessages((prev) => [...prev, tempMessage]);
 
         // Send the message
@@ -299,27 +268,19 @@ export default function ChatWidget() {
           }
 
           const data = await response.json();
-          console.log('First message response:', data);
           if (data.success) {
-            // DON'T update customerId - keep it stable to prevent SSE reconnection
-            // The frontend-generated ID is the source of truth
-            
-            // Reload all messages from server to ensure consistency
             try {
               const messagesResponse = await fetch(`/api/chat/messages?customerId=${encodeURIComponent(customerData.id)}`);
               const messagesData = await messagesResponse.json();
               if (messagesData.success && messagesData.messages) {
                 setMessages(messagesData.messages);
-                console.log('Reloaded messages after first message:', messagesData.messages.length);
               } else {
-                // Fallback: replace temp with real message
                 setMessages((prev) => prev.map((msg) => 
                   msg.id === tempMessage.id ? data.message : msg
                 ));
               }
             } catch (error) {
               console.error('Error reloading messages:', error);
-              // Fallback: replace temp with real message
               setMessages((prev) => prev.map((msg) => 
                 msg.id === tempMessage.id ? data.message : msg
               ));
@@ -355,7 +316,6 @@ export default function ChatWidget() {
     setInputMessage('');
     setIsLoading(true);
 
-    // Optimistically add message with unique temp ID
     const tempMessage: Message = {
       id: `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       customerId,
@@ -363,10 +323,7 @@ export default function ChatWidget() {
       sender: 'customer',
       timestamp: new Date(),
     };
-    setMessages((prev) => {
-      console.log('Adding temp message:', tempMessage.id);
-      return [...prev, tempMessage];
-    });
+    setMessages((prev) => [...prev, tempMessage]);
 
     try {
       const response = await fetch('/api/chat/send', {
@@ -394,34 +351,25 @@ export default function ChatWidget() {
       }
 
       const data = await response.json();
-      console.log('Send message response:', data);
       if (data.success) {
-        // DON'T update customerId - keep it stable to prevent SSE reconnection
-        
-        // Simply reload all messages from server to ensure consistency
         try {
           const messagesResponse = await fetch(`/api/chat/messages?customerId=${encodeURIComponent(customerId)}`);
           const messagesData = await messagesResponse.json();
           if (messagesData.success && messagesData.messages) {
             setMessages(messagesData.messages);
-            console.log('Reloaded messages from server:', messagesData.messages.length);
           } else {
-            // Fallback: replace temp with real message
             setMessages((prev) => prev.map((msg) => 
               msg.id === tempMessage.id ? data.message : msg
             ));
           }
         } catch (error) {
           console.error('Error reloading messages:', error);
-          // Fallback: replace temp with real message
           setMessages((prev) => prev.map((msg) => 
             msg.id === tempMessage.id ? data.message : msg
           ));
         }
         
-        // Show warning if Telegram failed but message was saved
         if (data.telegramError) {
-          console.error('Message saved but Telegram delivery failed:', data.telegramError);
           alert(`Warning: Message saved but not sent to Telegram: ${data.telegramError}`);
         }
       } else {

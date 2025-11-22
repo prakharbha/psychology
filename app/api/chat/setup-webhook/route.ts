@@ -12,14 +12,11 @@ export async function POST(request: NextRequest) {
       }, { status: 500 });
     }
 
-    // Get the actual domain from the request
     const host = request.headers.get('host');
     const protocol = request.headers.get('x-forwarded-proto') || 'https';
     const webhookUrl = `${protocol}://${host}/api/telegram/webhook`;
 
-    console.log('Setting up webhook:', webhookUrl);
-
-    // Set the webhook
+    const success = await setWebhook(webhookUrl);
     const success = await setWebhook(webhookUrl);
 
     if (success) {

@@ -89,11 +89,8 @@ export async function sendMessageToTelegram(options: TelegramMessageOptions): Pr
 
       let data = await response.json();
 
-      // If Markdown fails, try without parse_mode (plain text)
       if (!response.ok || !data.ok) {
         if (data.error_code === 400 && data.description?.includes('parse')) {
-          // Markdown parsing error, try plain text
-          console.warn(`Markdown parse error for chat ${chatId}, retrying with plain text`);
           let plainText: string;
           
           if (isFirstMessage) {
@@ -131,11 +128,6 @@ export async function sendMessageToTelegram(options: TelegramMessageOptions): Pr
 
         if (!response.ok || !data.ok) {
           const errorMsg = data.description || `HTTP ${response.status}`;
-          console.error(`Failed to send message to Telegram chat ${chatId}:`, {
-            error: errorMsg,
-            errorCode: data.error_code,
-            fullResponse: data,
-          });
           errors.push(`Chat ${chatId}: ${errorMsg}`);
           continue;
         }
@@ -144,7 +136,6 @@ export async function sendMessageToTelegram(options: TelegramMessageOptions): Pr
       if (data.result) {
         lastMessageId = data.result.message_id;
         hasSuccess = true;
-        console.log(`Successfully sent message to Telegram chat ${chatId}, message ID: ${lastMessageId}`);
       }
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Unknown error';

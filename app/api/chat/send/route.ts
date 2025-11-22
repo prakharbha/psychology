@@ -19,12 +19,8 @@ export async function POST(request: NextRequest) {
     // Check if customer exists in database
     let currentCustomer: Customer | null = customerId ? await getCustomer(customerId) : null;
     
-    // Also check by email if customer not found by ID (to prevent duplicate customers)
     if (!currentCustomer && customer && customer.email) {
       currentCustomer = await getCustomer(customer.email);
-      if (currentCustomer) {
-        console.log('Found existing customer by email, reusing customerId:', currentCustomer.id);
-      }
     }
     
     let isFirstMessage = !currentCustomer; // First message if customer doesn't exist
@@ -81,11 +77,7 @@ export async function POST(request: NextRequest) {
         createdAt: new Date(),
       };
 
-      // Save customer to database
       await saveCustomer(currentCustomer);
-      console.log('Created new customer in database:', finalCustomerId);
-    } else {
-      console.log('Using existing customer from database:', currentCustomer.id);
     }
 
     // Create message
@@ -116,26 +108,21 @@ export async function POST(request: NextRequest) {
 
       if (telegramMessageId) {
         newMessage.telegramMessageId = telegramMessageId;
-        // Update message in database with Telegram message ID (using UPDATE instead of INSERT)
         try {
           const { sql } = await import('@/lib/chat/db');
-          const result = await sql`
+          await sql`
             UPDATE chat_messages
             SET telegram_message_id = ${telegramMessageId}
             WHERE id = ${newMessage.id}
           `;
-          console.log(`Message updated with Telegram ID: ${telegramMessageId}, rows affected: ${result.rowCount}`);
         } catch (error) {
           console.error('Error updating message with Telegram ID:', error);
         }
-        console.log(`Message sent to Telegram successfully. Message ID: ${telegramMessageId}`);
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown Telegram error';
       console.error('Error sending message to Telegram:', error);
       telegramError = errorMessage;
-      // Don't fail the request if Telegram fails - message is stored in session
-      // But log it for debugging
     }
 
     return NextResponse.json({

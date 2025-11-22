@@ -30,8 +30,6 @@ export const sql = (strings: TemplateStringsArray, ...values: any[]) => {
 // Initialize database tables
 export async function initializeDatabase() {
   try {
-    console.log('Creating chat_customers table...');
-    // Create customers table (Postgres syntax, not MySQL)
     await sql`
       CREATE TABLE IF NOT EXISTS chat_customers (
         id VARCHAR(255) PRIMARY KEY,
@@ -48,11 +46,8 @@ export async function initializeDatabase() {
       )
     `;
     
-    console.log('Creating index on email...');
     await sql`CREATE INDEX IF NOT EXISTS idx_email ON chat_customers(email)`;
 
-    console.log('Creating chat_messages table...');
-    // Create messages table
     await sql`
       CREATE TABLE IF NOT EXISTS chat_messages (
         id VARCHAR(255) PRIMARY KEY,
@@ -65,12 +60,9 @@ export async function initializeDatabase() {
       )
     `;
     
-    console.log('Creating indexes on chat_messages...');
     await sql`CREATE INDEX IF NOT EXISTS idx_customer_id ON chat_messages(customer_id)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_timestamp ON chat_messages(timestamp)`;
 
-    console.log('Creating chat_sessions table...');
-    // Create sessions table (for tracking active sessions)
     await sql`
       CREATE TABLE IF NOT EXISTS chat_sessions (
         customer_id VARCHAR(255) PRIMARY KEY,
@@ -80,19 +72,12 @@ export async function initializeDatabase() {
       )
     `;
     
-    console.log('Creating index on last_activity...');
     await sql`CREATE INDEX IF NOT EXISTS idx_last_activity ON chat_sessions(last_activity)`;
 
-    console.log('✅ Database tables initialized successfully');
     return true;
   } catch (error: any) {
-    console.error('❌ Error initializing database:', error);
-    console.error('Error details:', {
-      message: error.message,
-      code: error.code,
-      detail: error.detail,
-    });
-    throw error; // Re-throw to get full error in API response
+    console.error('Error initializing database:', error);
+    throw error;
   }
 }
 
@@ -196,9 +181,7 @@ export async function saveMessage(message: Message): Promise<boolean> {
     `;
     return true;
   } catch (error: any) {
-    // If it's a duplicate key error, that's okay - message already exists
     if (error.code === '23505') {
-      console.log('Message already exists, skipping:', message.id);
       return true;
     }
     console.error('Error saving message:', error);
