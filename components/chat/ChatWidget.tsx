@@ -11,9 +11,9 @@ const CONFIG = {
   position: 'right' as 'left' | 'right',
   autoPop: true,
   autoPopDelay: 7000, // 7 seconds
-  supportName: 'Support',
-  supportAvatar: '/images/logo.webp', // Using existing logo as placeholder
-  welcomeMessage: 'Hi, I am Support Agent, how can I help you today?',
+  supportName: 'Laxmi',
+  supportAvatar: 'https://api.dicebear.com/7.x/personas/svg?seed=Laxmi&backgroundColor=ffd5dc&clothing=blazer&clothingColor=262e33&hair=long&hairColor=4a312c&skinColor=fdbcb4&topType=longHairStraight',
+  welcomeMessage: "Hi! I'm not a bot - I'm a real human! How can I help you today?",
 };
 
 export default function ChatWidget() {
