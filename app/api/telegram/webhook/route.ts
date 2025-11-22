@@ -14,10 +14,10 @@ export async function POST(request: NextRequest) {
       
       // Handle reply button click
       if (callbackData?.startsWith('reply_')) {
-        const parts = callbackData.split('_');
-        if (parts.length >= 3) {
-          const customerId = parts[1];
-          
+        // Extract customerId from callback_data (format: reply_<customerId>)
+        const customerId = callbackData.substring(6); // Remove "reply_" prefix
+        
+        if (customerId) {
           // Answer callback query to remove loading state
           const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
           if (TELEGRAM_BOT_TOKEN) {

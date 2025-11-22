@@ -41,11 +41,16 @@ export async function sendMessageToTelegram(options: TelegramMessageOptions): Pr
     `_Reply to this message to respond to the customer._`;
 
   // Create inline keyboard with reply button
+  // Telegram callback_data must be <= 64 bytes and alphanumeric/underscore/hyphen only
+  // Since customerId is in the message text, we don't need it in callback_data
+  // Just use a simple identifier - admin will reply to the message which contains customerId
+  const callbackData = 'reply_customer';
+  
   const replyKeyboard = {
     inline_keyboard: [[
       {
         text: '📩 Reply to Customer',
-        callback_data: `reply_${customerId}_${messageId || Date.now()}`
+        callback_data: callbackData
       }
     ]]
   };
