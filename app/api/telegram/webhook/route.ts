@@ -86,6 +86,12 @@ export async function POST(request: NextRequest) {
       const message = update.message;
       const replyToMessage = message.reply_to_message;
 
+      console.log('📬 Received message from Telegram:', {
+        hasReplyTo: !!replyToMessage,
+        messageText: message.text.substring(0, 50),
+        replyToText: replyToMessage?.text?.substring(0, 50),
+      });
+
       // Check if this is a reply to a customer message
       if (replyToMessage && replyToMessage.text) {
         // Extract email and customer ID from the original message

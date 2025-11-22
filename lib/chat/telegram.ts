@@ -42,12 +42,12 @@ export async function sendMessageToTelegram(options: TelegramMessageOptions): Pr
       (customer.device ? `*Device:* ${customer.device}\n` : '') +
       (customer.network ? `*Network:* ${customer.network}\n` : '') +
       `\n*Message:*\n${message}\n\n` +
-      `_Reply to this message to respond to the customer._\n` +
+      `⚠️ *IMPORTANT:* Use Telegram's REPLY feature (swipe right) to respond\\!\n` +
       `_Customer ID: ${customerId}_`;
   } else {
     // Subsequent messages: Short format with just email and message
     messageText = `💬 *${customer.name}* (${customer.email})\n\n${message}\n\n` +
-      `_Reply to this message to respond to the customer._`;
+      `⚠️ Use REPLY feature to respond to this customer`;
   }
 
   // Create inline keyboard with reply button
