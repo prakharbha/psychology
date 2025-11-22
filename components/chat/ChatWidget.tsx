@@ -134,6 +134,13 @@ export default function ChatWidget() {
     }
   }, [customerId]);
 
+  // Show welcome message when chat opens
+  useEffect(() => {
+    if (isOpen && !hasShownWelcome.current) {
+      hasShownWelcome.current = true;
+    }
+  }, [isOpen]);
+
   const loadMessages = async () => {
     if (!customerId) return;
     try {
@@ -141,9 +148,6 @@ export default function ChatWidget() {
       const data = await response.json();
       if (data.success) {
         setMessages(data.messages);
-        if (!hasShownWelcome.current && data.messages.length === 0) {
-          hasShownWelcome.current = true;
-        }
       }
     } catch (error) {
       console.error('Error loading messages:', error);
@@ -367,7 +371,8 @@ export default function ChatWidget() {
 
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-4 bg-slate-50">
-            {hasShownWelcome.current && messages.length === 0 && (
+            {/* Show welcome message when chat is open and no messages yet */}
+            {isOpen && messages.length === 0 && (
               <div className="mb-4">
                 <div className="bg-white rounded-2xl px-4 py-3 shadow-sm border border-slate-200">
                   <p className="text-sm text-slate-700">{CONFIG.welcomeMessage}</p>
@@ -392,34 +397,28 @@ export default function ChatWidget() {
           </div>
 
           {/* Input */}
-          {customerId ? (
-            <div className="p-4 border-t border-slate-200 bg-white">
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={inputMessage}
-                  onChange={(e) => setInputMessage(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder="Type your message..."
-                  className="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  disabled={isLoading}
-                />
-                <button
-                  onClick={handleSendMessage}
-                  disabled={!inputMessage.trim() || isLoading}
-                  className="px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                  </svg>
-                </button>
-              </div>
+          <div className="p-4 border-t border-slate-200 bg-white">
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={inputMessage}
+                onChange={(e) => setInputMessage(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Type your message..."
+                className="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={isLoading}
+              />
+              <button
+                onClick={handleSendMessage}
+                disabled={!inputMessage.trim() || isLoading}
+                className="px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                </svg>
+              </button>
             </div>
-          ) : (
-            <div className="p-4 border-t border-slate-200 bg-white text-center">
-              <p className="text-sm text-slate-600">Please provide your details to start chatting</p>
-            </div>
-          )}
+          </div>
         </div>
       )}
 
