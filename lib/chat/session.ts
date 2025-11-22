@@ -7,28 +7,19 @@ const sessions = new Map<string, ChatSession>();
 // Cleanup inactive sessions after 30 minutes
 const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
 
-// Cleanup interval - initialized lazily to avoid running during build
-let cleanupInterval: NodeJS.Timeout | null = null;
-
-function startCleanupInterval() {
-  // Only start if not already running and not in build context
-  if (cleanupInterval || process.env.NEXT_PHASE === 'phase-production-build') {
-    return;
-  }
-
-  cleanupInterval = setInterval(() => {
-    const now = Date.now();
-    for (const [customerId, session] of sessions.entries()) {
-      if (now - session.lastActivity.getTime() > SESSION_TIMEOUT) {
-        sessions.delete(customerId);
-      }
+// Cleanup function - called on-demand rather than via interval to avoid build issues
+function cleanupExpiredSessions() {
+  const now = Date.now();
+  for (const [customerId, session] of sessions.entries()) {
+    if (now - session.lastActivity.getTime() > SESSION_TIMEOUT) {
+      sessions.delete(customerId);
     }
-  }, 5 * 60 * 1000);
+  }
 }
 
 export function createSession(customer: Customer): ChatSession {
-  // Start cleanup interval on first session creation (runtime only)
-  startCleanupInterval();
+  // Cleanup expired sessions when creating a new one (on-demand cleanup)
+  cleanupExpiredSessions();
 
   const session: ChatSession = {
     customerId: customer.id,
@@ -42,6 +33,11 @@ export function createSession(customer: Customer): ChatSession {
 }
 
 export function getSession(customerId: string): ChatSession | undefined {
+  // Cleanup expired sessions periodically when accessing sessions
+  if (Math.random() < 0.1) { // 10% chance to cleanup on each access
+    cleanupExpiredSessions();
+  }
+  
   const session = sessions.get(customerId);
   if (session) {
     session.lastActivity = new Date();
