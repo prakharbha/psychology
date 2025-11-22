@@ -31,6 +31,49 @@ export default function ChatWidget() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const hasShownWelcome = useRef(false);
 
+  // Restore customer data from localStorage on mount
+  useEffect(() => {
+    try {
+      const savedCustomer = localStorage.getItem('chat_customer');
+      const savedCustomerId = localStorage.getItem('chat_customerId');
+      const savedTimestamp = localStorage.getItem('chat_timestamp');
+      
+      if (savedCustomer && savedCustomerId) {
+        const customerData = JSON.parse(savedCustomer);
+        
+        // Check if data is too old (older than 24 hours)
+        const now = Date.now();
+        const timestamp = savedTimestamp ? parseInt(savedTimestamp) : 0;
+        const age = now - timestamp;
+        const maxAge = 24 * 60 * 60 * 1000; // 24 hours
+        
+        if (age > maxAge) {
+          // Data is too old, clear it and start fresh
+          console.log('Customer data expired, clearing localStorage');
+          localStorage.removeItem('chat_customer');
+          localStorage.removeItem('chat_customerId');
+          localStorage.removeItem('chat_timestamp');
+          setMessages([]); // Clear old messages
+        } else {
+          // Data is recent, restore it
+          setCustomer(customerData);
+          setCustomerId(savedCustomerId);
+          console.log('Restored customer from localStorage:', savedCustomerId, 'Age:', Math.round(age / 1000 / 60), 'minutes');
+          
+          // Note: Session may have expired on server, but that's OK
+          // The API will recreate the session when the user sends a message
+          // because we always send customer details with each message
+        }
+      }
+    } catch (error) {
+      console.error('Error restoring customer data:', error);
+      // Clear corrupted data
+      localStorage.removeItem('chat_customer');
+      localStorage.removeItem('chat_customerId');
+      localStorage.removeItem('chat_timestamp');
+    }
+  }, []);
+
   // Auto-pop chat widget after 7 seconds
   useEffect(() => {
     if (CONFIG.autoPop && !isOpen) {
@@ -207,6 +250,16 @@ export default function ChatWidget() {
       setCustomer(customerData);
       setCustomerId(customerData.id);
       hasShownWelcome.current = true;
+      
+      // Save to localStorage for returning users
+      try {
+        localStorage.setItem('chat_customer', JSON.stringify(customerData));
+        localStorage.setItem('chat_customerId', customerData.id);
+        localStorage.setItem('chat_timestamp', Date.now().toString());
+        console.log('Saved customer to localStorage:', customerData.id);
+      } catch (error) {
+        console.error('Error saving customer to localStorage:', error);
+      }
 
       // After customer details are submitted, send the pending message if there is one
       const messageToSend = pendingMessage || inputMessage.trim();
@@ -253,11 +306,9 @@ export default function ChatWidget() {
           const data = await response.json();
           console.log('First message response:', data);
           if (data.success) {
-            // Update customerId if needed (but this shouldn't change since we generate it on frontend)
-            if (data.customerId && data.customerId !== customerData.id) {
-              console.log('CustomerId mismatch - frontend:', customerData.id, 'backend:', data.customerId);
-              setCustomerId(data.customerId);
-            }
+            // DON'T update customerId - keep it stable to prevent SSE reconnection
+            // The frontend-generated ID is the source of truth
+            
             // Replace temp message with real message
             setMessages((prev) => {
               console.log('Before replace - messages:', prev.length, 'Looking for temp ID:', tempMessage.id);
@@ -343,11 +394,8 @@ export default function ChatWidget() {
       const data = await response.json();
       console.log('Send message response:', data);
       if (data.success) {
-        // Update customerId if it changed (first message creates session)
-        if (data.customerId && data.customerId !== customerId) {
-          console.log('CustomerId changed from', customerId, 'to', data.customerId);
-          setCustomerId(data.customerId);
-        }
+        // DON'T update customerId - keep it stable to prevent SSE reconnection
+        
         // Replace temp message with real one (keep the message visible)
         setMessages((prev) => {
           // Check if the real message already exists (shouldn't happen but just in case)
