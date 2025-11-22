@@ -17,7 +17,6 @@ export async function POST(request: NextRequest) {
     const webhookUrl = `${protocol}://${host}/api/telegram/webhook`;
 
     const success = await setWebhook(webhookUrl);
-    const success = await setWebhook(webhookUrl);
 
     if (success) {
       // Get updated webhook info
