@@ -7,17 +7,29 @@ const sessions = new Map<string, ChatSession>();
 // Cleanup inactive sessions after 30 minutes
 const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
 
-// Cleanup interval - runs every 5 minutes
-setInterval(() => {
-  const now = Date.now();
-  for (const [customerId, session] of sessions.entries()) {
-    if (now - session.lastActivity.getTime() > SESSION_TIMEOUT) {
-      sessions.delete(customerId);
-    }
+// Cleanup interval - initialized lazily to avoid running during build
+let cleanupInterval: NodeJS.Timeout | null = null;
+
+function startCleanupInterval() {
+  // Only start if not already running and not in build context
+  if (cleanupInterval || process.env.NEXT_PHASE === 'phase-production-build') {
+    return;
   }
-}, 5 * 60 * 1000);
+
+  cleanupInterval = setInterval(() => {
+    const now = Date.now();
+    for (const [customerId, session] of sessions.entries()) {
+      if (now - session.lastActivity.getTime() > SESSION_TIMEOUT) {
+        sessions.delete(customerId);
+      }
+    }
+  }, 5 * 60 * 1000);
+}
 
 export function createSession(customer: Customer): ChatSession {
+  // Start cleanup interval on first session creation (runtime only)
+  startCleanupInterval();
+
   const session: ChatSession = {
     customerId: customer.id,
     customer,

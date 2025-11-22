@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
         const originalText = replyToMessage.text;
         const customerIdMatch = originalText.match(/Customer ID:.*?`([^`]+)`/);
         
-        if (customerIdMatch && customerIdMatch[1]) {
+        if (customerIdMatch && customerIdMatch[1] && message.text) {
           const customerId = customerIdMatch[1];
           const session = getSession(customerId);
 
