@@ -43,19 +43,29 @@ export async function POST(request: NextRequest) {
           // Answer callback query to remove loading state
           const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
           if (TELEGRAM_BOT_TOKEN) {
+            let responseText = 'Reply to this message to respond to the customer.';
+            let showAlert = false;
+            
+            if (!session) {
+              // Check if session expired recently
+              const { getAllSessions } = await import('@/lib/chat/session');
+              const allSessions = getAllSessions();
+              responseText = allSessions.length > 0 
+                ? `Session expired. Active sessions: ${allSessions.length}. Reply to the message to try anyway.`
+                : 'Session expired or customer disconnected. Reply to the message to try anyway.';
+              showAlert = false; // Don't block, let them try
+            }
+            
             await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/answerCallbackQuery`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 callback_query_id: update.callback_query.id,
-                text: session ? 'Type your reply below' : 'Customer session not found',
-                show_alert: !session,
+                text: responseText,
+                show_alert: showAlert,
               }),
             });
           }
-          
-          // If session exists, we can optionally send a prompt message
-          // The actual reply will come through the regular message handler
         } else {
           console.warn('Could not extract customerId from button message:', {
             originalText: originalText.substring(0, 200),

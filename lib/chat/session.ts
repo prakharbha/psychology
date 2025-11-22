@@ -4,8 +4,8 @@ import { ChatSession, Customer, Message } from '@/types/chat';
 // This is cleared when the server restarts or session expires
 const sessions = new Map<string, ChatSession>();
 
-// Cleanup inactive sessions after 30 minutes
-const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+// Cleanup inactive sessions after 24 hours (increased from 30 minutes)
+const SESSION_TIMEOUT = 24 * 60 * 60 * 1000; // 24 hours
 
 // Cleanup function - called on-demand rather than via interval to avoid build issues
 function cleanupExpiredSessions() {
