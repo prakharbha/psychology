@@ -9,20 +9,20 @@ export async function GET(request: NextRequest) {
       hasPostgresUrl: !!process.env.POSTGRES_URL,
     });
     
-    const success = await initializeDatabase();
+    // Add timeout wrapper
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Database initialization timeout after 25 seconds')), 25000);
+    });
+
+    const initPromise = initializeDatabase();
     
-    if (success) {
-      return NextResponse.json({
-        success: true,
-        message: 'Database initialized successfully',
-        tables: ['chat_customers', 'chat_messages', 'chat_sessions'],
-      });
-    } else {
-      return NextResponse.json(
-        { success: false, error: 'Failed to initialize database - check Vercel logs for details' },
-        { status: 500 }
-      );
-    }
+    await Promise.race([initPromise, timeoutPromise]);
+    
+    return NextResponse.json({
+      success: true,
+      message: 'Database initialized successfully',
+      tables: ['chat_customers', 'chat_messages', 'chat_sessions'],
+    });
   } catch (error: any) {
     console.error('❌ Error in init-db:', error);
     console.error('Error details:', {

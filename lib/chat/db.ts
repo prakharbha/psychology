@@ -1,10 +1,16 @@
-import { createClient } from '@vercel/postgres';
+import { Pool } from 'pg';
 import { Customer, Message, ChatSession } from '@/types/chat';
 
 // CHAT__POSTGRES_URL is a direct connection string
-// We must use createClient() for direct connections
-const client = createClient({
+// Use pg Pool for better connection management
+const pool = new Pool({
   connectionString: process.env.CHAT__POSTGRES_URL,
+  ssl: {
+    rejectUnauthorized: false, // Required for Prisma.io connections
+  },
+  max: 1, // Single connection for serverless
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 10000,
 });
 
 // Helper for template literal SQL (compatible with @vercel/postgres sql template tag)
@@ -18,7 +24,7 @@ const sql = (strings: TemplateStringsArray, ...values: any[]) => {
     queryText += strings[i + 1];
   }
   
-  return client.query(queryText, params);
+  return pool.query(queryText, params);
 };
 
 // Initialize database tables
