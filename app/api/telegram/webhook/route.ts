@@ -7,6 +7,9 @@ import { Message } from '@/types/chat';
 export async function POST(request: NextRequest) {
   try {
     const update: TelegramWebhookUpdate = await request.json();
+    console.log('=== TELEGRAM WEBHOOK RECEIVED ===');
+    console.log('Update type:', update.callback_query ? 'callback_query' : update.message ? 'message' : 'unknown');
+    console.log('Full update:', JSON.stringify(update, null, 2));
 
     // Handle callback query (button clicks)
     if (update.callback_query) {

@@ -321,20 +321,26 @@ export default function ChatWidget() {
       }
 
       const data = await response.json();
+      console.log('Send message response:', data);
       if (data.success) {
         // Update customerId if it changed (first message creates session)
         if (data.customerId && data.customerId !== customerId) {
+          console.log('CustomerId changed from', customerId, 'to', data.customerId);
           setCustomerId(data.customerId);
         }
         // Replace temp message with real one
-        setMessages((prev) => prev.map((msg) => 
-          msg.id === tempMessage.id ? data.message : msg
-        ));
+        setMessages((prev) => {
+          const updated = prev.map((msg) => 
+            msg.id === tempMessage.id ? data.message : msg
+          );
+          console.log('Messages after send:', updated.length);
+          return updated;
+        });
         
         // Show warning if Telegram failed but message was saved
         if (data.telegramError) {
-          console.warn('Message saved but Telegram delivery failed:', data.telegramError);
-          // Don't show alert to user - message is saved and will be sent when Telegram is available
+          console.error('Message saved but Telegram delivery failed:', data.telegramError);
+          alert(`Warning: Message saved but not sent to Telegram: ${data.telegramError}`);
         }
       } else {
         // Remove temp message on error
