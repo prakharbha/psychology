@@ -152,47 +152,21 @@ export async function POST(request: NextRequest) {
           let finalCustomerId = customerId;
           let dbCustomer = null;
           
-          // Import SSE functions to check active connections
-          const { getSSEConnectionInfo } = await import('@/lib/chat/sse');
-          const activeSSEConnections = getSSEConnectionInfo();
-          const activeSSEIds = activeSSEConnections.map(c => c.customerId);
-          console.log('🔍 Active SSE connections:', activeSSEIds);
-          
-          // Strategy: Prioritize customerId with active SSE connection
+          // Strategy: Find customer by email or customerId
           if (email) {
             // Get all customers with this email (might be duplicates)
             const allCustomersWithEmail = await getAllCustomersByEmail(email);
             console.log(`Found ${allCustomersWithEmail.length} customer(s) with email ${email}`);
             
-            // Check which customer has an active SSE connection
-            let customerIdWithSSE: string | null = null;
-            for (const customer of allCustomersWithEmail) {
-              if (activeSSEIds.includes(customer.id)) {
-                customerIdWithSSE = customer.id;
-                dbCustomer = customer;
-                console.log('✅ Found customer with active SSE connection:', customerIdWithSSE);
-                break;
-              }
-            }
-            
-            if (customerIdWithSSE) {
-              // Use the customerId that has active SSE
-              finalCustomerId = customerIdWithSSE;
-              console.log('✅ Using customerId with active SSE:', finalCustomerId);
-            } else if (allCustomersWithEmail.length > 0) {
-              // No SSE connection found, use the most recent customer
+            if (allCustomersWithEmail.length > 0) {
+              // Use the most recent customer
               dbCustomer = allCustomersWithEmail[0];
               finalCustomerId = dbCustomer.id;
-              console.log('⚠️ No active SSE connection, using most recent customer:', finalCustomerId);
-              console.log('⚠️ Available SSE connections:', activeSSEIds);
+              console.log('✅ Using most recent customer by email:', finalCustomerId);
             } else {
               console.log('⚠️ No customers found in database for email:', email);
-              // Last resort: check if any active SSE connection might belong to this email
-              // (by checking if customerId matches the pattern)
-              if (customerId && activeSSEIds.includes(customerId)) {
-                finalCustomerId = customerId;
-                console.log('⚠️ Using extracted customerId with active SSE:', customerId);
-              } else if (customerId) {
+              // Last resort: use extracted customerId
+              if (customerId) {
                 finalCustomerId = customerId;
                 console.log('⚠️ Using extracted customerId as fallback:', customerId);
               }
@@ -204,14 +178,8 @@ export async function POST(request: NextRequest) {
               finalCustomerId = dbCustomer.id;
               console.log('✅ Found customer in database by customerId:', dbCustomer.id);
             } else {
-              // Check if this customerId has active SSE
-              if (activeSSEIds.includes(customerId)) {
-                finalCustomerId = customerId;
-                console.log('✅ Using customerId with active SSE (not in DB):', customerId);
-              } else {
-                finalCustomerId = customerId;
-                console.log('⚠️ Using customerId from message (no SSE, not in DB):', customerId);
-              }
+              finalCustomerId = customerId;
+              console.log('⚠️ Using customerId from message (not in DB):', customerId);
             }
           }
           
@@ -225,9 +193,6 @@ export async function POST(request: NextRequest) {
             }, { status: 400 });
           }
           
-          // We'll try to broadcast to the customerId from database
-          const { broadcastToCustomer } = await import('@/lib/chat/sse');
-          
           // Create admin message
           const adminMessage: Message = {
             id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -238,31 +203,23 @@ export async function POST(request: NextRequest) {
             telegramMessageId: message.message_id,
           };
 
-          console.log('📡 Broadcasting message to customerId:', finalCustomerId);
-          console.log('📋 Message details:', {
+          console.log('💾 Saving admin message to database:', {
             messageId: adminMessage.id,
             text: adminMessage.text.substring(0, 50),
             customerId: adminMessage.customerId,
           });
           
-          // Broadcast to the customerId from database
-          broadcastToCustomer(finalCustomerId, {
-            type: 'new_message',
-            message: adminMessage,
-          });
-          
-          console.log('✅ Broadcast function called for customerId:', finalCustomerId);
-          
           // Save message to database
           try {
             await saveMessage(adminMessage);
             console.log('✅ Message saved to database');
-            
-            const allSessions = await getActiveSessions();
-            console.log('📊 Total active sessions in database:', allSessions.length);
           } catch (error) {
-            console.error('Error saving message to database:', error);
+            console.error('❌ Error saving message to database:', error);
+            throw error;
           }
+
+          // Message saved to database - polling will pick it up (no separate server needed!)
+          console.log('✅ Message saved to database - customer will receive via polling');
 
           console.log(`✅ Admin reply processed. CustomerId: ${finalCustomerId}`);
           return NextResponse.json({ 

@@ -27,7 +27,6 @@ export default function ChatWidget() {
   const [isLoading, setIsLoading] = useState(false);
   const [pageUrl, setPageUrl] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const eventSourceRef = useRef<EventSource | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const hasShownWelcome = useRef(false);
 
@@ -129,76 +128,70 @@ export default function ChatWidget() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Setup SSE connection for real-time updates
+  // Poll for new messages (like WordPress plugin - every 3 seconds)
+  // Webhook saves to database, polling picks it up - no separate server needed!
   useEffect(() => {
-    if (customerId) {
-      console.log('Setting up SSE connection for customerId:', customerId, 'isOpen:', isOpen);
-      const eventSource = new EventSource(`/api/chat/stream?customerId=${encodeURIComponent(customerId)}`);
-      eventSourceRef.current = eventSource;
+    if (!customerId) return;
 
-      eventSource.onopen = () => {
-        console.log('✅ SSE connection opened for customerId:', customerId);
-      };
-
-      eventSource.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          console.log('📨 Received SSE message:', data);
-          if (data.type === 'new_message' && data.message) {
-            setMessages((prev) => {
-              // Check if message already exists to avoid duplicates
-              const exists = prev.some(msg => msg.id === data.message.id);
-              if (exists) {
-                console.log('⚠️ Duplicate message, ignoring:', data.message.id);
-                return prev;
-              }
-              console.log('✅ Adding new message from SSE:', data.message.id);
-              return [...prev, data.message];
-            });
+    console.log('Starting message polling for customerId:', customerId);
+    
+    const pollMessages = async () => {
+      try {
+        const response = await fetch(`/api/chat/messages?customerId=${encodeURIComponent(customerId)}`);
+        const data = await response.json();
+        
+        if (data.success && data.messages) {
+          setMessages((prev) => {
+            // Find new messages (not already in the list)
+            const existingIds = new Set(prev.map(msg => msg.id));
+            const newMessages = data.messages.filter((msg: Message) => !existingIds.has(msg.id));
             
-            // Play sound
-            if ((audioRef as any).current) {
-              try {
-                (audioRef as any).current();
-              } catch (e) {
-                // Ignore audio errors
-              }
-            }
+            if (newMessages.length > 0) {
+              console.log('📨 Found', newMessages.length, 'new message(s) via polling');
+              
+              // Play sound and show notification for new admin messages
+              newMessages.forEach((msg: Message) => {
+                if (msg.sender === 'admin') {
+                  // Play sound
+                  if ((audioRef as any).current) {
+                    try {
+                      (audioRef as any).current();
+                    } catch (e) {
+                      // Ignore audio errors
+                    }
+                  }
 
-            // Show browser notification
-            if ('Notification' in window && Notification.permission === 'granted') {
-              new Notification('New message from Support', {
-                body: data.message.text,
-                icon: CONFIG.supportAvatar,
+                  // Show browser notification
+                  if ('Notification' in window && Notification.permission === 'granted') {
+                    new Notification('New message from Support', {
+                      body: msg.text,
+                      icon: CONFIG.supportAvatar,
+                    });
+                  }
+                }
               });
+              
+              return [...prev, ...newMessages];
             }
-          } else if (data.type === 'connected') {
-            console.log('✅ SSE connection confirmed for customerId:', customerId);
-          }
-        } catch (error) {
-          console.error('❌ Error parsing SSE message:', error, event.data);
+            return prev;
+          });
         }
-      };
-
-      eventSource.onerror = (error) => {
-        console.error('❌ SSE connection error:', error);
-        // EventSource will automatically try to reconnect
-      };
-
-      return () => {
-        console.log('🔌 Closing SSE connection for customerId:', customerId);
-        eventSource.close();
-        eventSourceRef.current = null;
-      };
-    } else {
-      // Close connection if no customerId
-      if (eventSourceRef.current) {
-        console.log('🔌 Closing SSE connection (no customerId)');
-        eventSourceRef.current.close();
-        eventSourceRef.current = null;
+      } catch (error) {
+        console.error('Error polling messages:', error);
       }
-    }
-  }, [customerId]); // Connect as soon as we have customerId, regardless of isOpen
+    };
+
+    // Poll immediately
+    pollMessages();
+    
+    // Then poll every 3 seconds (same as WordPress plugin)
+    const pollInterval = setInterval(pollMessages, 3000);
+
+    return () => {
+      console.log('Stopping message polling for customerId:', customerId);
+      clearInterval(pollInterval);
+    };
+  }, [customerId]);
 
   // Polling disabled - using SSE/webhook only for real-time delivery
 
