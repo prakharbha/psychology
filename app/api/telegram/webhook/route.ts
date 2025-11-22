@@ -158,48 +158,36 @@ export async function POST(request: NextRequest) {
           const activeSSEIds = activeSSEConnections.map(c => c.customerId);
           console.log('🔍 Active SSE connections:', activeSSEIds);
           
-          // Strategy: Find customer by email, but prioritize customerId that has active SSE
+          // Strategy: Prioritize customerId with active SSE connection
           if (email) {
-            // First, check if the extracted customerId has an active SSE connection
-            if (customerId && activeSSEIds.includes(customerId)) {
-              console.log('✅ Extracted customerId has active SSE, using it:', customerId);
-              dbCustomer = await getCustomer(customerId);
-              if (dbCustomer && dbCustomer.email === email) {
-                finalCustomerId = customerId;
-                console.log('✅ Confirmed customer in database matches email');
-              } else {
-                // CustomerId has SSE but doesn't match email - find by email instead
-                dbCustomer = await getCustomer(email);
-                if (dbCustomer) {
-                  // Check if this customer has SSE
-                  if (activeSSEIds.includes(dbCustomer.id)) {
-                    finalCustomerId = dbCustomer.id;
-                    console.log('✅ Found customer by email with active SSE:', dbCustomer.id);
-                  } else {
-                    // Use the customerId with SSE even if email doesn't match (better than nothing)
-                    finalCustomerId = customerId;
-                    console.log('⚠️ Using customerId with SSE (email mismatch)');
-                  }
-                } else {
-                  finalCustomerId = customerId;
-                  console.log('⚠️ Customer not in DB, using customerId with SSE');
-                }
+            // First, check all active SSE connections and see if any belong to this email
+            let customerIdWithSSE: string | null = null;
+            
+            // Check each active SSE connection to see if it belongs to a customer with this email
+            for (const sseCustomerId of activeSSEIds) {
+              const sseCustomer = await getCustomer(sseCustomerId);
+              if (sseCustomer && sseCustomer.email === email) {
+                customerIdWithSSE = sseCustomer.id;
+                console.log('✅ Found customer with active SSE connection for this email:', customerIdWithSSE);
+                break;
               }
+            }
+            
+            if (customerIdWithSSE) {
+              // Use the customerId that has active SSE
+              finalCustomerId = customerIdWithSSE;
+              dbCustomer = await getCustomer(customerIdWithSSE);
+              console.log('✅ Using customerId with active SSE:', finalCustomerId);
             } else {
-              // No SSE for extracted customerId, find by email
+              // No SSE connection found, find customer by email
               dbCustomer = await getCustomer(email);
               if (dbCustomer) {
                 finalCustomerId = dbCustomer.id;
                 console.log('✅ Found customer in database by email:', dbCustomer.id);
-                // Check if this customer has SSE
-                if (activeSSEIds.includes(dbCustomer.id)) {
-                  console.log('✅ Customer has active SSE connection');
-                } else {
-                  console.log('⚠️ Customer found but no active SSE connection');
-                }
+                console.log('⚠️ But no active SSE connection for this customer');
               } else {
                 console.log('⚠️ Customer not found in database for email:', email);
-                // Last resort: use extracted customerId
+                // Last resort: use extracted customerId if available
                 if (customerId) {
                   finalCustomerId = customerId;
                   console.log('⚠️ Using extracted customerId as fallback:', customerId);
@@ -213,8 +201,14 @@ export async function POST(request: NextRequest) {
               finalCustomerId = dbCustomer.id;
               console.log('✅ Found customer in database by customerId:', dbCustomer.id);
             } else {
-              finalCustomerId = customerId;
-              console.log('⚠️ Using customerId from message (not in DB):', customerId);
+              // Check if this customerId has active SSE
+              if (activeSSEIds.includes(customerId)) {
+                finalCustomerId = customerId;
+                console.log('✅ Using customerId with active SSE (not in DB):', customerId);
+              } else {
+                finalCustomerId = customerId;
+                console.log('⚠️ Using customerId from message (no SSE, not in DB):', customerId);
+              }
             }
           }
           
