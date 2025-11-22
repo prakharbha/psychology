@@ -153,7 +153,7 @@ export default function ChatWidget() {
         eventSourceRef.current = null;
       }
     }
-  }, [customerId, isOpen]);
+  }, [customerId]); // Keep SSE connected as long as we have customerId
 
   // Polling disabled - using SSE/webhook only for real-time delivery
 

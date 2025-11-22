@@ -96,20 +96,13 @@ export async function POST(request: NextRequest) {
       // Check if this is a reply to a customer message
       if (replyToMessage && replyToMessage.text) {
         // Extract customer ID from the original message
-        // The original message format includes customer ID in multiple formats:
-        // Markdown: `*Customer ID:* \`customer_xxx\``
-        // Plain text: `Customer ID: customer_xxx`
         const originalText = replyToMessage.text;
         
-        // Try Markdown format first
+        // Try multiple formats to extract customer ID
         let customerIdMatch = originalText.match(/Customer ID:.*?`([^`]+)`/);
-        
-        // If not found, try plain text format
         if (!customerIdMatch) {
           customerIdMatch = originalText.match(/Customer ID:\s*([^\n]+)/);
         }
-        
-        // Also try without backticks (plain text after colon)
         if (!customerIdMatch) {
           customerIdMatch = originalText.match(/\*Customer ID:\*\s*([^\n*]+)/);
         }
@@ -117,69 +110,42 @@ export async function POST(request: NextRequest) {
         if (customerIdMatch && customerIdMatch[1] && message.text) {
           let customerId = customerIdMatch[1].trim();
           
-          // Try to find session with exact match first
-          let session = getSession(customerId);
-          
-          // If not found, try to find by partial match (in case of formatting issues)
-          if (!session) {
-            // Get all sessions and try to match
-            const { getAllSessions } = await import('@/lib/chat/session');
-            const allSessions = getAllSessions();
-            const matchingSession = allSessions.find(s => 
-              s.customerId === customerId || 
-              s.customerId.includes(customerId) ||
-              customerId.includes(s.customerId)
-            );
-            if (matchingSession) {
-              customerId = matchingSession.customerId;
-              session = matchingSession;
-            }
-          }
-
           console.log('Processing admin reply:', {
-            extractedCustomerId: customerIdMatch[1].trim(),
-            finalCustomerId: customerId,
-            hasSession: !!session,
+            extractedCustomerId: customerId,
             messageText: message.text.substring(0, 50),
-            originalTextPreview: originalText.substring(0, 100),
           });
           
-          // Import SSE functions to check connections
-          const { broadcastToCustomer } = await import('@/lib/chat/sse');
+          // Create admin message (works with or without session)
+          const adminMessage: Message = {
+            id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            customerId,
+            text: message.text,
+            sender: 'admin',
+            timestamp: new Date(),
+            telegramMessageId: message.message_id,
+          };
 
+          // Try to add to session if it exists
+          const session = getSession(customerId);
           if (session) {
-            // Create admin message
-            const adminMessage: Message = {
-              id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-              customerId,
-              text: message.text,
-              sender: 'admin',
-              timestamp: new Date(),
-              telegramMessageId: message.message_id,
-            };
-
-            // Add message to session
             addMessage(customerId, adminMessage);
             console.log('Message added to session:', customerId);
-
-            // Broadcast to customer via SSE
-            broadcastToCustomer(customerId, {
-              type: 'new_message',
-              message: adminMessage,
-            });
-
-            console.log('Admin reply processed and broadcasted:', customerId);
-            return NextResponse.json({ ok: true });
           } else {
-            console.warn('No session found for customerId:', {
-              extracted: customerIdMatch[1].trim(),
-              final: customerId,
-            });
+            console.log('No session found, but will still broadcast:', customerId);
           }
+
+          // Always try to broadcast via SSE (customer might still be connected)
+          const { broadcastToCustomer } = await import('@/lib/chat/sse');
+          broadcastToCustomer(customerId, {
+            type: 'new_message',
+            message: adminMessage,
+          });
+
+          console.log('Admin reply broadcasted to customerId:', customerId);
+          return NextResponse.json({ ok: true, delivered: !!session });
         } else {
           console.warn('Could not extract customerId from message:', {
             originalText: originalText.substring(0, 200),
-            hasText: !!message.text,
           });
         }
       }
