@@ -13,6 +13,7 @@ export interface TelegramMessageOptions {
   customer: Customer;
   message: string;
   messageId?: string;
+  isFirstMessage?: boolean; // Flag to send full details only on first message
 }
 
 export async function sendMessageToTelegram(options: TelegramMessageOptions): Promise<number | null> {
@@ -24,22 +25,30 @@ export async function sendMessageToTelegram(options: TelegramMessageOptions): Pr
     throw new Error('TELEGRAM_CHAT_ID is not configured');
   }
 
-  const { customer, message, customerId, messageId } = options;
+  const { customer, message, customerId, messageId, isFirstMessage = false } = options;
 
-  // Format message with customer details
-  // Use email as primary identifier (more reliable than session-based customerId)
-  const messageText = `💬 *New Customer Message*\n\n` +
-    `*Email:* ${customer.email}\n` +
-    `*Name:* ${customer.name}\n` +
-    `*Phone:* ${customer.phone}\n` +
-    `*Page URL:* ${customer.pageUrl}\n` +
-    (customer.location ? `*Location:* ${customer.location}\n` : '') +
-    (customer.browser ? `*Browser:* ${customer.browser}\n` : '') +
-    (customer.device ? `*Device:* ${customer.device}\n` : '') +
-    (customer.network ? `*Network:* ${customer.network}\n` : '') +
-    `\n*Message:*\n${message}\n\n` +
-    `_Reply to this message to respond to the customer._\n` +
-    `_Customer ID: ${customerId}_`; // Keep ID at bottom for reference
+  // Format message - full details for first message, short format for subsequent messages
+  let messageText: string;
+  
+  if (isFirstMessage) {
+    // First message: Include full customer details
+    messageText = `💬 *New Customer Message*\n\n` +
+      `*Email:* ${customer.email}\n` +
+      `*Name:* ${customer.name}\n` +
+      `*Phone:* ${customer.phone}\n` +
+      `*Page URL:* ${customer.pageUrl}\n` +
+      (customer.location ? `*Location:* ${customer.location}\n` : '') +
+      (customer.browser ? `*Browser:* ${customer.browser}\n` : '') +
+      (customer.device ? `*Device:* ${customer.device}\n` : '') +
+      (customer.network ? `*Network:* ${customer.network}\n` : '') +
+      `\n*Message:*\n${message}\n\n` +
+      `_Reply to this message to respond to the customer._\n` +
+      `_Customer ID: ${customerId}_`;
+  } else {
+    // Subsequent messages: Short format with just email and message
+    messageText = `💬 *${customer.name}* (${customer.email})\n\n${message}\n\n` +
+      `_Reply to this message to respond to the customer._`;
+  }
 
   // Create inline keyboard with reply button
   // Telegram callback_data must be <= 64 bytes and alphanumeric/underscore/hyphen only
@@ -85,18 +94,25 @@ export async function sendMessageToTelegram(options: TelegramMessageOptions): Pr
         if (data.error_code === 400 && data.description?.includes('parse')) {
           // Markdown parsing error, try plain text
           console.warn(`Markdown parse error for chat ${chatId}, retrying with plain text`);
-          const plainText = `💬 New Customer Message\n\n` +
-            `Customer ID: ${customerId}\n` +
-            `Name: ${customer.name}\n` +
-            `Email: ${customer.email}\n` +
-            `Phone: ${customer.phone}\n` +
-            `Page URL: ${customer.pageUrl}\n` +
-            (customer.location ? `Location: ${customer.location}\n` : '') +
-            (customer.browser ? `Browser: ${customer.browser}\n` : '') +
-            (customer.device ? `Device: ${customer.device}\n` : '') +
-            (customer.network ? `Network: ${customer.network}\n` : '') +
-            `\nMessage:\n${message}\n\n` +
-            `Reply to this message to respond to the customer.`;
+          let plainText: string;
+          
+          if (isFirstMessage) {
+            plainText = `💬 New Customer Message\n\n` +
+              `Email: ${customer.email}\n` +
+              `Name: ${customer.name}\n` +
+              `Phone: ${customer.phone}\n` +
+              `Page URL: ${customer.pageUrl}\n` +
+              (customer.location ? `Location: ${customer.location}\n` : '') +
+              (customer.browser ? `Browser: ${customer.browser}\n` : '') +
+              (customer.device ? `Device: ${customer.device}\n` : '') +
+              (customer.network ? `Network: ${customer.network}\n` : '') +
+              `\nMessage:\n${message}\n\n` +
+              `Reply to this message to respond to the customer.\n` +
+              `Customer ID: ${customerId}`;
+          } else {
+            plainText = `💬 ${customer.name} (${customer.email})\n\n${message}\n\n` +
+              `Reply to this message to respond to the customer.`;
+          }
 
           response = await fetch(`${TELEGRAM_API_URL}/sendMessage`, {
             method: 'POST',

@@ -18,9 +18,11 @@ export async function POST(request: NextRequest) {
 
     let session = customerId ? getSession(customerId) : undefined;
     let currentCustomer: Customer;
+    let isFirstMessage = false; // Track if this is the first message from this customer
 
     // If this is the first message, create customer and session
     if (!session) {
+      isFirstMessage = true; // This is the first message
       if (!customer) {
         return NextResponse.json(
           { error: 'Customer details are required for first message' },
@@ -99,6 +101,7 @@ export async function POST(request: NextRequest) {
         customer: currentCustomer,
         message: newMessage.text,
         messageId: newMessage.id,
+        isFirstMessage, // Pass flag to show full details only on first message
       });
 
       if (telegramMessageId) {
