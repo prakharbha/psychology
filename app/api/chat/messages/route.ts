@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getMessages } from '@/lib/chat/session';
+import { getMessages } from '@/lib/chat/db';
 
 export async function GET(request: NextRequest) {
   try {
@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const messages = getMessages(customerId);
+    const messages = await getMessages(customerId);
 
     return NextResponse.json({
       success: true,

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { TelegramWebhookUpdate } from '@/types/chat';
-import { addMessage, getSession } from '@/lib/chat/session';
 import { broadcastToCustomer } from '@/lib/chat/sse';
 import { Message } from '@/types/chat';
+import { getCustomer, saveMessage, getActiveSessions } from '@/lib/chat/db';
 
 export async function POST(request: NextRequest) {
   try {
@@ -34,23 +34,22 @@ export async function POST(request: NextRequest) {
         const email = emailMatch ? emailMatch[1].trim() : null;
         
         if (email) {
-          // Check if customer is still connected
-          const { getAllSessions } = await import('@/lib/chat/session');
-          const allSessions = getAllSessions();
-          const session = allSessions.find(s => s.customer.email === email);
+          // Check if customer exists in database
+          const customer = await getCustomer(email);
+          const allSessions = await getActiveSessions();
           
           console.log('Reply button clicked:', {
             email,
-            hasSession: !!session,
+            hasCustomer: !!customer,
             activeSessions: allSessions.length,
           });
           
           // Answer callback query
           const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
           if (TELEGRAM_BOT_TOKEN) {
-            const responseText = session 
+            const responseText = customer 
               ? `Reply to this message to respond to ${email}`
-              : `Customer may be offline. Reply anyway to send when they reconnect.`;
+              : `Customer not found. Reply anyway to attempt delivery.`;
             
             await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/answerCallbackQuery`, {
               method: 'POST',
@@ -167,21 +166,15 @@ export async function POST(request: NextRequest) {
             broadcastAttempts++;
           }
           
-          // Also try to store in session if it exists (for message history)
+          // Save message to database
           try {
-            const { getAllSessions } = await import('@/lib/chat/session');
-            const allSessions = getAllSessions();
-            console.log('📊 Total active sessions:', allSessions.length);
+            await saveMessage(adminMessage);
+            console.log('✅ Message saved to database');
             
-            const session = allSessions.find(s => s.customer.email === email || s.customerId === customerId);
-            if (session) {
-              addMessage(session.customerId, adminMessage);
-              console.log('✅ Message added to session');
-            } else {
-              console.log('⚠️ No session found (Vercel stateless), but message broadcasted via SSE');
-            }
+            const allSessions = await getActiveSessions();
+            console.log('📊 Total active sessions in database:', allSessions.length);
           } catch (error) {
-            console.error('Error accessing sessions:', error);
+            console.error('Error saving message to database:', error);
           }
 
           console.log(`✅ Admin reply processed. Broadcast attempts: ${broadcastAttempts}`);

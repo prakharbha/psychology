@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAllSessions } from '@/lib/chat/session';
+import { getActiveSessions } from '@/lib/chat/db';
 
 export async function GET(request: NextRequest) {
   try {
-    const sessions = getAllSessions();
+    const sessions = await getActiveSessions();
     
     return NextResponse.json({
       totalSessions: sessions.length,
@@ -15,11 +15,12 @@ export async function GET(request: NextRequest) {
         lastActivity: s.lastActivity,
         isActive: s.isActive,
       })),
+      note: 'Data from Vercel Postgres database',
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error in debug API:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: error.message || 'Internal server error' },
       { status: 500 }
     );
   }

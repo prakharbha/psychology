@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sendMessageToTelegram } from '@/lib/chat/telegram';
-import { createSession, getSession, addMessage } from '@/lib/chat/session';
 import { getClientInfo, validateEmail, validatePhone, generateCustomerId } from '@/lib/chat/utils';
 import { Customer, Message } from '@/types/chat';
+import { saveCustomer, saveMessage, createOrUpdateSession, getCustomer } from '@/lib/chat/db';
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,13 +16,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let session = customerId ? getSession(customerId) : undefined;
-    let currentCustomer: Customer;
-    let isFirstMessage = false; // Track if this is the first message from this customer
+    // Check if customer exists in database
+    let currentCustomer: Customer | null = customerId ? await getCustomer(customerId) : null;
+    let isFirstMessage = !currentCustomer; // First message if customer doesn't exist
 
-    // If this is the first message, create customer and session
-    if (!session) {
-      isFirstMessage = true; // This is the first message
+    // If this is the first message, create customer
+    if (!currentCustomer) {
       if (!customer) {
         return NextResponse.json(
           { error: 'Customer details are required for first message' },
@@ -73,12 +72,11 @@ export async function POST(request: NextRequest) {
         createdAt: new Date(),
       };
 
-      // Create session
-      session = createSession(currentCustomer);
-      console.log('Created new session with customerId:', finalCustomerId);
+      // Save customer to database
+      await saveCustomer(currentCustomer);
+      console.log('Created new customer in database:', finalCustomerId);
     } else {
-      currentCustomer = session.customer;
-      console.log('Using existing session with customerId:', currentCustomer.id);
+      console.log('Using existing customer from database:', currentCustomer.id);
     }
 
     // Create message
@@ -90,8 +88,11 @@ export async function POST(request: NextRequest) {
       timestamp: new Date(),
     };
 
-    // Add message to session
-    addMessage(currentCustomer.id, newMessage);
+    // Save message to database
+    await saveMessage(newMessage);
+    
+    // Update session activity
+    await createOrUpdateSession(currentCustomer.id);
 
     // Send to Telegram
     let telegramError: string | null = null;
@@ -106,6 +107,8 @@ export async function POST(request: NextRequest) {
 
       if (telegramMessageId) {
         newMessage.telegramMessageId = telegramMessageId;
+        // Update message in database with Telegram message ID
+        await saveMessage({ ...newMessage, telegramMessageId });
         console.log(`Message sent to Telegram successfully. Message ID: ${telegramMessageId}`);
       }
     } catch (error) {
