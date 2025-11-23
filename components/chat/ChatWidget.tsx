@@ -9,8 +9,7 @@ import { Message, Customer } from '@/types/chat';
 // Hardcoded configuration
 const CONFIG = {
   position: 'right' as 'left' | 'right',
-  autoPop: true,
-  autoPopDelay: 7000, // 7 seconds
+  autoPop: false,
   supportName: 'Laxmi',
   supportAvatar: 'https://api.dicebear.com/7.x/personas/svg?seed=Laxmi&backgroundColor=ffd5dc&clothing=blazer&clothingColor=262e33&hair=long&hairColor=4a312c&skinColor=fdbcb4&topType=longHairStraight',
   welcomeMessage: "Hi! I'm not a bot - I'm a real human! How can I help you today?",
@@ -65,15 +64,6 @@ export default function ChatWidget() {
     }
   }, []);
 
-  // Auto-pop chat widget after 7 seconds
-  useEffect(() => {
-    if (CONFIG.autoPop && !isOpen) {
-      const timer = setTimeout(() => {
-        setIsOpen(true);
-      }, CONFIG.autoPopDelay);
-      return () => clearTimeout(timer);
-    }
-  }, [isOpen]);
 
   // Get page URL
   useEffect(() => {

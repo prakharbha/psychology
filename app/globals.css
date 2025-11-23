@@ -48,6 +48,29 @@
     border: 1px solid rgba(226, 232, 240, 0.5);
   }
 
+  /* Chat toggle animations */
+  @keyframes chatBounce {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  @keyframes chatPulse {
+    0%, 100% {
+      box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+    }
+    50% {
+      box-shadow: 0 0 0 15px rgba(59, 130, 246, 0);
+    }
+  }
+
+  .chat-button-animate {
+    animation: chatBounce 2s ease-in-out infinite, chatPulse 2s ease-in-out infinite;
+  }
+
   .glass-hero {
     background: rgba(255, 255, 255, 0.3);
     backdrop-filter: blur(20px);
