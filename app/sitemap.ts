@@ -1,7 +1,8 @@
+import { MetadataRoute } from 'next';
 import { getAllProducts } from '@/lib/products';
 import { getAllBlogPosts } from '@/lib/blog';
 
-export default function sitemap() {
+export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://prakharpsychologicaltest.com';
   const products = getAllProducts();
   const blogPosts = getAllBlogPosts();
