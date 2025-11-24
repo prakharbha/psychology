@@ -1,0 +1,32 @@
+Add these to your .env.local file:
+
+# Telegram Bot Configuration
+TELEGRAM_BOT_TOKEN=your_bot_token_here
+TELEGRAM_CHAT_ID=your_chat_id_here
+
+# For multiple admins, use comma-separated IDs:
+# TELEGRAM_CHAT_ID=123456789,987654321
+
+# Database Configuration (Vercel Postgres direct connection string)
+CHAT__POSTGRES_URL=postgresql://user:password@host:port/database?sslmode=require
+
+# How to get Telegram Bot Token:
+# 1. Open Telegram and search for @BotFather
+# 2. Send /newbot command
+# 3. Follow instructions to create a bot
+# 4. Copy the token provided
+
+# How to get Telegram Chat ID:
+# 1. Open Telegram and search for @userinfobot
+# 2. Start a conversation
+# 3. It will show your chat ID
+# 4. For group chats, add @RawDataBot to the group and it will show the group ID
+
+# How to get Vercel Postgres URL:
+# 1. Go to Vercel Dashboard
+# 2. Select your project
+# 3. Go to Storage tab
+# 4. Create or select a Postgres database
+# 5. Copy the "Direct Connection" string (NOT the pooled connection)
+# 6. Use it as CHAT__POSTGRES_URL
+

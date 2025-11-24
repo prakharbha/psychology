@@ -1,0 +1,33 @@
+Add this to your app/layout.tsx file:
+
+1. Add import at the top:
+   import ChatWidget from '@/components/chat/ChatWidget';
+
+2. Add component inside your RootLayout, typically before closing </body>:
+   <ChatWidget />
+
+Example:
+---------
+import type { Metadata } from "next";
+import ChatWidget from '@/components/chat/ChatWidget';
+
+export const metadata: Metadata = {
+  title: "Your App",
+  description: "Your description",
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <body>
+        {children}
+        <ChatWidget />
+      </body>
+    </html>
+  );
+}
+
