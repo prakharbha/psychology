@@ -23,6 +23,9 @@
     "language": "Bilingual",
     "itemCount": 50,
     "slug": "mental-health-scale",
+    "images": [
+      "/images/products/mental-health-scale-image-1.webp"
+    ],
     "price100": 1700,
     "price500": 6800
   },
@@ -36,7 +39,8 @@
     "itemCount": 30,
     "slug": "students-stress-scale",
     "images": [
-      "/images/products/students-stress-scale-image-1.webp"
+      "/images/products/students-stress-scale-image-1.webp",
+      "/images/products/students-stress-scale-image-2.webp"
     ],
     "price100": 1600,
     "price500": 6400
@@ -299,6 +303,9 @@
     "language": "Hindi",
     "itemCount": 100,
     "slug": "multi-variables-personality-inventory",
+    "images": [
+      "/images/products/multi-variables-personality-inventory-image-1.webp"
+    ],
     "price100": 1550,
     "price500": 6200
   },
@@ -498,6 +505,9 @@
     "language": "Bilingual",
     "itemCount": 30,
     "slug": "advertising-attitude-scale",
+    "images": [
+      "/images/products/advertising-attitude-scale-image-1.webp"
+    ],
     "price100": 1750,
     "price500": 7000
   },
