@@ -133,7 +133,14 @@ export default function RefundPolicyPage() {
           </section>
 
           <section>
-            <h2 className="font-heading text-2xl font-bold text-slate-900 mb-4">8. Refund Processing Time</h2>
+            <h2 className="font-heading text-2xl font-bold text-slate-900 mb-4">8. Exchange and Replacement Delivery Timeframe</h2>
+            <p>
+              Exchange and replacement delivery timeframe will be 7-10 days.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="font-heading text-2xl font-bold text-slate-900 mb-4">9. Refund Processing Time</h2>
             <p>
               Once we receive and inspect the returned product (if applicable), we will process your refund. Refunds are 
               typically processed within 5-10 business days. The refund will be issued to the original payment method used 
@@ -146,7 +153,7 @@ export default function RefundPolicyPage() {
           </section>
 
           <section>
-            <h2 className="font-heading text-2xl font-bold text-slate-900 mb-4">9. Partial Refunds</h2>
+            <h2 className="font-heading text-2xl font-bold text-slate-900 mb-4">10. Partial Refunds</h2>
             <p>
               In some cases, we may issue partial refunds. This may occur if:
             </p>
@@ -158,7 +165,7 @@ export default function RefundPolicyPage() {
           </section>
 
           <section>
-            <h2 className="font-heading text-2xl font-bold text-slate-900 mb-4">10. Cancellation Policy</h2>
+            <h2 className="font-heading text-2xl font-bold text-slate-900 mb-4">11. Cancellation Policy</h2>
             <p>
               You may cancel your order before it is shipped. To cancel, contact us immediately at 
               prakharpsychology@gmail.com with your order number. If the order has already been processed or shipped, 
@@ -167,7 +174,7 @@ export default function RefundPolicyPage() {
           </section>
 
           <section>
-            <h2 className="font-heading text-2xl font-bold text-slate-900 mb-4">11. Payment Gateway Refunds</h2>
+            <h2 className="font-heading text-2xl font-bold text-slate-900 mb-4">12. Payment Gateway Refunds</h2>
             <p>
               For payments made through PhonePe or other payment gateways, refunds will be processed through the same 
               payment method. The refund will appear in your account according to the payment provider's processing timeline, 
@@ -176,7 +183,7 @@ export default function RefundPolicyPage() {
           </section>
 
           <section>
-            <h2 className="font-heading text-2xl font-bold text-slate-900 mb-4">12. Dispute Resolution</h2>
+            <h2 className="font-heading text-2xl font-bold text-slate-900 mb-4">13. Dispute Resolution</h2>
             <p>
               If you are not satisfied with our refund decision, please contact us to discuss your concerns. We are committed 
               to resolving issues fairly and will work with you to find a satisfactory solution.
@@ -184,7 +191,7 @@ export default function RefundPolicyPage() {
           </section>
 
           <section>
-            <h2 className="font-heading text-2xl font-bold text-slate-900 mb-4">13. Contact Us</h2>
+            <h2 className="font-heading text-2xl font-bold text-slate-900 mb-4">14. Contact Us</h2>
             <p>
               For refund requests, questions about this policy, or assistance with returns, please contact us:
             </p>
