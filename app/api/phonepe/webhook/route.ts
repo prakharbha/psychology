@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
       // PhonePe states: PENDING, FAILED, COMPLETED (for orders)
       // Webhook may also use PAYMENT_SUCCESS, PAYMENT_ERROR for callbacks
       const stateUpper = state?.toUpperCase();
-      const callbackTypeLower = callbackType?.toLowerCase();
+      const callbackTypeLower = String(callbackType || '').toLowerCase();
       
       // Handle payment success - check callback type (pg.order.completed) and state (COMPLETED, SUCCESS)
       const isCompleted = 
