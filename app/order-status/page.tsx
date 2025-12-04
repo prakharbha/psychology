@@ -371,10 +371,10 @@ function OrderStatusContent() {
             {isFailed ? (
               <>
                 <Link
-                  href="/checkout"
+                  href="/cart"
                   className="px-8 py-4 bg-dark-blue-700 text-white rounded-xl font-semibold hover:bg-slate-800 transition-all duration-300"
                 >
-                  Try Again
+                  Go to Cart
                 </Link>
                 <Link
                   href="/contact"

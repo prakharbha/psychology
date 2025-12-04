@@ -238,10 +238,10 @@ function OrderConfirmationContent() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             {(orderStatus?.state?.toUpperCase() === 'FAILED') && (
               <Link
-                href="/checkout"
+                href="/cart"
                 className="px-8 py-4 bg-dark-blue-700 text-white rounded-xl font-semibold hover:bg-slate-800 transition-all duration-300"
               >
-                Try Again
+                Go to Cart
               </Link>
             )}
             {(orderStatus?.state?.toUpperCase() === 'COMPLETED' || orderStatus?.state?.toUpperCase() === 'PENDING' || !orderStatus) && (
