@@ -60,12 +60,20 @@ export async function POST(request: NextRequest) {
       });
 
       // Process the callback based on callback type and state
+      // PhonePe webhook events: pg.order.completed, pg.order.failed
       // PhonePe states: PENDING, FAILED, COMPLETED (for orders)
       // Webhook may also use PAYMENT_SUCCESS, PAYMENT_ERROR for callbacks
       const stateUpper = state?.toUpperCase();
+      const callbackTypeLower = callbackType?.toLowerCase();
       
-      // Handle payment success - check for both COMPLETED (order status) and PAYMENT_SUCCESS (webhook callback)
-      if (stateUpper === 'COMPLETED' || stateUpper === 'PAYMENT_SUCCESS' || stateUpper === 'SUCCESS') {
+      // Handle payment success - check callback type (pg.order.completed) and state (COMPLETED, SUCCESS)
+      const isCompleted = 
+        callbackTypeLower === 'pg.order.completed' ||
+        stateUpper === 'COMPLETED' || 
+        stateUpper === 'PAYMENT_SUCCESS' || 
+        stateUpper === 'SUCCESS';
+      
+      if (isCompleted) {
         // TODO: Update order status in database
         // TODO: Send confirmation email
         // TODO: Trigger fulfillment process
@@ -84,8 +92,14 @@ export async function POST(request: NextRequest) {
         }
       }
       
-      // Handle payment failure - check for both FAILED (order status) and PAYMENT_ERROR (webhook callback)
-      if (stateUpper === 'FAILED' || stateUpper === 'PAYMENT_ERROR' || stateUpper === 'ERROR') {
+      // Handle payment failure - check callback type (pg.order.failed) and state (FAILED, ERROR)
+      const isFailed = 
+        callbackTypeLower === 'pg.order.failed' ||
+        stateUpper === 'FAILED' || 
+        stateUpper === 'PAYMENT_ERROR' || 
+        stateUpper === 'ERROR';
+      
+      if (isFailed) {
         // TODO: Update order status in database
         // TODO: Send failure notification
         
