@@ -40,3 +40,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 tg-live-chat
+
+# PhonePe migration guides (not for version control)
+PHONEPE_PRODUCTION_MIGRATION.md
+PHONEPE_PRODUCTION_CHECKLIST.md
