@@ -43,6 +43,9 @@ export const redirects: Record<string, string> = {
   '/extraversion-introversion-inventory-e-i-i-bilingual': '/extraversion-introversion-inventory',
   '/general-well-being-scale-g-w-scale-bilingual': '/general-wellbeing-scale',
   '/quality-of-life-scale-q-o-l-scale-bilingual': '/quality-of-life-scale',
+  '/life-satisfaction-scale-l-s-scale-bilingual': '/life-satisfaction-scale',
+  '/swadharma-scale-s-scale-bilingual': '/swadharma-scale',
+  '/home-environment-scale-hes-bilingual': '/home-environment-scale',
 };
 
 /**
