@@ -271,58 +271,203 @@ export async function sendAdminOrderEmail(data: OrderEmailData): Promise<boolean
   try {
     const resend = getResendClient();
     
-    const itemsList = data.items && data.items.length > 0
-      ? data.items
-          .map(item => `• ${item.productName} (Pack of ${item.packSize}) × ${item.quantity} - ₹${item.price.toLocaleString('en-IN')}`)
-          .join('\n')
-      : 'No items listed';
+    // Generate items HTML table
+    const itemsTable = data.items && data.items.length > 0
+      ? data.items.map(item => `
+          <tr style="border-bottom: 1px solid #e5e7eb;">
+            <td style="padding: 12px; text-align: left; color: #374151;">${item.productName}</td>
+            <td style="padding: 12px; text-align: center; color: #6b7280;">Pack of ${item.packSize}</td>
+            <td style="padding: 12px; text-align: center; color: #6b7280;">${item.quantity}</td>
+            <td style="padding: 12px; text-align: right; color: #111827; font-weight: 600;">₹${item.price.toLocaleString('en-IN')}</td>
+          </tr>
+        `).join('')
+      : '<tr><td colspan="4" style="padding: 12px; text-align: center; color: #6b7280;">No items listed</td></tr>';
 
     const shippingAddressText = data.shippingAddress
       ? `${data.shippingAddress.address}\n${data.shippingAddress.city}, ${data.shippingAddress.state} ${data.shippingAddress.pincode}`
       : 'Not provided';
-    
-    const customerDetails = data.customerName || data.customerEmail || data.customerPhone
-      ? `
-        <h3>Customer Details</h3>
-        ${data.customerName ? `<p><strong>Name:</strong> ${data.customerName}</p>` : ''}
-        ${data.customerEmail ? `<p><strong>Email:</strong> ${data.customerEmail}</p>` : ''}
-        ${data.customerPhone ? `<p><strong>Phone:</strong> ${data.customerPhone}</p>` : ''}
-      `
-      : '<p><em>Customer details not available</em></p>';
 
-    const statusBadge = data.status === 'COMPLETED' 
-      ? '<span style="background: green; color: white; padding: 4px 8px; border-radius: 4px;">COMPLETED</span>'
+    const statusConfig = data.status === 'COMPLETED'
+      ? {
+          icon: '✓',
+          color: '#10b981',
+          bgColor: '#d1fae5',
+          text: 'COMPLETED'
+        }
       : data.status === 'FAILED'
-      ? '<span style="background: red; color: white; padding: 4px 8px; border-radius: 4px;">FAILED</span>'
-      : '<span style="background: orange; color: white; padding: 4px 8px; border-radius: 4px;">PENDING</span>';
+      ? {
+          icon: '✗',
+          color: '#ef4444',
+          bgColor: '#fee2e2',
+          text: 'FAILED'
+        }
+      : {
+          icon: '⏳',
+          color: '#f59e0b',
+          bgColor: '#fef3c7',
+          text: 'PENDING'
+        };
 
-    await resend.emails.send({
+    const emailContent = `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>New Order Notification</title>
+      </head>
+      <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f3f4f6;">
+        <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f3f4f6; padding: 20px 0;">
+          <tr>
+            <td align="center">
+              <table role="presentation" style="max-width: 600px; width: 100%; border-collapse: collapse; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);">
+                <!-- Header -->
+                <tr>
+                  <td style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); padding: 32px 24px; text-align: center;">
+                    <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 700;">New Order Notification</h1>
+                    <p style="margin: 8px 0 0 0; color: #e0e7ff; font-size: 14px;">Prakhar Psychological Testing</p>
+                  </td>
+                </tr>
+                
+                <!-- Status Banner -->
+                <tr>
+                  <td style="padding: 32px 24px; text-align: center; background-color: ${statusConfig.bgColor};">
+                    <div style="display: inline-block; width: 64px; height: 64px; border-radius: 50%; background-color: ${statusConfig.color}; color: #ffffff; font-size: 32px; line-height: 64px; margin-bottom: 16px;">
+                      ${statusConfig.icon}
+                    </div>
+                    <h2 style="margin: 0 0 8px 0; color: ${statusConfig.color}; font-size: 28px; font-weight: 700;">Order ${statusConfig.text}</h2>
+                    <p style="margin: 0; color: #374151; font-size: 16px;">Order #${data.orderId}</p>
+                  </td>
+                </tr>
+                
+                <!-- Order Details Card -->
+                <tr>
+                  <td style="padding: 24px;">
+                    <div style="background-color: #f9fafb; border-radius: 8px; padding: 20px; border: 1px solid #e5e7eb;">
+                      <h3 style="margin: 0 0 16px 0; color: #111827; font-size: 18px; font-weight: 600;">Order Details</h3>
+                      <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                          <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Order ID:</td>
+                          <td style="padding: 8px 0; text-align: right; color: #111827; font-size: 14px; font-weight: 600;">#${data.orderId}</td>
+                        </tr>
+                        ${data.phonepeOrderId ? `
+                        <tr>
+                          <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">PhonePe Order ID:</td>
+                          <td style="padding: 8px 0; text-align: right; color: #111827; font-size: 14px; font-weight: 600;">${data.phonepeOrderId}</td>
+                        </tr>
+                        ` : ''}
+                        <tr>
+                          <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Total Amount:</td>
+                          <td style="padding: 8px 0; text-align: right; color: #111827; font-size: 18px; font-weight: 700;">₹${(data.total || 0).toLocaleString('en-IN')}</td>
+                        </tr>
+                      </table>
+                    </div>
+                  </td>
+                </tr>
+                
+                <!-- Customer Details -->
+                ${(data.customerName || data.customerEmail || data.customerPhone) ? `
+                <tr>
+                  <td style="padding: 0 24px 24px 24px;">
+                    <h3 style="margin: 0 0 16px 0; color: #111827; font-size: 18px; font-weight: 600;">Customer Details</h3>
+                    <div style="background-color: #f9fafb; border-radius: 8px; padding: 20px; border: 1px solid #e5e7eb;">
+                      <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                        ${data.customerName ? `
+                        <tr>
+                          <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Name:</td>
+                          <td style="padding: 8px 0; text-align: right; color: #111827; font-size: 14px; font-weight: 600;">${data.customerName}</td>
+                        </tr>
+                        ` : ''}
+                        ${data.customerEmail ? `
+                        <tr>
+                          <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Email:</td>
+                          <td style="padding: 8px 0; text-align: right; color: #111827; font-size: 14px;">
+                            <a href="mailto:${data.customerEmail}" style="color: #3b82f6; text-decoration: none;">${data.customerEmail}</a>
+                          </td>
+                        </tr>
+                        ` : ''}
+                        ${data.customerPhone ? `
+                        <tr>
+                          <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Phone:</td>
+                          <td style="padding: 8px 0; text-align: right; color: #111827; font-size: 14px; font-weight: 600;">${data.customerPhone}</td>
+                        </tr>
+                        ` : ''}
+                      </table>
+                    </div>
+                  </td>
+                </tr>
+                ` : ''}
+                
+                <!-- Items Table -->
+                <tr>
+                  <td style="padding: 0 24px 24px 24px;">
+                    <h3 style="margin: 0 0 16px 0; color: #111827; font-size: 18px; font-weight: 600;">Items Ordered</h3>
+                    <div style="overflow-x: auto;">
+                      <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
+                        <thead>
+                          <tr style="background-color: #f9fafb; border-bottom: 2px solid #e5e7eb;">
+                            <th style="padding: 12px; text-align: left; color: #6b7280; font-size: 12px; font-weight: 600; text-transform: uppercase;">Product</th>
+                            <th style="padding: 12px; text-align: center; color: #6b7280; font-size: 12px; font-weight: 600; text-transform: uppercase;">Pack Size</th>
+                            <th style="padding: 12px; text-align: center; color: #6b7280; font-size: 12px; font-weight: 600; text-transform: uppercase;">Qty</th>
+                            <th style="padding: 12px; text-align: right; color: #6b7280; font-size: 12px; font-weight: 600; text-transform: uppercase;">Price</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          ${itemsTable}
+                        </tbody>
+                      </table>
+                    </div>
+                  </td>
+                </tr>
+                
+                <!-- Shipping Address -->
+                ${data.shippingAddress ? `
+                <tr>
+                  <td style="padding: 0 24px 24px 24px;">
+                    <h3 style="margin: 0 0 16px 0; color: #111827; font-size: 18px; font-weight: 600;">Shipping Address</h3>
+                    <div style="background-color: #f9fafb; border-radius: 8px; padding: 20px; border: 1px solid #e5e7eb;">
+                      <p style="margin: 0; color: #374151; font-size: 14px; line-height: 1.8; white-space: pre-wrap;">${shippingAddressText}</p>
+                    </div>
+                  </td>
+                </tr>
+                ` : ''}
+                
+                <!-- Footer -->
+                <tr>
+                  <td style="background-color: #f9fafb; padding: 24px; text-align: center; border-top: 1px solid #e5e7eb;">
+                    <p style="margin: 0 0 8px 0; color: #6b7280; font-size: 14px; font-weight: 600;">Prakhar Psychological Testing and Research Centre</p>
+                    <p style="margin: 0; color: #9ca3af; font-size: 12px;">This is an automated notification email</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
+    `;
+
+    const result = await resend.emails.send({
       from: 'Prakhar Website <onboarding@resend.dev>',
       to: ADMIN_EMAIL,
       subject: `New Order ${data.status === 'COMPLETED' ? 'Completed' : data.status === 'FAILED' ? 'Failed' : 'Pending'} - ${data.orderId}`,
-      html: `
-        <h2>New Order Notification</h2>
-        <p><strong>Status:</strong> ${statusBadge}</p>
-        
-        <h3>Order Details</h3>
-        <p><strong>Order ID:</strong> ${data.orderId}</p>
-        ${data.phonepeOrderId ? `<p><strong>PhonePe Order ID:</strong> ${data.phonepeOrderId}</p>` : ''}
-        <p><strong>Total Amount:</strong> ₹${(data.total || 0).toLocaleString('en-IN')}</p>
-        
-        ${customerDetails}
-        
-        <h3>Items Ordered</h3>
-        <pre style="white-space: pre-wrap;">${itemsList}</pre>
-        
-        <h3>Shipping Address</h3>
-        <pre style="white-space: pre-wrap;">${shippingAddressText}</pre>
-      `,
+      html: emailContent,
     });
 
-    console.log('Admin order email sent to:', ADMIN_EMAIL);
+    if (result.error) {
+      console.error('Resend API error:', result.error);
+      return false;
+    }
+
+    console.log('Admin order email sent to:', ADMIN_EMAIL, 'Email ID:', result.data?.id);
     return true;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Failed to send admin order email:', error);
+    console.error('Error details:', {
+      message: error?.message,
+      name: error?.name,
+      stack: error?.stack,
+    });
     return false;
   }
 }
@@ -334,27 +479,105 @@ export async function sendAdminContactEmail(data: ContactFormData): Promise<bool
   try {
     const resend = getResendClient();
 
-    await resend.emails.send({
+    const emailContent = `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>New Contact Form Submission</title>
+      </head>
+      <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f3f4f6;">
+        <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f3f4f6; padding: 20px 0;">
+          <tr>
+            <td align="center">
+              <table role="presentation" style="max-width: 600px; width: 100%; border-collapse: collapse; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);">
+                <!-- Header -->
+                <tr>
+                  <td style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); padding: 32px 24px; text-align: center;">
+                    <div style="display: inline-block; width: 64px; height: 64px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.2); color: #ffffff; font-size: 32px; line-height: 64px; margin-bottom: 16px;">
+                      📧
+                    </div>
+                    <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 700;">New Contact Form Submission</h1>
+                    <p style="margin: 8px 0 0 0; color: #e0e7ff; font-size: 14px;">Prakhar Psychological Testing</p>
+                  </td>
+                </tr>
+                
+                <!-- Contact Details Card -->
+                <tr>
+                  <td style="padding: 24px;">
+                    <h3 style="margin: 0 0 16px 0; color: #111827; font-size: 18px; font-weight: 600;">Contact Details</h3>
+                    <div style="background-color: #f9fafb; border-radius: 8px; padding: 20px; border: 1px solid #e5e7eb;">
+                      <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                          <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Name:</td>
+                          <td style="padding: 8px 0; text-align: right; color: #111827; font-size: 14px; font-weight: 600;">${data.name}</td>
+                        </tr>
+                        <tr>
+                          <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Email:</td>
+                          <td style="padding: 8px 0; text-align: right; color: #111827; font-size: 14px;">
+                            <a href="mailto:${data.email}" style="color: #3b82f6; text-decoration: none;">${data.email}</a>
+                          </td>
+                        </tr>
+                        ${data.phone ? `
+                        <tr>
+                          <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Phone:</td>
+                          <td style="padding: 8px 0; text-align: right; color: #111827; font-size: 14px; font-weight: 600;">
+                            <a href="tel:${data.phone}" style="color: #3b82f6; text-decoration: none;">${data.phone}</a>
+                          </td>
+                        </tr>
+                        ` : ''}
+                      </table>
+                    </div>
+                  </td>
+                </tr>
+                
+                <!-- Message -->
+                <tr>
+                  <td style="padding: 0 24px 24px 24px;">
+                    <h3 style="margin: 0 0 16px 0; color: #111827; font-size: 18px; font-weight: 600;">Message</h3>
+                    <div style="background-color: #f9fafb; border-radius: 8px; padding: 20px; border: 1px solid #e5e7eb;">
+                      <p style="margin: 0; color: #374151; font-size: 14px; line-height: 1.8; white-space: pre-wrap;">${data.message}</p>
+                    </div>
+                  </td>
+                </tr>
+                
+                <!-- Footer -->
+                <tr>
+                  <td style="background-color: #f9fafb; padding: 24px; text-align: center; border-top: 1px solid #e5e7eb;">
+                    <p style="margin: 0 0 8px 0; color: #6b7280; font-size: 14px; font-weight: 600;">Prakhar Psychological Testing and Research Centre</p>
+                    <p style="margin: 0; color: #9ca3af; font-size: 12px;">This is an automated notification email</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
+    `;
+
+    const result = await resend.emails.send({
       from: 'Prakhar Website <onboarding@resend.dev>',
       to: ADMIN_EMAIL,
       subject: `New Contact Form Submission from ${data.name}`,
-      html: `
-        <h2>New Contact Form Submission</h2>
-        
-        <h3>Contact Details</h3>
-        <p><strong>Name:</strong> ${data.name}</p>
-        <p><strong>Email:</strong> ${data.email}</p>
-        ${data.phone ? `<p><strong>Phone:</strong> ${data.phone}</p>` : ''}
-        
-        <h3>Message</h3>
-        <pre style="white-space: pre-wrap;">${data.message}</pre>
-      `,
+      html: emailContent,
     });
 
-    console.log('Admin contact email sent to:', ADMIN_EMAIL);
+    if (result.error) {
+      console.error('Resend API error:', result.error);
+      return false;
+    }
+
+    console.log('Admin contact email sent to:', ADMIN_EMAIL, 'Email ID:', result.data?.id);
     return true;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Failed to send admin contact email:', error);
+    console.error('Error details:', {
+      message: error?.message,
+      name: error?.name,
+      stack: error?.stack,
+    });
     return false;
   }
 }
@@ -366,18 +589,75 @@ export async function sendAdminCatalogEmail(data: CatalogDownloadData): Promise<
   try {
     const resend = getResendClient();
 
+    const emailContent = `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Catalog Download Request</title>
+      </head>
+      <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f3f4f6;">
+        <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f3f4f6; padding: 20px 0;">
+          <tr>
+            <td align="center">
+              <table role="presentation" style="max-width: 600px; width: 100%; border-collapse: collapse; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);">
+                <!-- Header -->
+                <tr>
+                  <td style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); padding: 32px 24px; text-align: center;">
+                    <div style="display: inline-block; width: 64px; height: 64px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.2); color: #ffffff; font-size: 32px; line-height: 64px; margin-bottom: 16px;">
+                      📥
+                    </div>
+                    <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 700;">Catalog Download Request</h1>
+                    <p style="margin: 8px 0 0 0; color: #e0e7ff; font-size: 14px;">Prakhar Psychological Testing</p>
+                  </td>
+                </tr>
+                
+                <!-- Contact Details Card -->
+                <tr>
+                  <td style="padding: 24px;">
+                    <h3 style="margin: 0 0 16px 0; color: #111827; font-size: 18px; font-weight: 600;">Contact Details</h3>
+                    <div style="background-color: #f9fafb; border-radius: 8px; padding: 20px; border: 1px solid #e5e7eb;">
+                      <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                          <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Name:</td>
+                          <td style="padding: 8px 0; text-align: right; color: #111827; font-size: 14px; font-weight: 600;">${data.name}</td>
+                        </tr>
+                        <tr>
+                          <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Mobile:</td>
+                          <td style="padding: 8px 0; text-align: right; color: #111827; font-size: 14px; font-weight: 600;">
+                            <a href="tel:${data.mobile}" style="color: #3b82f6; text-decoration: none;">${data.mobile}</a>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Catalog:</td>
+                          <td style="padding: 8px 0; text-align: right; color: #111827; font-size: 14px; font-weight: 600;">2025 Catalog</td>
+                        </tr>
+                      </table>
+                    </div>
+                  </td>
+                </tr>
+                
+                <!-- Footer -->
+                <tr>
+                  <td style="background-color: #f9fafb; padding: 24px; text-align: center; border-top: 1px solid #e5e7eb;">
+                    <p style="margin: 0 0 8px 0; color: #6b7280; font-size: 14px; font-weight: 600;">Prakhar Psychological Testing and Research Centre</p>
+                    <p style="margin: 0; color: #9ca3af; font-size: 12px;">This is an automated notification email</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
+    `;
+
     const result = await resend.emails.send({
       from: 'Prakhar Website <onboarding@resend.dev>',
       to: ADMIN_EMAIL,
       subject: `Catalog Download Request from ${data.name}`,
-      html: `
-        <h2>Catalog Download Request</h2>
-        
-        <h3>Contact Details</h3>
-        <p><strong>Name:</strong> ${data.name}</p>
-        <p><strong>Mobile:</strong> ${data.mobile}</p>
-        <p><strong>Catalog:</strong> 2025 Catalog</p>
-      `,
+      html: emailContent,
     });
 
     if (result.error) {
