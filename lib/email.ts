@@ -141,7 +141,7 @@ export async function sendOrderConfirmationEmail(data: OrderEmailData): Promise<
     await resend.emails.send({
       from: 'Prakhar Psychological Testing <onboarding@resend.dev>',
       to: data.customerEmail,
-      reply_to: ADMIN_EMAIL,
+      replyTo: ADMIN_EMAIL,
       subject: emailSubject,
       html: emailContent,
     });
