@@ -114,6 +114,9 @@
     "language": "Bilingual",
     "itemCount": 50,
     "slug": "swadharma-scale",
+    "images": [
+      "/images/products/swadharma-scale-image-1.webp"
+    ],
     "price100": 1850,
     "price500": 7400
   },
@@ -246,6 +249,9 @@
     "language": "Bilingual",
     "itemCount": 35,
     "slug": "self-society-scale",
+    "images": [
+      "/images/products/self-society-scale-image-1.webp"
+    ],
     "price100": 1550,
     "price500": 6200
   },
@@ -417,6 +423,9 @@
     "language": "Bilingual",
     "itemCount": 50,
     "slug": "feeling-of-crowding-scale",
+    "images": [
+      "/images/products/feeling-of-crowding-scale-image-1.webp"
+    ],
     "price100": 1850,
     "price500": 7400
   },
@@ -468,6 +477,9 @@
     "language": "Bilingual",
     "itemCount": 60,
     "slug": "swadharma-scale-k-s",
+    "images": [
+      "/images/products/swadharma-scale-k-s-image-1.webp"
+    ],
     "price100": 1825,
     "price500": 7300
   },
@@ -506,7 +518,8 @@
     "itemCount": 30,
     "slug": "advertising-attitude-scale",
     "images": [
-      "/images/products/advertising-attitude-scale-image-1.webp"
+      "/images/products/advertising-attitude-scale-image-1.webp",
+      "/images/products/advertising-attitude-scale-image-2.webp"
     ],
     "price100": 1750,
     "price500": 7000
