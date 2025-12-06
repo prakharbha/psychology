@@ -71,7 +71,7 @@ export default function CatalogueDownloadModal({ isOpen, onClose }: CatalogueDow
 
       // Send admin email (in addition to Telegram)
       try {
-        await fetch('/api/email/send-catalog-email', {
+        const emailResponse = await fetch('/api/email/send-catalog-email', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -80,7 +80,14 @@ export default function CatalogueDownloadModal({ isOpen, onClose }: CatalogueDow
             name: formData.name,
             mobile: formData.mobile,
           }),
-        }).catch(err => console.error('Failed to send catalog email:', err));
+        });
+        
+        const emailData = await emailResponse.json();
+        if (!emailResponse.ok) {
+          console.error('Failed to send catalog email:', emailData);
+        } else {
+          console.log('Catalog email sent successfully:', emailData);
+        }
       } catch (emailError) {
         console.error('Email error (non-blocking):', emailError);
       }

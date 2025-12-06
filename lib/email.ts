@@ -248,7 +248,7 @@ export async function sendOrderConfirmationEmail(data: OrderEmailData): Promise<
       </html>
     `;
 
-    await resend.emails.send({
+    const result = await resend.emails.send({
       from: 'Prakhar Psychological Testing <onboarding@resend.dev>',
       to: data.customerEmail,
       replyTo: ADMIN_EMAIL,
@@ -256,10 +256,20 @@ export async function sendOrderConfirmationEmail(data: OrderEmailData): Promise<
       html: emailContent,
     });
 
-    console.log('Order confirmation email sent to:', data.customerEmail);
+    if (result.error) {
+      console.error('Resend API error for customer email:', result.error);
+      return false;
+    }
+
     return true;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Failed to send order confirmation email:', error);
+    console.error('Error details:', {
+      message: error?.message,
+      name: error?.name,
+      orderId: data.orderId,
+      customerEmail: data.customerEmail,
+    });
     return false;
   }
 }
@@ -459,15 +469,9 @@ export async function sendAdminOrderEmail(data: OrderEmailData): Promise<boolean
       return false;
     }
 
-    console.log('Admin order email sent to:', ADMIN_EMAIL, 'Email ID:', result.data?.id);
     return true;
   } catch (error: any) {
     console.error('Failed to send admin order email:', error);
-    console.error('Error details:', {
-      message: error?.message,
-      name: error?.name,
-      stack: error?.stack,
-    });
     return false;
   }
 }
@@ -569,15 +573,9 @@ export async function sendAdminContactEmail(data: ContactFormData): Promise<bool
       return false;
     }
 
-    console.log('Admin contact email sent to:', ADMIN_EMAIL, 'Email ID:', result.data?.id);
     return true;
   } catch (error: any) {
     console.error('Failed to send admin contact email:', error);
-    console.error('Error details:', {
-      message: error?.message,
-      name: error?.name,
-      stack: error?.stack,
-    });
     return false;
   }
 }
@@ -665,15 +663,9 @@ export async function sendAdminCatalogEmail(data: CatalogDownloadData): Promise<
       return false;
     }
 
-    console.log('Admin catalog email sent to:', ADMIN_EMAIL, 'Email ID:', result.data?.id);
     return true;
   } catch (error: any) {
     console.error('Failed to send admin catalog email:', error);
-    console.error('Error details:', {
-      message: error?.message,
-      name: error?.name,
-      stack: error?.stack,
-    });
     return false;
   }
 }
