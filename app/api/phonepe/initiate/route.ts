@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { initializePhonePeClient, convertToPaise } from '@/lib/phonepe';
-import { StandardCheckoutPayRequest } from 'pg-sdk-node';
+import { StandardCheckoutPayRequest, PhonePeException } from 'pg-sdk-node';
 
 /**
  * PhonePe Payment Initiation API
@@ -65,6 +65,29 @@ export async function POST(request: NextRequest) {
 
   } catch (error: any) {
     console.error('Error initiating PhonePe payment:', error);
+    
+    // Handle PhonePeException specifically to get detailed error information
+    if (error instanceof PhonePeException) {
+      console.error('PhonePe Exception Details:', {
+        httpStatus: error.httpStatus,
+        errorCode: error.errorCode,
+        message: error.message,
+        data: error.data,
+      });
+      
+      return NextResponse.json(
+        { 
+          error: error.message || 'Payment initiation failed',
+          errorCode: error.errorCode,
+          httpStatus: error.httpStatus,
+          data: error.data,
+          success: false 
+        },
+        { status: error.httpStatus || 500 }
+      );
+    }
+    
+    // Handle generic errors
     return NextResponse.json(
       { 
         error: error.message || 'Failed to initiate payment',

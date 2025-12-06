@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { initializePhonePeClient } from '@/lib/phonepe';
+import { PhonePeException } from 'pg-sdk-node';
 
 /**
  * PhonePe Webhook Handler
@@ -144,6 +145,26 @@ export async function POST(request: NextRequest) {
     } catch (error: any) {
       // PhonePeException is thrown if callback is invalid
       console.error('Invalid PhonePe webhook:', error);
+      
+      if (error instanceof PhonePeException) {
+        console.error('PhonePe Exception Details:', {
+          httpStatus: error.httpStatus,
+          errorCode: error.errorCode,
+          message: error.message,
+          data: error.data,
+        });
+        
+        return NextResponse.json(
+          { 
+            error: error.message || 'Invalid callback signature',
+            errorCode: error.errorCode,
+            httpStatus: error.httpStatus,
+            data: error.data,
+          },
+          { status: error.httpStatus || 401 }
+        );
+      }
+      
       return NextResponse.json(
         { error: 'Invalid callback signature', details: error.message },
         { status: 401 }
@@ -152,6 +173,27 @@ export async function POST(request: NextRequest) {
 
   } catch (error: any) {
     console.error('Error processing PhonePe webhook:', error);
+    
+    if (error instanceof PhonePeException) {
+      console.error('PhonePe Exception Details:', {
+        httpStatus: error.httpStatus,
+        errorCode: error.errorCode,
+        message: error.message,
+        data: error.data,
+      });
+      
+      return NextResponse.json(
+        { 
+          error: error.message || 'Failed to process webhook',
+          errorCode: error.errorCode,
+          httpStatus: error.httpStatus,
+          data: error.data,
+          success: false 
+        },
+        { status: error.httpStatus || 500 }
+      );
+    }
+    
     return NextResponse.json(
       { 
         error: error.message || 'Failed to process webhook',
