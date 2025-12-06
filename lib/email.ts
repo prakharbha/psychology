@@ -3,7 +3,7 @@
  * Handles sending emails to customers and admins
  * 
  * Environment variable required:
- * - RESEND_API_KEY: Your Resend API key
+ * - RESEND: Your Resend API key
  */
 
 import { Resend } from 'resend';
@@ -15,9 +15,9 @@ let resendClient: Resend | null = null;
 
 function getResendClient(): Resend {
   if (!resendClient) {
-    const apiKey = process.env.RESEND_API_KEY;
+    const apiKey = process.env.RESEND;
     if (!apiKey) {
-      throw new Error('RESEND_API_KEY is not configured in environment variables');
+      throw new Error('RESEND is not configured in environment variables');
     }
     resendClient = new Resend(apiKey);
   }
@@ -88,55 +88,165 @@ export async function sendOrderConfirmationEmail(data: OrderEmailData): Promise<
       ? `Payment Failed - Order #${data.orderId}`
       : `Order Pending - Order #${data.orderId}`;
 
-    const emailContent = data.status === 'COMPLETED'
-      ? `
-        <h2>Order Confirmed!</h2>
-        <p>Dear ${data.customerName},</p>
-        <p>Thank you for your order! Your payment has been successfully processed.</p>
-        
-        <h3>Order Details</h3>
-        <p><strong>Order ID:</strong> ${data.orderId}</p>
-        <p><strong>Total Amount:</strong> ₹${data.total.toLocaleString('en-IN')}</p>
-        
-        <h3>Items Ordered</h3>
-        <pre style="white-space: pre-wrap;">${itemsList}</pre>
-        
-        <h3>Shipping Address</h3>
-        <pre style="white-space: pre-wrap;">${shippingAddressText}</pre>
-        
-        <p>We will process your order and ship it to you soon. You will receive another email with tracking information once your order is shipped.</p>
-        
-        <p>If you have any questions, please contact us at ${ADMIN_EMAIL}</p>
-        
-        <p>Best regards,<br>Prakhar Psychological Testing and Research Centre</p>
-      `
+    // Generate items HTML table
+    const itemsTable = data.items && data.items.length > 0
+      ? data.items.map(item => `
+          <tr style="border-bottom: 1px solid #e5e7eb;">
+            <td style="padding: 12px; text-align: left; color: #374151;">${item.productName}</td>
+            <td style="padding: 12px; text-align: center; color: #6b7280;">Pack of ${item.packSize}</td>
+            <td style="padding: 12px; text-align: center; color: #6b7280;">${item.quantity}</td>
+            <td style="padding: 12px; text-align: right; color: #111827; font-weight: 600;">₹${item.price.toLocaleString('en-IN')}</td>
+          </tr>
+        `).join('')
+      : '<tr><td colspan="4" style="padding: 12px; text-align: center; color: #6b7280;">No items listed</td></tr>';
+
+    const statusConfig = data.status === 'COMPLETED'
+      ? {
+          icon: '✓',
+          title: 'Order Confirmed!',
+          color: '#10b981',
+          bgColor: '#d1fae5',
+          message: 'Thank you for your order! Your payment has been successfully processed.',
+          additionalInfo: 'We will process your order and ship it to you soon. You will receive another email with tracking information once your order is shipped.'
+        }
       : data.status === 'FAILED'
-      ? `
-        <h2>Payment Failed</h2>
-        <p>Dear ${data.customerName},</p>
-        <p>We're sorry, but your payment for order #${data.orderId} could not be processed.</p>
-        
-        <h3>Order Details</h3>
-        <p><strong>Order ID:</strong> ${data.orderId}</p>
-        <p><strong>Total Amount:</strong> ₹${data.total.toLocaleString('en-IN')}</p>
-        
-        <p>Please try placing your order again. If you continue to experience issues, please contact us at ${ADMIN_EMAIL}</p>
-        
-        <p>Best regards,<br>Prakhar Psychological Testing and Research Centre</p>
-      `
-      : `
-        <h2>Order Pending</h2>
-        <p>Dear ${data.customerName},</p>
-        <p>Your order #${data.orderId} has been received and your payment is being processed.</p>
-        
-        <h3>Order Details</h3>
-        <p><strong>Order ID:</strong> ${data.orderId}</p>
-        <p><strong>Total Amount:</strong> ₹${data.total.toLocaleString('en-IN')}</p>
-        
-        <p>We will notify you once your payment is confirmed.</p>
-        
-        <p>Best regards,<br>Prakhar Psychological Testing and Research Centre</p>
-      `;
+      ? {
+          icon: '✗',
+          title: 'Payment Failed',
+          color: '#ef4444',
+          bgColor: '#fee2e2',
+          message: 'We\'re sorry, but your payment for this order could not be processed.',
+          additionalInfo: 'Please try placing your order again. If you continue to experience issues, please contact us.'
+        }
+      : {
+          icon: '⏳',
+          title: 'Order Pending',
+          color: '#f59e0b',
+          bgColor: '#fef3c7',
+          message: 'Your order has been received and your payment is being processed.',
+          additionalInfo: 'We will notify you once your payment is confirmed.'
+        };
+
+    const emailContent = `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>${emailSubject}</title>
+      </head>
+      <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f3f4f6;">
+        <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f3f4f6; padding: 20px 0;">
+          <tr>
+            <td align="center">
+              <table role="presentation" style="max-width: 600px; width: 100%; border-collapse: collapse; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);">
+                <!-- Header -->
+                <tr>
+                  <td style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); padding: 32px 24px; text-align: center;">
+                    <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 700;">Prakhar Psychological Testing</h1>
+                    <p style="margin: 8px 0 0 0; color: #e0e7ff; font-size: 14px;">Research Centre</p>
+                  </td>
+                </tr>
+                
+                <!-- Status Banner -->
+                <tr>
+                  <td style="padding: 32px 24px; text-align: center; background-color: ${statusConfig.bgColor};">
+                    <div style="display: inline-block; width: 64px; height: 64px; border-radius: 50%; background-color: ${statusConfig.color}; color: #ffffff; font-size: 32px; line-height: 64px; margin-bottom: 16px;">
+                      ${statusConfig.icon}
+                    </div>
+                    <h2 style="margin: 0 0 8px 0; color: ${statusConfig.color}; font-size: 28px; font-weight: 700;">${statusConfig.title}</h2>
+                    <p style="margin: 0; color: #374151; font-size: 16px;">${statusConfig.message}</p>
+                  </td>
+                </tr>
+                
+                <!-- Greeting -->
+                <tr>
+                  <td style="padding: 24px 24px 0 24px;">
+                    <p style="margin: 0; color: #374151; font-size: 16px; line-height: 1.6;">Dear ${data.customerName},</p>
+                  </td>
+                </tr>
+                
+                <!-- Order Details Card -->
+                <tr>
+                  <td style="padding: 24px;">
+                    <div style="background-color: #f9fafb; border-radius: 8px; padding: 20px; border: 1px solid #e5e7eb;">
+                      <h3 style="margin: 0 0 16px 0; color: #111827; font-size: 18px; font-weight: 600;">Order Details</h3>
+                      <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                          <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Order ID:</td>
+                          <td style="padding: 8px 0; text-align: right; color: #111827; font-size: 14px; font-weight: 600;">#${data.orderId}</td>
+                        </tr>
+                        <tr>
+                          <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Total Amount:</td>
+                          <td style="padding: 8px 0; text-align: right; color: #111827; font-size: 18px; font-weight: 700;">₹${data.total.toLocaleString('en-IN')}</td>
+                        </tr>
+                      </table>
+                    </div>
+                  </td>
+                </tr>
+                
+                <!-- Items Table -->
+                <tr>
+                  <td style="padding: 0 24px 24px 24px;">
+                    <h3 style="margin: 0 0 16px 0; color: #111827; font-size: 18px; font-weight: 600;">Items Ordered</h3>
+                    <div style="overflow-x: auto;">
+                      <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
+                        <thead>
+                          <tr style="background-color: #f9fafb; border-bottom: 2px solid #e5e7eb;">
+                            <th style="padding: 12px; text-align: left; color: #6b7280; font-size: 12px; font-weight: 600; text-transform: uppercase;">Product</th>
+                            <th style="padding: 12px; text-align: center; color: #6b7280; font-size: 12px; font-weight: 600; text-transform: uppercase;">Pack Size</th>
+                            <th style="padding: 12px; text-align: center; color: #6b7280; font-size: 12px; font-weight: 600; text-transform: uppercase;">Qty</th>
+                            <th style="padding: 12px; text-align: right; color: #6b7280; font-size: 12px; font-weight: 600; text-transform: uppercase;">Price</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          ${itemsTable}
+                        </tbody>
+                      </table>
+                    </div>
+                  </td>
+                </tr>
+                
+                <!-- Shipping Address -->
+                ${data.shippingAddress ? `
+                <tr>
+                  <td style="padding: 0 24px 24px 24px;">
+                    <h3 style="margin: 0 0 16px 0; color: #111827; font-size: 18px; font-weight: 600;">Shipping Address</h3>
+                    <div style="background-color: #f9fafb; border-radius: 8px; padding: 20px; border: 1px solid #e5e7eb;">
+                      <p style="margin: 0; color: #374151; font-size: 14px; line-height: 1.8; white-space: pre-wrap;">${shippingAddressText}</p>
+                    </div>
+                  </td>
+                </tr>
+                ` : ''}
+                
+                <!-- Additional Info -->
+                <tr>
+                  <td style="padding: 0 24px 24px 24px;">
+                    <p style="margin: 0; color: #6b7280; font-size: 14px; line-height: 1.6;">${statusConfig.additionalInfo}</p>
+                  </td>
+                </tr>
+                
+                <!-- Contact Info -->
+                <tr>
+                  <td style="padding: 0 24px 24px 24px;">
+                    <p style="margin: 0; color: #6b7280; font-size: 14px; line-height: 1.6;">If you have any questions, please contact us at <a href="mailto:${ADMIN_EMAIL}" style="color: #3b82f6; text-decoration: none;">${ADMIN_EMAIL}</a></p>
+                  </td>
+                </tr>
+                
+                <!-- Footer -->
+                <tr>
+                  <td style="background-color: #f9fafb; padding: 24px; text-align: center; border-top: 1px solid #e5e7eb;">
+                    <p style="margin: 0 0 8px 0; color: #6b7280; font-size: 14px; font-weight: 600;">Prakhar Psychological Testing and Research Centre</p>
+                    <p style="margin: 0; color: #9ca3af; font-size: 12px;">Thank you for your business!</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
+    `;
 
     await resend.emails.send({
       from: 'Prakhar Psychological Testing <onboarding@resend.dev>',
@@ -256,7 +366,7 @@ export async function sendAdminCatalogEmail(data: CatalogDownloadData): Promise<
   try {
     const resend = getResendClient();
 
-    await resend.emails.send({
+    const result = await resend.emails.send({
       from: 'Prakhar Website <onboarding@resend.dev>',
       to: ADMIN_EMAIL,
       subject: `Catalog Download Request from ${data.name}`,
@@ -270,10 +380,20 @@ export async function sendAdminCatalogEmail(data: CatalogDownloadData): Promise<
       `,
     });
 
-    console.log('Admin catalog email sent to:', ADMIN_EMAIL);
+    if (result.error) {
+      console.error('Resend API error:', result.error);
+      return false;
+    }
+
+    console.log('Admin catalog email sent to:', ADMIN_EMAIL, 'Email ID:', result.data?.id);
     return true;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Failed to send admin catalog email:', error);
+    console.error('Error details:', {
+      message: error?.message,
+      name: error?.name,
+      stack: error?.stack,
+    });
     return false;
   }
 }
