@@ -67,17 +67,16 @@ export async function POST(request: NextRequest) {
     console.error('Error initiating PhonePe payment:', error);
     
     // Handle PhonePeException specifically to get detailed error information
+    // According to PhonePe docs: PhonePeException has code, message, httpStatusCode, and data
     if (error instanceof PhonePeException) {
-      // PhonePeException extends Error, so we can access standard error properties
-      // Additional properties may be available but TypeScript may not recognize them
       const errorDetails: any = {
         message: error.message,
         name: error.name,
       };
       
-      // Try to access additional properties if they exist
-      if ('errorCode' in error) errorDetails.errorCode = (error as any).errorCode;
-      if ('httpStatus' in error) errorDetails.httpStatus = (error as any).httpStatus;
+      // Access PhonePeException properties as per documentation
+      if ('code' in error) errorDetails.code = (error as any).code;
+      if ('httpStatusCode' in error) errorDetails.httpStatusCode = (error as any).httpStatusCode;
       if ('data' in error) errorDetails.data = (error as any).data;
       
       console.error('PhonePe Exception Details:', errorDetails);
@@ -85,12 +84,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { 
           error: error.message || 'Payment initiation failed',
-          errorCode: errorDetails.errorCode,
-          httpStatus: errorDetails.httpStatus,
+          code: errorDetails.code,
+          httpStatusCode: errorDetails.httpStatusCode,
           data: errorDetails.data,
           success: false 
         },
-        { status: errorDetails.httpStatus || 500 }
+        { status: errorDetails.httpStatusCode || 500 }
       );
     }
     
