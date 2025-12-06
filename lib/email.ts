@@ -66,7 +66,6 @@ export async function sendOrderConfirmationEmail(data: OrderEmailData): Promise<
   try {
     // Skip if customer email is not available
     if (!data.customerEmail) {
-      console.log('Skipping customer email - email not available for order:', data.orderId);
       return false;
     }
 
@@ -257,19 +256,11 @@ export async function sendOrderConfirmationEmail(data: OrderEmailData): Promise<
     });
 
     if (result.error) {
-      console.error('Resend API error for customer email:', result.error);
       return false;
     }
 
     return true;
   } catch (error: any) {
-    console.error('Failed to send order confirmation email:', error);
-    console.error('Error details:', {
-      message: error?.message,
-      name: error?.name,
-      orderId: data.orderId,
-      customerEmail: data.customerEmail,
-    });
     return false;
   }
 }
@@ -465,13 +456,11 @@ export async function sendAdminOrderEmail(data: OrderEmailData): Promise<boolean
     });
 
     if (result.error) {
-      console.error('Resend API error:', result.error);
       return false;
     }
 
     return true;
   } catch (error: any) {
-    console.error('Failed to send admin order email:', error);
     return false;
   }
 }
@@ -569,13 +558,11 @@ export async function sendAdminContactEmail(data: ContactFormData): Promise<bool
     });
 
     if (result.error) {
-      console.error('Resend API error:', result.error);
       return false;
     }
 
     return true;
   } catch (error: any) {
-    console.error('Failed to send admin contact email:', error);
     return false;
   }
 }
@@ -659,13 +646,11 @@ export async function sendAdminCatalogEmail(data: CatalogDownloadData): Promise<
     });
 
     if (result.error) {
-      console.error('Resend API error:', result.error);
       return false;
     }
 
     return true;
   } catch (error: any) {
-    console.error('Failed to send admin catalog email:', error);
     return false;
   }
 }

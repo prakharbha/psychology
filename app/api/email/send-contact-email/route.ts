@@ -27,7 +27,6 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error: any) {
-    console.error('Error sending contact email:', error);
     return NextResponse.json(
       { 
         error: error.message || 'Failed to send email',

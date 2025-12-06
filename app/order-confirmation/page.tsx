@@ -85,6 +85,7 @@ function OrderConfirmationContent() {
 
               // Send email notifications (customer + admin) if order details available
               if (orderDetails && (state === 'COMPLETED' || state === 'FAILED')) {
+                console.log('Attempting to send order email for:', state, 'Order:', finalOrderId, 'Customer:', orderDetails.customerEmail);
                 fetch('/api/email/send-order-email', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
@@ -99,9 +100,28 @@ function OrderConfirmationContent() {
                     shippingAddress: orderDetails.shippingAddress,
                     phonepeOrderId: data.orderId,
                   }),
-                }).catch(err => {
+                })
+                .then(async (res) => {
+                  const result = await res.json();
+                  if (!res.ok || !result.success) {
+                    console.error('Email API returned error:', result);
+                  } else {
+                    console.log('Email sent successfully:', {
+                      customerEmailSent: result.customerEmailSent,
+                      adminEmailSent: result.adminEmailSent,
+                    });
+                  }
+                })
+                .catch(err => {
                   console.error('Failed to send order email:', err);
                 });
+              } else {
+                if (!orderDetails) {
+                  console.warn('Order details not available in sessionStorage for order:', finalOrderId);
+                }
+                if (state !== 'COMPLETED' && state !== 'FAILED') {
+                  console.log('Email not sent - status is:', state);
+                }
               }
             }
 

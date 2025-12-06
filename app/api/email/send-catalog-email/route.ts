@@ -19,12 +19,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('Attempting to send catalog email for:', data.name, data.mobile);
     const emailSent = await sendAdminCatalogEmail(data);
-
-    if (!emailSent) {
-      console.warn('Email sending returned false for catalog download:', data);
-    }
 
     return NextResponse.json({
       success: true,
@@ -32,8 +27,6 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error: any) {
-    console.error('Error sending catalog email:', error);
-    console.error('Error stack:', error?.stack);
     return NextResponse.json(
       { 
         error: error.message || 'Failed to send email',
