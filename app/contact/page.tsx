@@ -34,8 +34,8 @@ export default function ContactPage() {
         (formData.phone ? `📱 *Phone:* ${formData.phone}\n` : '') +
         `\n💬 *Message:*\n${formData.message}`;
 
-      // Send to Telegram
-      const response = await fetch('/api/telegram/notify', {
+      // Send to Telegram (keep existing)
+      const telegramResponse = await fetch('/api/telegram/notify', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -43,10 +43,28 @@ export default function ContactPage() {
         body: JSON.stringify({ message: telegramMessage }),
       });
 
-      const data = await response.json();
+      const telegramData = await telegramResponse.json();
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to send message');
+      // Send admin email (in addition to Telegram)
+      try {
+        await fetch('/api/email/send-contact-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone,
+            message: formData.message,
+          }),
+        }).catch(err => console.error('Failed to send contact email:', err));
+      } catch (emailError) {
+        console.error('Email error (non-blocking):', emailError);
+      }
+
+      if (!telegramResponse.ok) {
+        throw new Error(telegramData.error || 'Failed to send message');
       }
 
       setIsSubmitting(false);

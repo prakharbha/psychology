@@ -26,8 +26,32 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate order ID format (PhonePe requirements: max 63 chars, only _ and - as special chars)
+    if (orderId.length > 63) {
+      return NextResponse.json(
+        { error: 'Order ID must be 63 characters or less' },
+        { status: 400 }
+      );
+    }
+
+    // Validate amount (PhonePe minimum: 100 paise = ₹1)
+    if (amount < 1) {
+      return NextResponse.json(
+        { error: 'Minimum order amount is ₹1' },
+        { status: 400 }
+      );
+    }
+
     // Convert amount to paise (PhonePe expects amount in paise)
     const amountInPaise = convertToPaise(amount);
+    
+    // Validate minimum amount in paise (PhonePe requirement: minimum 100 paise)
+    if (amountInPaise < 100) {
+      return NextResponse.json(
+        { error: 'Minimum order amount is ₹1 (100 paise)' },
+        { status: 400 }
+      );
+    }
 
     // Initialize PhonePe SDK client
     const phonepeClient = initializePhonePeClient();

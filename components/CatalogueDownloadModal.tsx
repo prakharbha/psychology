@@ -50,7 +50,7 @@ export default function CatalogueDownloadModal({ isOpen, onClose }: CatalogueDow
         return;
       }
 
-      // Send notification to Telegram (optional)
+      // Send notification to Telegram (keep existing)
       try {
         const telegramMessage = `📥 *Catalog Download Request*\n\n` +
           `👤 *Name:* ${formData.name}\n` +
@@ -67,6 +67,22 @@ export default function CatalogueDownloadModal({ isOpen, onClose }: CatalogueDow
       } catch (telegramError) {
         console.error('Failed to send Telegram notification:', telegramError);
         // Continue with download even if notification fails
+      }
+
+      // Send admin email (in addition to Telegram)
+      try {
+        await fetch('/api/email/send-catalog-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name: formData.name,
+            mobile: formData.mobile,
+          }),
+        }).catch(err => console.error('Failed to send catalog email:', err));
+      } catch (emailError) {
+        console.error('Email error (non-blocking):', emailError);
       }
 
       // Download the catalog

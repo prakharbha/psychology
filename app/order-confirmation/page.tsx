@@ -74,6 +74,7 @@ function OrderConfirmationContent() {
                 notificationData.items = orderDetails.items;
               }
               
+              // Send Telegram notification (keep existing)
               fetch('/api/telegram/notify-status', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -81,6 +82,27 @@ function OrderConfirmationContent() {
               }).catch(err => {
                 console.error('Failed to send status notification:', err);
               });
+
+              // Send email notifications (customer + admin) if order details available
+              if (orderDetails && (state === 'COMPLETED' || state === 'FAILED')) {
+                fetch('/api/email/send-order-email', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    orderId: finalOrderId,
+                    customerName: orderDetails.customerName,
+                    customerEmail: orderDetails.customerEmail,
+                    customerPhone: orderDetails.customerPhone,
+                    items: orderDetails.items,
+                    total: orderDetails.total,
+                    status: state,
+                    shippingAddress: orderDetails.shippingAddress,
+                    phonepeOrderId: data.orderId,
+                  }),
+                }).catch(err => {
+                  console.error('Failed to send order email:', err);
+                });
+              }
             }
 
             // Clear cart and abandoned cart flags on successful payment

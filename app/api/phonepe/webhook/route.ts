@@ -78,10 +78,9 @@ export async function POST(request: NextRequest) {
       
       if (isCompleted) {
         // TODO: Update order status in database
-        // TODO: Send confirmation email
         // TODO: Trigger fulfillment process
         
-        // Send Telegram notification for successful payment with order details
+        // Send Telegram notification for successful payment with order details (keep existing)
         try {
           const { sendTelegramStatusNotification } = await import('@/lib/telegram-notifications');
           await sendTelegramStatusNotification({
@@ -92,6 +91,23 @@ export async function POST(request: NextRequest) {
           }).catch(err => console.error('[Telegram] Notification failed:', err));
         } catch (telegramError) {
           console.error('[Telegram] Failed to send notification:', telegramError);
+        }
+        
+        // Send admin email notification (customer email will be sent from order confirmation page)
+        try {
+          await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.prakharpsychologicaltest.com'}/api/email/send-order-email`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              orderId: merchantOrderId,
+              status: 'COMPLETED',
+              amount: amount,
+              phonepeOrderId: callbackResponse.payload.orderId,
+              // Customer details will be sent from order confirmation page where sessionStorage is available
+            }),
+          }).catch(err => console.error('[Email] Failed to send:', err));
+        } catch (emailError) {
+          console.error('[Email] Failed to send order email:', emailError);
         }
       }
       
@@ -104,9 +120,8 @@ export async function POST(request: NextRequest) {
       
       if (isFailed) {
         // TODO: Update order status in database
-        // TODO: Send failure notification
         
-        // Send Telegram notification for failed payment
+        // Send Telegram notification for failed payment (keep existing)
         try {
           const { sendTelegramStatusNotification } = await import('@/lib/telegram-notifications');
           await sendTelegramStatusNotification({
@@ -117,6 +132,23 @@ export async function POST(request: NextRequest) {
           }).catch(err => console.error('[Telegram] Notification failed:', err));
         } catch (telegramError) {
           console.error('[Telegram] Failed to send notification:', telegramError);
+        }
+        
+        // Send admin email notification (customer email will be sent from order confirmation page)
+        try {
+          await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.prakharpsychologicaltest.com'}/api/email/send-order-email`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              orderId: merchantOrderId,
+              status: 'FAILED',
+              amount: amount,
+              phonepeOrderId: callbackResponse.payload.orderId,
+              // Customer details will be sent from order confirmation page where sessionStorage is available
+            }),
+          }).catch(err => console.error('[Email] Failed to send:', err));
+        } catch (emailError) {
+          console.error('[Email] Failed to send order email:', emailError);
         }
       }
       
