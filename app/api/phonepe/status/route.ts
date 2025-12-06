@@ -39,22 +39,27 @@ export async function GET(request: NextRequest) {
     
     // Handle PhonePeException specifically
     if (error instanceof PhonePeException) {
-      console.error('PhonePe Exception Details:', {
-        httpStatus: error.httpStatus,
-        errorCode: error.errorCode,
+      const errorDetails: any = {
         message: error.message,
-        data: error.data,
-      });
+        name: error.name,
+      };
+      
+      // Try to access additional properties if they exist
+      if ('errorCode' in error) errorDetails.errorCode = (error as any).errorCode;
+      if ('httpStatus' in error) errorDetails.httpStatus = (error as any).httpStatus;
+      if ('data' in error) errorDetails.data = (error as any).data;
+      
+      console.error('PhonePe Exception Details:', errorDetails);
       
       return NextResponse.json(
         { 
           error: error.message || 'Failed to check order status',
-          errorCode: error.errorCode,
-          httpStatus: error.httpStatus,
-          data: error.data,
+          errorCode: errorDetails.errorCode,
+          httpStatus: errorDetails.httpStatus,
+          data: errorDetails.data,
           success: false 
         },
-        { status: error.httpStatus || 500 }
+        { status: errorDetails.httpStatus || 500 }
       );
     }
     
