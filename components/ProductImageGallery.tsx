@@ -88,6 +88,11 @@ export default function ProductImageGallery({ images, productName }: ProductImag
             fill
             className="object-cover transition-transform duration-300 group-hover:scale-105"
             priority
+            unoptimized={displayImages[selectedImageIndex]?.endsWith('.webp')}
+            onError={(e) => {
+              console.error('Image failed to load:', displayImages[selectedImageIndex]);
+              (e.target as HTMLImageElement).src = '/images/placeholder-test.svg';
+            }}
           />
           {/* Zoom indicator */}
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300 flex items-center justify-center">
