@@ -86,9 +86,8 @@ export default function ProductImageGallery({ images, productName }: ProductImag
             src={displayImages[selectedImageIndex]}
             alt={`${productName} - Image ${selectedImageIndex + 1}`}
             fill
-            className="object-contain transition-transform duration-300 group-hover:scale-105"
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
             priority
-            unoptimized={displayImages[selectedImageIndex].endsWith('.webp')}
           />
           {/* Zoom indicator */}
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300 flex items-center justify-center">
