@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import { getProductBySlug, getAllProducts, formatPrice, getProductVariant } from '@/lib/products';
+import { generateProductSchema, generateBreadcrumbSchema, generateOrganizationSchema } from '@/lib/schema';
 import ProductPageClient from '@/components/ProductPageClient';
 import ProductImageGallery from '@/components/ProductImageGallery';
 import type { Metadata } from 'next';
@@ -77,54 +78,25 @@ export default async function ProductPage({ params }: ProductPageProps) {
   }
 
   // Generate JSON-LD structured data
-  const pack100Variant = getProductVariant(product, 100);
-  const pack500Variant = getProductVariant(product, 500);
-  
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Product',
-    name: product.fullName,
-    description: product.description,
-    image: product.image || '/images/placeholder-test.svg',
-    offers: [
-      {
-        '@type': 'Offer',
-        price: pack100Variant.price,
-        priceCurrency: 'INR',
-        availability: 'https://schema.org/InStock',
-        itemCondition: 'https://schema.org/NewCondition',
-        priceSpecification: {
-          '@type': 'UnitPriceSpecification',
-          price: pack100Variant.price,
-          priceCurrency: 'INR',
-          unitText: 'Pack of 100',
-        },
-      },
-      {
-        '@type': 'Offer',
-        price: pack500Variant.price,
-        priceCurrency: 'INR',
-        availability: 'https://schema.org/InStock',
-        itemCondition: 'https://schema.org/NewCondition',
-        priceSpecification: {
-          '@type': 'UnitPriceSpecification',
-          price: pack500Variant.price,
-          priceCurrency: 'INR',
-          unitText: 'Pack of 500',
-        },
-      },
-    ],
-    brand: {
-      '@type': 'Brand',
-      name: 'Prakhar Psychological Testing and Research Centre',
-    },
-  };
+  // Create separate Product schemas for each pack size variant
+  const productSchema100 = generateProductSchema(product, 100);
+  const productSchema500 = generateProductSchema(product, 500);
+  const breadcrumbSchema = generateBreadcrumbSchema(product);
+  const organizationSchema = generateOrganizationSchema();
+
+  // Combine all schemas into an array
+  const structuredData = [
+    productSchema100,
+    productSchema500,
+    breadcrumbSchema,
+    organizationSchema,
+  ];
 
   return (
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
       <div className="bg-white relative min-h-screen py-12 px-4 sm:px-6 lg:px-8 overflow-hidden">
         {/* Floral animated background */}
