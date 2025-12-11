@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { Product, getProductVariant, formatPrice } from '@/lib/products';
+import { Product, getProductVariant, formatPrice, getDisplayName, getDisplayLanguage } from '@/lib/products';
 
 interface ProductCardProps {
   product: Product;
@@ -32,7 +32,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         {/* Product Info */}
         <div className="flex-1 flex flex-col">
           <h3 className="font-heading text-xl font-bold text-slate-900 mb-2 line-clamp-2">
-            {product.name}
+            {getDisplayName(product)}
           </h3>
           <p className="text-slate-600 text-sm mb-4 line-clamp-3 flex-1">
             {product.description}
@@ -44,7 +44,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               {product.ageRange} years
             </span>
             <span className="text-xs px-3 py-1 bg-white/60 rounded-full text-slate-700 border border-white/30">
-              {product.language}
+              {getDisplayLanguage(product)}
             </span>
           </div>
 

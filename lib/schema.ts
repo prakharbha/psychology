@@ -1,4 +1,4 @@
-import { Product, getProductVariant } from './products';
+import { Product, getProductVariant, getDisplayName } from './products';
 
 const BASE_URL = 'https://www.prakharpsychologicaltest.com';
 const ORGANIZATION_NAME = 'Prakhar Psychological Testing and Research Centre';
@@ -67,8 +67,9 @@ export function generateProductSchema(
   // Generate SKU/MPN: product-id-packSize
   const sku = `${product.id}-${packSize}`;
   
-  // Product name with pack size
-  const productName = `${product.fullName} (${packSizeText})`;
+  // Product name with pack size (remove "Bilingual" from display name)
+  const displayName = getDisplayName(product);
+  const productName = `${displayName} (${packSizeText})`;
   
   // Product URL
   const productUrl = `${baseUrl}/${product.slug}`;
@@ -188,6 +189,8 @@ export function generateBreadcrumbSchema(
   product: Product,
   baseUrl: string = BASE_URL
 ): object {
+  const displayName = getDisplayName(product);
+  
   return {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -207,7 +210,7 @@ export function generateBreadcrumbSchema(
       {
         '@type': 'ListItem',
         position: 3,
-        name: product.fullName,
+        name: displayName,
         item: `${baseUrl}/${product.slug}`,
       },
     ],

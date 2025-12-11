@@ -70,3 +70,35 @@ export function getProductsWithImages(): Product[] {
   return [...productsWithImages, ...productsWithoutImages];
 }
 
+/**
+ * Removes "Bilingual" from product name/fullName for display
+ * Handles various formats like ": (Bilingual)", " (Bilingual)", "(Bilingual)", etc.
+ */
+export function getDisplayName(product: Product): string {
+  let displayName = product.fullName || product.name;
+  
+  // Remove various forms of "Bilingual" from the name
+  displayName = displayName
+    .replace(/\s*:\s*\(Bilingual\)/gi, '')  // ": (Bilingual)"
+    .replace(/\s*\(Bilingual\)/gi, '')      // " (Bilingual)" or "(Bilingual)"
+    .replace(/\s*Bilingual/gi, '')          // " Bilingual" or "Bilingual"
+    .trim();
+  
+  return displayName;
+}
+
+/**
+ * Converts "Bilingual" language to "English, Hindi" for display
+ * Returns the language as-is if it's not "Bilingual"
+ */
+export function getDisplayLanguage(product: Product): string {
+  const language = product.language || '';
+  
+  // Check if language contains "Bilingual" (case-insensitive)
+  if (language.toLowerCase().includes('bilingual')) {
+    return 'English, Hindi';
+  }
+  
+  return language;
+}
+

@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { getProductBySlug, getAllProducts, formatPrice, getProductVariant } from '@/lib/products';
+import { getProductBySlug, getAllProducts, formatPrice, getProductVariant, getDisplayName, getDisplayLanguage } from '@/lib/products';
 import { generateProductSchema, generateBreadcrumbSchema, generateOrganizationSchema } from '@/lib/schema';
 import ProductPageClient from '@/components/ProductPageClient';
 import ProductImageGallery from '@/components/ProductImageGallery';
@@ -28,8 +28,10 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
     };
   }
 
+  const displayName = getDisplayName(product);
+
   return {
-    title: `${product.fullName} - Prakhar Psychological Testing`,
+    title: `${displayName} - Prakhar Psychological Testing`,
     description: product.description,
     icons: {
       icon: [
@@ -44,7 +46,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
       shortcut: "/favicon.ico",
     },
     openGraph: {
-      title: product.fullName,
+      title: displayName,
       description: product.description,
       type: 'website',
       images: [
@@ -58,7 +60,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
     },
     twitter: {
       card: 'summary_large_image',
-      title: product.fullName,
+      title: displayName,
       description: product.description,
       images: ['/images/placeholder-test.svg'],
     },
@@ -125,7 +127,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             {/* Product Details */}
             <div className="flex flex-col space-y-6">
               <h1 className="font-heading text-4xl md:text-5xl font-bold text-slate-900">
-                {product.fullName}
+                {getDisplayName(product)}
               </h1>
 
               {/* Product Meta Information */}
@@ -137,7 +139,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                   </div>
                   <div className="p-4 bg-white/60 rounded-xl border border-white/30">
                     <p className="text-sm text-slate-600 mb-1">Language</p>
-                    <p className="font-semibold text-slate-900">{product.language}</p>
+                    <p className="font-semibold text-slate-900">{getDisplayLanguage(product)}</p>
                   </div>
                   <div className="p-4 bg-white/60 rounded-xl border border-white/30">
                     <p className="text-sm text-slate-600 mb-1">Items</p>

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useCart } from '@/components/CartProvider';
-import { Product, getProductVariant, formatPrice } from '@/lib/products';
+import { Product, getProductVariant, formatPrice, getDisplayName } from '@/lib/products';
 
 interface ProductPageClientProps {
   product: Product;
@@ -23,7 +23,7 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
     addItem({
       productId: product.id,
       productSlug: product.slug,
-      productName: product.name,
+      productName: getDisplayName(product),
       packSize: selectedPackSize,
       price: price,
     });
