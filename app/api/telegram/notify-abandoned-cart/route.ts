@@ -6,19 +6,21 @@ import { NextRequest, NextResponse } from 'next/server';
  * 
  * Environment variables required:
  * - TELEGRAM_BOT_TOKEN: Your bot token from BotFather
- * - TELEGRAM_CHAT_ID: Chat ID where notifications will be sent
+ * - TELEGRAM_CHAT_ID: Chat ID where notifications will be sent (comma-separated for multiple IDs)
  */
 export async function POST(request: NextRequest) {
   try {
     const { items, total, itemCount } = await request.json();
 
     const botToken = process.env.TELEGRAM_BOT_TOKEN;
-    const chatId = process.env.TELEGRAM_CHAT_ID;
+    const chatIdEnv = process.env.TELEGRAM_CHAT_ID;
+    // Support both single chat ID and comma-separated multiple chat IDs
+    const chatIds = chatIdEnv?.split(',').map(id => id.trim()).filter(Boolean) || [];
 
-    if (!botToken || !chatId) {
+    if (!botToken || chatIds.length === 0) {
       const missingVars = [];
       if (!botToken) missingVars.push('TELEGRAM_BOT_TOKEN');
-      if (!chatId) missingVars.push('TELEGRAM_CHAT_ID');
+      if (chatIds.length === 0) missingVars.push('TELEGRAM_CHAT_ID');
       
       console.error('[Telegram] Bot not configured. Missing:', missingVars.join(', '));
       return NextResponse.json(
@@ -49,49 +51,72 @@ export async function POST(request: NextRequest) {
       `💰 *Total Value:* ₹${total.toLocaleString('en-IN')}\n\n` +
       `⏰ Cart has been inactive for 30+ minutes.`;
 
-    // Send message via Telegram Bot API
+    // Send message via Telegram Bot API to all chat IDs
     const telegramApiUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
-    
-    const response = await fetch(telegramApiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text: message,
-        parse_mode: 'Markdown',
-      }),
-    });
+    const errors: string[] = [];
+    const results: Array<{ chatId: string; messageId?: number }> = [];
+    let successCount = 0;
 
-    const data = await response.json();
+    for (const chatId of chatIds) {
+      try {
+        const response = await fetch(telegramApiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            chat_id: chatId,
+            text: message,
+            parse_mode: 'Markdown',
+          }),
+        });
 
-    if (!response.ok || !data.ok) {
-      console.error('[Telegram] Telegram API error:', {
-        status: response.status,
-        statusText: response.statusText,
-        errorCode: data.error_code,
-        description: data.description,
-        parameters: data.parameters,
+        const data = await response.json();
+
+        if (!response.ok || !data.ok) {
+          errors.push(`Chat ${chatId}: ${data.description || 'Unknown error'}`);
+          console.error(`[Telegram] Failed to send to chat ${chatId}:`, {
+            status: response.status,
+            statusText: response.statusText,
+            errorCode: data.error_code,
+            description: data.description,
+          });
+        } else {
+          successCount++;
+          results.push({
+            chatId,
+            messageId: data.result?.message_id,
+          });
+          console.log(`[Telegram] Abandoned cart notification sent successfully to chat ${chatId}:`, {
+            messageId: data.result?.message_id,
+            itemCount,
+            total,
+          });
+        }
+      } catch (error) {
+        errors.push(`Chat ${chatId}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        console.error(`[Telegram] Error sending to chat ${chatId}:`, error);
+      }
+    }
+
+    // Return success if at least one message was sent
+    if (successCount > 0) {
+      return NextResponse.json({ 
+        success: true, 
+        sentTo: successCount,
+        total: chatIds.length,
+        results,
+        ...(errors.length > 0 && { errors }),
       });
+    } else {
       return NextResponse.json(
         { 
-          error: 'Failed to send Telegram message', 
-          details: data.description || 'Unknown error',
-          errorCode: data.error_code,
+          error: 'Failed to send Telegram message to any chat', 
+          details: errors.join('; '),
         },
         { status: 500 }
       );
     }
-
-    console.log('[Telegram] Abandoned cart notification sent successfully:', {
-      messageId: data.result?.message_id,
-      chatId: data.result?.chat?.id,
-      itemCount,
-      total,
-    });
-
-    return NextResponse.json({ success: true, messageId: data.result.message_id });
   } catch (error) {
     console.error('[Telegram] Error sending abandoned cart notification:', error);
     return NextResponse.json(

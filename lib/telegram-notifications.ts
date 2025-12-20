@@ -17,12 +17,14 @@ export interface StatusNotificationData {
 export async function sendTelegramStatusNotification(data: StatusNotificationData): Promise<boolean> {
   try {
     const botToken = process.env.TELEGRAM_BOT_TOKEN;
-    const chatId = process.env.TELEGRAM_CHAT_ID;
+    const chatIdEnv = process.env.TELEGRAM_CHAT_ID;
+    // Support both single chat ID and comma-separated multiple chat IDs
+    const chatIds = chatIdEnv?.split(',').map(id => id.trim()).filter(Boolean) || [];
 
-    if (!botToken || !chatId) {
+    if (!botToken || chatIds.length === 0) {
       const missingVars = [];
       if (!botToken) missingVars.push('TELEGRAM_BOT_TOKEN');
-      if (!chatId) missingVars.push('TELEGRAM_CHAT_ID');
+      if (chatIds.length === 0) missingVars.push('TELEGRAM_CHAT_ID');
       
       console.error('[Telegram] Bot not configured. Missing:', missingVars.join(', '));
       return false;
@@ -52,33 +54,44 @@ export async function sendTelegramStatusNotification(data: StatusNotificationDat
 
     const telegramApiUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
     
-    const response = await fetch(telegramApiUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: chatId, text: message, parse_mode: 'Markdown' }),
-    });
+    // Send to all chat IDs
+    const errors: string[] = [];
+    let successCount = 0;
 
-    const responseData = await response.json();
+    for (const chatId of chatIds) {
+      try {
+        const response = await fetch(telegramApiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chat_id: chatId, text: message, parse_mode: 'Markdown' }),
+        });
 
-    if (!response.ok || !responseData.ok) {
-      console.error('Telegram API error:', {
-        status: response.status,
-        statusText: response.statusText,
-        errorCode: responseData.error_code,
-        description: responseData.description,
-        parameters: responseData.parameters,
-      });
-      return false;
+        const responseData = await response.json();
+
+        if (!response.ok || !responseData.ok) {
+          errors.push(`Chat ${chatId}: ${responseData.description || 'Unknown error'}`);
+          console.error(`[Telegram] Failed to send to chat ${chatId}:`, {
+            status: response.status,
+            statusText: response.statusText,
+            errorCode: responseData.error_code,
+            description: responseData.description,
+          });
+        } else {
+          successCount++;
+          console.log(`[Telegram] Status notification sent successfully to chat ${chatId}:`, {
+            messageId: responseData.result?.message_id,
+            orderId: data.orderId,
+            status: data.status,
+          });
+        }
+      } catch (error) {
+        errors.push(`Chat ${chatId}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        console.error(`[Telegram] Error sending to chat ${chatId}:`, error);
+      }
     }
 
-    console.log('[Telegram] Status notification sent successfully:', {
-      messageId: responseData.result?.message_id,
-      chatId: responseData.result?.chat?.id,
-      orderId: data.orderId,
-      status: data.status,
-    });
-
-    return true;
+    // Return true if at least one message was sent successfully
+    return successCount > 0;
   } catch (error) {
     console.error('[Telegram] Error sending status notification:', error);
     return false;
